@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ─────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ─── users collection ─────────────────────────────────────────────
+    // Users can read/write ONLY their own document.
+    // Only an admin can promote another user to 'admin'.
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+
+      // Allow creating own document (first login auto-create)
+      allow create: if isOwner(uid)
+        && request.resource.data.role == 'user'; // cannot self-assign admin
+
+      // Allow updating own document — but cannot change the 'role' field
+      allow update: if isOwner(uid)
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))
+        || isAdmin(); // admins can update any field including role
+    }
+
+    // ─── locales collection ───────────────────────────────────────────
+    // Everyone (including unauthenticated users) can read locales.
+    // Only admins can write.
+    match /locales/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── blog collection ──────────────────────────────────────────────
+    // Anyone can read published posts. Only admins can write.
+    match /blog/{postId} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // ─── passports collection ────────────────────────────────────────
+    // Users can read/write ONLY their own passport.
+    match /passports/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // ─── claims collection ───────────────────────────────────────────
+    // Signed-in users can create. Admins can read/update all claims.
+    match /claims/{claimId} {
+      allow create: if isSignedIn();
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ─── Multi-city locale collections ───────────────────────────────
+    match /locales_napoli/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /locales_lisbona/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /locales_bologna/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /locales_porto/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /locales_palermo/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── Default: deny everything else ───────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

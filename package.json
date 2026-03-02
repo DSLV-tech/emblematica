@@ -1,0 +1,35 @@
+{
+  "name": "barna-emblematica",
+  "private": true,
+  "version": "0.2.0",
+  "scripts": {
+    "dev": "next dev --port 5174",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
+    "@google/generative-ai": "^0.21.0",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/leaflet": "^1.9.21",
+    "@types/leaflet-routing-machine": "^3.2.9",
+    "firebase": "^12.10.0",
+    "leaflet": "^1.9.4",
+    "leaflet-routing-machine": "^3.2.12",
+    "next": "^15.5.12",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-leaflet": "^5.0.0",
+    "tailwindcss": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "15.0.0",
+    "postcss": "^8.5.6",
+    "typescript": "^5.0.0"
+  }
+}
