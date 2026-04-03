@@ -10,10 +10,13 @@ interface SplashPageProps {
 }
 
 export default function SplashPage({ onEnterGuest }: SplashPageProps) {
-    const { loginWithGoogle } = useAuth()
+    const { loginWithGoogle, loginWithEmail } = useAuth()
     const { t } = useLanguage()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+    const [showEmailForm, setShowEmailForm] = useState(false)
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
 
     const handleGoogleLogin = async () => {
         setLoading(true)
@@ -27,6 +30,23 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
             } else {
                 setError(err instanceof Error ? err.message : 'Errore con Google Login')
             }
+            setLoading(false)
+        }
+    }
+
+    const handleEmailLogin = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setLoading(true)
+        setError('')
+        try {
+            await loginWithEmail(email, password)
+        } catch (err: any) {
+            const msg = err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password'
+                ? 'Email o password non corretti.'
+                : err.code === 'auth/too-many-requests'
+                ? 'Troppi tentativi. Riprova tra qualche minuto.'
+                : err instanceof Error ? err.message : 'Errore di accesso.'
+            setError(msg)
             setLoading(false)
         }
     }
@@ -82,7 +102,51 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
                         {t('splash.login_google')}
                     </button>
 
-                    <div className="flex items-center gap-4 py-2 opacity-80">
+                    {/* Email/password form */}
+                    {showEmailForm ? (
+                        <form onSubmit={handleEmailLogin} className="space-y-3 animate-fade-in">
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                placeholder="Email"
+                                required
+                                className="w-full px-4 py-3.5 rounded-2xl bg-white/10 border border-cream/20 text-cream placeholder-cream/40 font-sans text-sm focus:outline-none focus:border-gold/60 focus:bg-white/15 transition-all backdrop-blur-md"
+                            />
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                placeholder="Password"
+                                required
+                                className="w-full px-4 py-3.5 rounded-2xl bg-white/10 border border-cream/20 text-cream placeholder-cream/40 font-sans text-sm focus:outline-none focus:border-gold/60 focus:bg-white/15 transition-all backdrop-blur-md"
+                            />
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-4 rounded-2xl bg-gold text-cream font-sans font-bold text-base hover:bg-gold-dark transition-all shadow-lg disabled:opacity-70 active:scale-95"
+                            >
+                                {loading ? <div className="w-5 h-5 border-2 border-cream/50 border-t-cream rounded-full animate-spin mx-auto" /> : 'Accedi'}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setShowEmailForm(false); setError('') }}
+                                className="w-full text-center font-sans text-xs text-cream/40 hover:text-cream/70 transition-colors py-1"
+                            >
+                                ← Torna al login con Google
+                            </button>
+                        </form>
+                    ) : (
+                        <button
+                            onClick={() => { setShowEmailForm(true); setError('') }}
+                            disabled={loading}
+                            className="w-full py-3 rounded-2xl border border-cream/15 bg-transparent text-cream/60 font-sans text-sm hover:text-cream/90 hover:border-cream/30 transition-all disabled:opacity-50"
+                        >
+                            Accedi con email e password
+                        </button>
+                    )}
+
+                    <div className="flex items-center gap-4 py-1 opacity-80">
                         <div className="flex-1 h-px bg-cream/20" />
                         <span className="font-sans text-xs text-cream/50 uppercase tracking-widest font-semibold">{t('splash.or')}</span>
                         <div className="flex-1 h-px bg-cream/20" />
