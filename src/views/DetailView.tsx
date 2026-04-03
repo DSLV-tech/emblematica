@@ -65,7 +65,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
       {/* Hero Header */}
       <div className="relative h-[50vh] sm:h-[60vh] w-full overflow-hidden">
         <img
-          src={imgError ? 'https://via.placeholder.com/1200x800/333333/B8860B?text=📍' : locale.image_url}
+          src={imgError ? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'%3E%3Crect width='1200' height='800' fill='%23333333'/%3E%3Ctext x='600' y='410' font-size='96' text-anchor='middle'%3E%F0%9F%93%8D%3C/text%3E%3C/svg%3E" : locale.image_url}
           alt={locale.name}
           className="w-full h-full object-cover transition-transform duration-[20s] ease-linear hover:scale-110"
           onError={() => setImgError(true)}

@@ -61,8 +61,9 @@ export default function BottomSheet({
             alt={locale.name}
             className="w-full h-full object-cover"
             onError={(e) => {
-              (e.target as HTMLImageElement).src =
-                'https://via.placeholder.com/800x400/F5F5DC/B8860B?text=📍'
+              const img = e.target as HTMLImageElement
+              img.onerror = null // blocca il loop infinito
+              img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='400'%3E%3Crect width='800' height='400' fill='%23F5F5DC'/%3E%3Ctext x='400' y='210' font-size='72' text-anchor='middle'%3E%F0%9F%93%8D%3C/text%3E%3C/svg%3E"
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
