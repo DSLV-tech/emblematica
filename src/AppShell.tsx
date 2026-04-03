@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useCallback, Suspense, lazy } from 'react';
-import type { Locale, Ruta, Route, AppUser } from '@/types';
+import type { Locale, Route, AppUser, Category } from '@/types';
+import type { Ruta } from '@/types';
 import Logo from '@/components/UI/Logo';
-import { SearchBar, NavigationPanel } from '@/components/UI/SearchBar';
+import SearchBar from '@/components/UI/SearchBar';
+import NavigationPanel from '@/components/UI/NavigationPanel';
 import CategoryFilter from '@/components/UI/CategoryFilter';
-import type { CategoryId } from '@/components/UI/CategoryFilter';
 import BottomSheet from '@/components/UI/BottomSheet';
 
 /* Lazy load views (code splitting) */
@@ -208,7 +209,7 @@ const MenuDrawer: React.FC<{
 
         {/* Logo bottom */}
         <div style={{ padding: '16px 24px', paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}>
-          <Logo size="xs" theme="dark" city={undefined} />
+          <Logo size="sm" dark={true} />
         </div>
       </div>
 
@@ -321,8 +322,9 @@ const AppShell: React.FC<AppShellProps> = ({
   const [selectedLocale,  setSelectedLocale]  = useState<Locale | null>(null);
   const [sheetOpen,       setSheetOpen]       = useState(false);
   const [menuOpen,        setMenuOpen]        = useState(false);
-  const [activeCategory,  setActiveCategory]  = useState<CategoryId>('all');
+  const [activeCategory,  setActiveCategory]  = useState<Category>('bar');
   const [navDestination,  setNavDestination]  = useState<Locale | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleMarkerClick = useCallback((locale: Locale) => {
     setSelectedLocale(locale);
@@ -378,9 +380,9 @@ const AppShell: React.FC<AppShellProps> = ({
       }}>
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, pointerEvents: 'auto' }}>
-          <Logo size="sm" city={city} theme="dark" />
+          <Logo size="sm" dark={true} />
           <div style={{ flex: 1 }}>
-            <SearchBar locales={locales} onResultSelect={handleSearchSelect} />
+            <SearchBar value={searchQuery} onChange={(q) => setSearchQuery(q)} />
           </div>
           <Avatar user={user} onClick={() => setMenuOpen(true)} />
         </div>
@@ -388,8 +390,8 @@ const AppShell: React.FC<AppShellProps> = ({
         {/* Category filter */}
         <div style={{ pointerEvents: 'auto' }}>
           <CategoryFilter
-            activeCategory={activeCategory}
-            onChange={setActiveCategory}
+            selected={activeCategory}
+onChange={setActiveCategory}
           />
         </div>
       </div>

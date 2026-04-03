@@ -6,7 +6,7 @@ import { SAMPLE_LOCALES } from '../data/sampleData'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { db } from '../firebase/config'
 
-export function useLocales(searchQuery: string, selectedCategory: Category, cityCollection = 'locales') {
+export function useLocales(searchQuery: string, selectedCategory: Category | 'Tutti' | 'Tutti', cityCollection = 'locales') {
   const [locales, setLocales] = useState<Locale[]>([])
   const [loading, setLoading] = useState(true)
   const [error] = useState<string | null>(null)
