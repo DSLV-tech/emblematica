@@ -24,7 +24,7 @@ const { user, profile, loading: authLoading } = useAuth()
 
   const { locales, loading: localesLoading } = useLocales('', 'Tutti', city?.collection)
   const { checkIn, hasStamp, stamps } = usePassport(user)
-  const { routeInfo, isNavigating, startNavigation, stopNavigation } = useRouting()
+  const { routeInfo, routeGeoJson, userPosition, isNavigating, startNavigation, stopNavigation } = useRouting()
   const { toggleFavorite, isFavorite } = useFavorites(user)
   const { fact: aiCuriosity, loading: aiLoading } = useAiContext()
 
@@ -74,6 +74,8 @@ const { user, profile, loading: authLoading } = useAuth()
   aiCuriosity={aiCuriosity ?? undefined}
   isLoadingAI={aiLoading}
   totalLocali={locales.length}
+  routeGeoJson={routeGeoJson}
+  userPosition={userPosition}
 />
   )
 }

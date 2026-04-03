@@ -1,13 +1,18 @@
 'use client';
 
 import React, { useState, useCallback, Suspense, lazy } from 'react';
+import dynamic from 'next/dynamic';
 import type { Locale, Route, AppUser, Category } from '@/types';
 import type { Ruta } from '@/types';
+import type { UserPosition } from '@/hooks/useRouting';
 import Logo from '@/components/UI/Logo';
 import SearchBar from '@/components/UI/SearchBar';
 import NavigationPanel from '@/components/UI/NavigationPanel';
 import CategoryFilter from '@/components/UI/CategoryFilter';
 import BottomSheet from '@/components/UI/BottomSheet';
+
+/* Lazy-load MapView — react-leaflet requires browser APIs, no SSR */
+const MapView = dynamic(() => import('@/components/Map/MapView'), { ssr: false });
 
 /* Lazy load views (code splitting) */
 const DetailView    = lazy(() => import('@/views/DetailView'));
@@ -36,6 +41,8 @@ interface AppShellProps {
   aiCuriosity?:   string;
   isLoadingAI:    boolean;
   totalLocali:    number;
+  routeGeoJson?:  any | null;
+  userPosition?:  UserPosition | null;
 }
 
 /* ── Avatar button ───────────────────────────────────────── */
@@ -317,6 +324,8 @@ const AppShell: React.FC<AppShellProps> = ({
   aiCuriosity,
   isLoadingAI,
   totalLocali,
+  routeGeoJson,
+  userPosition,
 }) => {
   const [activeView,      setActiveView]      = useState<ActiveView>('none');
   const [selectedLocale,  setSelectedLocale]  = useState<Locale | null>(null);
@@ -357,12 +366,18 @@ const AppShell: React.FC<AppShellProps> = ({
   return (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
 
-      {/* ── Map layer (placeholder — react-leaflet viene montato qui) ── */}
-      <div
-        id="map-container"
-        style={{ position: 'absolute', inset: 0, zIndex: 0, background: '#1C1C1E' }}
-        aria-label="Mappa interattiva"
-      />
+      {/* ── Map layer ───────────────────────────────────────────────── */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+        <MapView
+          locales={locales}
+          selectedLocale={selectedLocale}
+          onMarkerClick={handleMarkerClick}
+          routeGeoJson={routeGeoJson ?? null}
+          userPosition={userPosition ?? null}
+          destLat={navDestination?.coordinates.lat}
+          destLng={navDestination?.coordinates.lng}
+        />
+      </div>
 
       {/* ── Header ──────────────────────────────────────────── */}
       <div style={{

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="40" fill="#333333"/>
+  <circle cx="96" cy="96" r="70" fill="none" stroke="#B8860B" stroke-width="3" opacity="0.4"/>
+  <!-- Trencadis segments -->
+  <g transform="translate(96,96)">
+    <path d="M0,0 L0,-58 A52 52 0 0 1 41 -41 Z" fill="#B8860B" opacity="0.75"/>
+    <path d="M0,0 L41,-41 A52 52 0 0 1 58 0 Z" fill="#C4722A" opacity="0.75"/>
+    <path d="M0,0 L58,0 A52 52 0 0 1 41 41 Z" fill="#B8860B" opacity="0.75"/>
+    <path d="M0,0 L41,41 A52 52 0 0 1 0 58 Z" fill="#C4722A" opacity="0.75"/>
+    <path d="M0,0 L0,58 A52 52 0 0 1 -41 41 Z" fill="#B8860B" opacity="0.75"/>
+    <path d="M0,0 L-41,41 A52 52 0 0 1 -58 0 Z" fill="#C4722A" opacity="0.75"/>
+    <path d="M0,0 L-58,0 A52 52 0 0 1 -41 -41 Z" fill="#B8860B" opacity="0.75"/>
+    <path d="M0,0 L-41,-41 A52 52 0 0 1 0 -58 Z" fill="#C4722A" opacity="0.75"/>
+  </g>
+  <!-- Star spikes -->
+  <polygon points="96,34 92,48 100,48" fill="#F5F5DC"/>
+  <polygon points="96,158 92,144 100,144" fill="#F5F5DC"/>
+  <polygon points="34,96 48,92 48,100" fill="#F5F5DC"/>
+  <polygon points="158,96 144,92 144,100" fill="#F5F5DC"/>
+  <!-- Inner circle -->
+  <circle cx="96" cy="96" r="30" fill="#1C1C1E" stroke="#B8860B" stroke-width="1.5"/>
+  <!-- E monogram -->
+  <text x="96" y="103" text-anchor="middle" font-family="Georgia,serif" font-weight="bold" font-size="24" fill="#F5F5DC">E</text>
+</svg>

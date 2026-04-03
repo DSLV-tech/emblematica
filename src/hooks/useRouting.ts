@@ -23,6 +23,7 @@ export interface UserPosition {
 export function useRouting() {
     const [userPosition, setUserPosition] = useState<UserPosition | null>(null)
     const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null)
+    const [routeGeoJson, setRouteGeoJson] = useState<any | null>(null)
     const [isNavigating, setIsNavigating] = useState(false)
     const [locatingUser, setLocatingUser] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -72,6 +73,7 @@ export function useRouting() {
                 }))
             )
             setRouteInfo({ totalDistance: route.distance, totalTime: route.duration, steps })
+            setRouteGeoJson(route.geometry)
             return { route, userPosition: pos }
         } catch (err) {
             const msg = err instanceof Error ? err.message : 'Errore nel calcolo del percorso.'
@@ -84,10 +86,11 @@ export function useRouting() {
     const stopNavigation = useCallback(() => {
         setIsNavigating(false)
         setRouteInfo(null)
+        setRouteGeoJson(null)
         setError(null)
     }, [])
 
-    return { userPosition, routeInfo, isNavigating, locatingUser, error, startNavigation, stopNavigation, locateUser }
+    return { userPosition, routeInfo, routeGeoJson, isNavigating, locatingUser, error, startNavigation, stopNavigation, locateUser }
 }
 
 // Translate OSRM maneuver types to Italian instructions
