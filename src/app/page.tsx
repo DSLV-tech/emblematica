@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import AppShell from '@/src/AppShell'
-import SplashPage from '@/src/views/SplashPage'
-import { useAuth } from '@/src/hooks/useAuth'
-import { CityProvider } from '@/src/context/CityContext'
-import { LanguageProvider } from '@/src/context/LanguageContext'
+import AppShell from '@/AppShell'
+import SplashPage from '@/views/SplashPage'
+import { useAuth } from '@/hooks/useAuth'
+import { CityProvider } from '@/context/CityContext'
+import { LanguageProvider } from '@/context/LanguageContext'
 
 export default function Home() {
     const { user, loading } = useAuth()
