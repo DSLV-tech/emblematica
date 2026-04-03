@@ -456,7 +456,7 @@ const DetailView: React.FC<DetailViewProps> = ({
     >
       {/* ── Hero gallery ─────────────────────────────── */}
       <div style={{ position: 'relative' }}>
-        <Gallery images={locale.gallery} heroImage={locale.image_url} />
+        <Gallery images={locale.gallery ?? []} heroImage={locale.image_url} />
 
         {/* Back button */}
         <button
@@ -516,7 +516,7 @@ const DetailView: React.FC<DetailViewProps> = ({
       <div style={{ padding: '20px 20px 16px' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
           <CategoryPill category={locale.category} />
-          {locale.protected && <ProtectedBadge />}
+          {locale.is_protected && <ProtectedBadge />}
         </div>
 
         <h1 style={{
@@ -551,7 +551,7 @@ const DetailView: React.FC<DetailViewProps> = ({
           margin:      0,
           fontWeight:  300,
         }}>
-          {formatYear(locale.founded_year)}
+          {locale.founded_year != null ? formatYear(locale.founded_year) : null}
         </p>
       </div>
 
@@ -596,7 +596,7 @@ const DetailView: React.FC<DetailViewProps> = ({
       )}
 
       {/* ── Social ───────────────────────────────────── */}
-      {Object.values(locale.social).some(Boolean) && (
+      {locale.social && Object.values(locale.social).some(Boolean) && (
         <Section title="Seguici">
           <div style={{ display: 'flex', gap: 10 }}>
             {locale.social.website && (

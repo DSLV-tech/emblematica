@@ -154,7 +154,7 @@ const RutaCard: React.FC<{
       }}>
         <span style={metaStyle}>⏱ {ruta.duration}</span>
         <span style={metaStyle}>📍 {ruta.distance}</span>
-        {ruta.tags.slice(0, 2).map(tag => (
+        {(ruta.tags ?? []).slice(0, 2).map(tag => (
           <span key={tag} style={{
             ...metaStyle,
             color:      ruta.color,
@@ -274,7 +274,7 @@ const RutaDetail: React.FC<{
                     height:       32,
                     borderRadius: '50%',
                     border:       `2px solid ${ruta.color}`,
-                    background:   i === 0 ? ruta.color : 'transparent',
+                    background:   i === 0 ? ruta.color : 'rgba(28,28,30,0.9)',
                     display:      'flex',
                     alignItems:   'center',
                     justifyContent: 'center',
@@ -284,7 +284,6 @@ const RutaDetail: React.FC<{
                     color:        i === 0 ? '#1C1C1E' : ruta.color,
                     flexShrink:   0,
                     zIndex:       1,
-                    background:   i === 0 ? ruta.color : 'rgba(28,28,30,0.9)',
                   }}>
                     {stop.order}
                   </div>

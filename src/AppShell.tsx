@@ -1,40 +1,28 @@
 'use client';
 
 import React, { useState, useCallback, Suspense, lazy } from 'react';
-import type { Locale, Ruta, Route, AppUser } from '@/types';
+import type { Locale, Category, AppUser } from '@/types';
 import Logo from '@/components/UI/Logo';
-import { SearchBar, NavigationPanel } from '@/components/UI/SearchBar';
+import SearchBar from '@/components/UI/SearchBar';
+import NavigationPanel from '@/components/UI/NavigationPanel';
 import CategoryFilter from '@/components/UI/CategoryFilter';
-import type { CategoryId } from '@/components/UI/CategoryFilter';
 import BottomSheet from '@/components/UI/BottomSheet';
+import { useAuth } from '@/hooks/useAuth';
+import { useLocales } from '@/hooks/useLocales';
+import { usePassport } from '@/hooks/usePassport';
+import { useRouting } from '@/hooks/useRouting';
+import { useFavorites } from '@/hooks/useFavorites';
 
 /* Lazy load views (code splitting) */
-const DetailView    = lazy(() => import('@/views/DetailView'));
+const DetailView     = lazy(() => import('@/views/DetailView'));
 const PassaportoView = lazy(() => import('@/views/PassaportoView'));
-const RutasView     = lazy(() => import('@/views/RutasView'));
+const RutasView      = lazy(() => import('@/views/RutasView'));
 
 /* ── Types ──────────────────────────────────────────────── */
 type ActiveView = 'none' | 'detail' | 'passport' | 'rutas' | 'blog' | 'about' | 'sponsors';
 
 interface AppShellProps {
-  user:           AppUser | null;
-  locales:        Locale[];
-  rutas:          Ruta[];
-  city?:          string;
-  onLogout:       () => void;
-  /* Callbacks per features (implementati nei rispettivi hooks) */
-  onCheckIn:      (locale: Locale) => Promise<void>;
-  onToggleFavorite: (id: string) => void;
-  isFavorite:     (id: string) => boolean;
-  hasStamp:       (id: string) => boolean;
-  onStartRoute:   (locale: Locale) => void;
-  currentRoute:   Route | null;
-  isLoadingRoute: boolean;
-  onStopRoute:    () => void;
-  passport:       import('@/types').Passport | null;
-  aiCuriosity?:   string;
-  isLoadingAI:    boolean;
-  totalLocali:    number;
+  onResetGuest: () => void;
 }
 
 /* ── Avatar button ───────────────────────────────────────── */
@@ -64,17 +52,17 @@ const Avatar: React.FC<{
       transition:     'border-color 180ms ease',
     }}
   >
-    {!user?.photoURL && (user ? '👤' : '👤')}
+    {!user?.photoURL && '👤'}
   </button>
 );
 
 /* ── Menu drawer ─────────────────────────────────────────── */
 const MenuDrawer: React.FC<{
-  user:        AppUser | null;
-  isOpen:      boolean;
-  onClose:     () => void;
-  onNavigate:  (view: ActiveView) => void;
-  onLogout:    () => void;
+  user:       AppUser | null;
+  isOpen:     boolean;
+  onClose:    () => void;
+  onNavigate: (view: ActiveView) => void;
+  onLogout:   () => void;
 }> = ({ user, isOpen, onClose, onNavigate, onLogout }) => {
   if (!isOpen) return null;
 
@@ -101,17 +89,17 @@ const MenuDrawer: React.FC<{
       />
       {/* Drawer */}
       <div style={{
-        position:       'fixed',
-        top:            0,
-        right:          0,
-        bottom:         0,
-        width:          280,
-        zIndex:         36,
-        background:     'linear-gradient(180deg, #2A2A2C 0%, #1C1C1E 100%)',
-        borderLeft:     '1px solid rgba(201,168,76,0.15)',
-        display:        'flex',
-        flexDirection:  'column',
-        animation:      'slideLeft 250ms cubic-bezier(0.16,1,0.3,1) forwards',
+        position:      'fixed',
+        top:           0,
+        right:         0,
+        bottom:        0,
+        width:         280,
+        zIndex:        36,
+        background:    'linear-gradient(180deg, #2A2A2C 0%, #1C1C1E 100%)',
+        borderLeft:    '1px solid rgba(201,168,76,0.15)',
+        display:       'flex',
+        flexDirection: 'column',
+        animation:     'slideLeft 250ms cubic-bezier(0.16,1,0.3,1) forwards',
       }}>
         {/* User info */}
         <div style={{
@@ -158,17 +146,17 @@ const MenuDrawer: React.FC<{
               key={item.view}
               onClick={() => { onNavigate(item.view); onClose(); }}
               style={{
-                width:       '100%',
-                textAlign:   'left',
-                padding:     '14px 24px',
-                border:      'none',
-                background:  'transparent',
-                cursor:      'pointer',
-                display:     'flex',
-                alignItems:  'center',
-                gap:         14,
-                color:       '#F7F0E4',
-                transition:  'background 120ms ease',
+                width:      '100%',
+                textAlign:  'left',
+                padding:    '14px 24px',
+                border:     'none',
+                background: 'transparent',
+                cursor:     'pointer',
+                display:    'flex',
+                alignItems: 'center',
+                gap:        14,
+                color:      '#F7F0E4',
+                transition: 'background 120ms ease',
               }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(201,168,76,0.06)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
@@ -208,7 +196,7 @@ const MenuDrawer: React.FC<{
 
         {/* Logo bottom */}
         <div style={{ padding: '16px 24px', paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}>
-          <Logo size="xs" theme="dark" city={undefined} />
+          <Logo size="sm" dark />
         </div>
       </div>
 
@@ -222,180 +210,92 @@ const MenuDrawer: React.FC<{
   );
 };
 
-/* ── Locale preview (BottomSheet peek content) ───────────── */
-const LocalePreview: React.FC<{
-  locale:   Locale;
-  onOpen:   () => void;
-  onNav:    () => void;
-}> = ({ locale, onOpen, onNav }) => (
-  <div style={{ padding: '0 20px 20px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-    <div style={{
-      width:        64,
-      height:       64,
-      borderRadius: 12,
-      background:   `url(${locale.image_url}) center/cover no-repeat #2A2A2C`,
-      flexShrink:   0,
-    }} />
-    <div style={{ flex: 1 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-        <span style={{ fontFamily: '"Cinzel", serif', fontSize: 16, fontWeight: 500, color: '#F7F0E4', lineHeight: 1.2 }}>
-          {locale.name}
-        </span>
-        <span style={{
-          background:    'rgba(201,168,76,0.12)',
-          border:        '1px solid rgba(201,168,76,0.25)',
-          borderRadius:  999,
-          padding:       '2px 7px',
-          fontFamily:    'var(--font-body)',
-          fontSize:      9,
-          fontWeight:    700,
-          color:         '#C9A84C',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          whiteSpace:    'nowrap',
-        }}>
-          Dal {locale.founded_year}
-        </span>
-      </div>
-      <div style={{ fontFamily: '"Literata", serif', fontStyle: 'italic', fontSize: 12, color: 'rgba(247,240,228,0.5)', marginBottom: 10 }}>
-        {locale.address}
-      </div>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button onClick={onOpen} style={previewBtnPrimary}>Vedi dettagli</button>
-        <button onClick={onNav}  style={previewBtnIcon}>🧭</button>
-      </div>
-    </div>
-  </div>
-);
-
-const previewBtnPrimary: React.CSSProperties = {
-  flex:          1,
-  padding:       '9px 0',
-  borderRadius:  999,
-  border:        'none',
-  background:    '#C9A84C',
-  color:         '#1C1C1E',
-  fontFamily:    'var(--font-body)',
-  fontSize:      11,
-  fontWeight:    700,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  cursor:        'pointer',
-  boxShadow:     '0 0 12px rgba(201,168,76,0.25)',
-};
-
-const previewBtnIcon: React.CSSProperties = {
-  width:          38,
-  height:         38,
-  borderRadius:   '50%',
-  border:         '1px solid rgba(247,240,228,0.12)',
-  background:     'rgba(247,240,228,0.05)',
-  fontSize:       16,
-  cursor:         'pointer',
-  display:        'flex',
-  alignItems:     'center',
-  justifyContent: 'center',
-};
-
 /* ── Main AppShell ───────────────────────────────────────── */
-const AppShell: React.FC<AppShellProps> = ({
-  user,
-  locales,
-  rutas,
-  city = 'Barcelona',
-  onLogout,
-  onCheckIn,
-  onToggleFavorite,
-  isFavorite,
-  hasStamp,
-  onStartRoute,
-  currentRoute,
-  isLoadingRoute,
-  onStopRoute,
-  passport,
-  aiCuriosity,
-  isLoadingAI,
-  totalLocali,
-}) => {
-  const [activeView,      setActiveView]      = useState<ActiveView>('none');
-  const [selectedLocale,  setSelectedLocale]  = useState<Locale | null>(null);
-  const [sheetOpen,       setSheetOpen]       = useState(false);
-  const [menuOpen,        setMenuOpen]        = useState(false);
-  const [activeCategory,  setActiveCategory]  = useState<CategoryId>('all');
-  const [navDestination,  setNavDestination]  = useState<Locale | null>(null);
+const AppShell: React.FC<AppShellProps> = ({ onResetGuest }) => {
+  const { user, profile, logout }                   = useAuth();
+  const [searchQuery,    setSearchQuery]             = useState('');
+  const [activeCategory, setActiveCategory]          = useState<Category>('Tutti');
+  const { locales }                                  = useLocales(searchQuery, activeCategory);
+  const { stamps, loading: passportLoading, checkIn, checkingIn, hasStamp } = usePassport(user);
+  const { routeInfo, startNavigation, stopNavigation } = useRouting();
+  const { toggleFavorite, isFavorite }               = useFavorites(user);
 
-  const handleMarkerClick = useCallback((locale: Locale) => {
+  const [activeView,     setActiveView]     = useState<ActiveView>('none');
+  const [selectedLocale, setSelectedLocale] = useState<Locale | null>(null);
+  const [menuOpen,       setMenuOpen]       = useState(false);
+  const [navDestination, setNavDestination] = useState<Locale | null>(null);
+
+  const handleOpenDetail = useCallback((locale: Locale) => {
     setSelectedLocale(locale);
-    setSheetOpen(true);
-    setActiveView('none');
-  }, []);
-
-  const handleOpenDetail = useCallback(() => {
-    setSheetOpen(false);
     setActiveView('detail');
   }, []);
 
-  const handleNavigate = useCallback((locale: Locale) => {
+  const handleNavigate = useCallback(async (locale: Locale) => {
     setNavDestination(locale);
-    onStartRoute(locale);
     setActiveView('none');
-    setSheetOpen(false);
-  }, [onStartRoute]);
+    await startNavigation(locale.coordinates.lat, locale.coordinates.lng);
+  }, [startNavigation]);
+
+  const handleStopNav = useCallback(() => {
+    setNavDestination(null);
+    stopNavigation();
+  }, [stopNavigation]);
 
   const handleCloseView = useCallback(() => {
     setActiveView('none');
     setSelectedLocale(null);
   }, []);
 
-  const handleSearchSelect = useCallback((locale: Locale) => {
-    setSelectedLocale(locale);
-    setSheetOpen(true);
-  }, []);
+  const handleStartRuta = useCallback((localeIds: string[]) => {
+    const first = locales.find(l => localeIds.includes(l.id));
+    if (first) handleNavigate(first);
+    handleCloseView();
+  }, [locales, handleNavigate, handleCloseView]);
+
+  // BottomSheet shows locale preview when no full-screen view is open
+  const sheetLocale = activeView === 'none' ? selectedLocale : null;
 
   return (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
 
-      {/* ── Map layer (placeholder — react-leaflet viene montato qui) ── */}
+      {/* ── Map layer ──────────────────────────────────────────── */}
       <div
         id="map-container"
         style={{ position: 'absolute', inset: 0, zIndex: 0, background: '#1C1C1E' }}
         aria-label="Mappa interattiva"
       />
 
-      {/* ── Header ──────────────────────────────────────────── */}
+      {/* ── Header ──────────────────────────────────────────────── */}
       <div style={{
-        position:       'absolute',
-        top:            0,
-        left:           0,
-        right:          0,
-        zIndex:         30,
-        padding:        '16px 16px 0',
-        paddingTop:     'max(16px, env(safe-area-inset-top))',
-        display:        'flex',
-        flexDirection:  'column',
-        gap:            10,
-        pointerEvents:  'none',  // click-through sulla mappa
+        position:      'absolute',
+        top:           0,
+        left:          0,
+        right:         0,
+        zIndex:        30,
+        padding:       '16px 16px 0',
+        paddingTop:    'max(16px, env(safe-area-inset-top))',
+        display:       'flex',
+        flexDirection: 'column',
+        gap:           10,
+        pointerEvents: 'none',
       }}>
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, pointerEvents: 'auto' }}>
-          <Logo size="sm" city={city} theme="dark" />
+          <Logo size="sm" dark />
           <div style={{ flex: 1 }}>
-            <SearchBar locales={locales} onResultSelect={handleSearchSelect} />
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
           </div>
-          <Avatar user={user} onClick={() => setMenuOpen(true)} />
+          <Avatar user={profile} onClick={() => setMenuOpen(true)} />
         </div>
 
         {/* Category filter */}
         <div style={{ pointerEvents: 'auto' }}>
-          <CategoryFilter
-            activeCategory={activeCategory}
-            onChange={setActiveCategory}
-          />
+          <CategoryFilter selected={activeCategory} onChange={setActiveCategory} />
         </div>
       </div>
 
-      {/* ── Navigation panel ────────────────────────────────── */}
-      {navDestination && (
+      {/* ── Navigation panel ─────────────────────────────────────── */}
+      {navDestination && routeInfo && (
         <div style={{
           position: 'absolute',
           bottom:   0,
@@ -404,94 +304,64 @@ const AppShell: React.FC<AppShellProps> = ({
           zIndex:   25,
         }}>
           <NavigationPanel
-            destination={navDestination}
-            route={currentRoute}
-            isLoading={isLoadingRoute}
-            onClose={() => { setNavDestination(null); onStopRoute(); }}
+            routeInfo={routeInfo}
+            destName={navDestination.name}
+            onStop={handleStopNav}
           />
         </div>
       )}
 
-      {/* ── Bottom Sheet (locale preview) ───────────────────── */}
-      {selectedLocale && !navDestination && (
-        <BottomSheet
-          isOpen={sheetOpen}
-          onClose={() => { setSheetOpen(false); setSelectedLocale(null); }}
-          defaultSnap="peek"
-          previewContent={
-            <LocalePreview
-              locale={selectedLocale}
-              onOpen={handleOpenDetail}
-              onNav={() => handleNavigate(selectedLocale)}
-            />
-          }
-          showCloseButton
-        >
-          {/* Full content when half/full */}
-          <LocalePreview
-            locale={selectedLocale}
-            onOpen={handleOpenDetail}
-            onNav={() => handleNavigate(selectedLocale)}
-          />
-        </BottomSheet>
-      )}
+      {/* ── Bottom Sheet (locale preview) ────────────────────────── */}
+      <BottomSheet
+        locale={sheetLocale}
+        isFavorite={sheetLocale ? isFavorite(sheetLocale.id) : false}
+        onClose={() => setSelectedLocale(null)}
+        onToggleFavorite={toggleFavorite}
+        onViewDetail={handleOpenDetail}
+      />
 
-      {/* ── Views (full-screen overlay) ─────────────────────── */}
+      {/* ── Views (full-screen overlay) ──────────────────────────── */}
       <Suspense fallback={null}>
         {activeView === 'detail' && selectedLocale && (
           <DetailView
             locale={selectedLocale}
-            onClose={handleCloseView}
-            onNavigate={handleNavigate}
-            onCheckIn={onCheckIn}
-            onToggleFavorite={onToggleFavorite}
             isFavorite={isFavorite(selectedLocale.id)}
-            isLoggedIn={!!user}
+            onBack={handleCloseView}
+            onToggleFavorite={toggleFavorite}
+            onNavigate={handleNavigate}
+            onCheckIn={checkIn}
             hasStamp={hasStamp(selectedLocale.id)}
-            aiCuriosity={aiCuriosity}
-            isLoadingAI={isLoadingAI}
+            checkingIn={checkingIn}
+            user={user}
           />
         )}
 
         {activeView === 'passport' && (
           <PassaportoView
-            passport={passport}
-            badges={BADGE_DEFS}
+            stamps={stamps}
+            loading={passportLoading}
             onClose={handleCloseView}
-            totalLocali={totalLocali}
           />
         )}
 
         {activeView === 'rutas' && (
           <RutasView
-            rutas={rutas}
-            locales={locales}
             onClose={handleCloseView}
-            onStartRuta={r => {
-              onStartRoute(locales.find(l => l.id === r.stops[0]?.localeId) ?? locales[0]);
-              handleCloseView();
-            }}
-            onLocaleOpen={locale => {
-              setSelectedLocale(locale);
-              setActiveView('detail');
-            }}
+            onStartRuta={handleStartRuta}
           />
         )}
       </Suspense>
 
-      {/* ── Menu drawer ─────────────────────────────────────── */}
+      {/* ── Menu drawer ──────────────────────────────────────────── */}
       <MenuDrawer
-        user={user}
+        user={profile}
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
         onNavigate={view => { setActiveView(view); setMenuOpen(false); }}
-        onLogout={onLogout}
+        onLogout={() => { logout(); onResetGuest(); }}
       />
     </div>
   );
 };
-
-/* Import badge defs for PassaportoView */
-import { BADGE_DEFINITIONS as BADGE_DEFS } from '@/views/PassaportoView';
 
 export default AppShell;

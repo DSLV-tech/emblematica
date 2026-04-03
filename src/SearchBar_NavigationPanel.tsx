@@ -36,7 +36,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     const matched = locales.filter(l =>
       l.name.toLowerCase().includes(q) ||
       l.address.toLowerCase().includes(q) ||
-      l.description.toLowerCase().includes(q)
+      (l.short_desc ?? '').toLowerCase().includes(q)
     ).slice(0, 6);
 
     setResults(matched);

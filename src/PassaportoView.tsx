@@ -70,7 +70,7 @@ export const BADGE_DEFINITIONS: Badge[] = [
     icon:        '🌟',
     condition:   s => {
       const cats = new Set(s.map(x => x.category));
-      return (['bar','restaurant','bookshop','pharmacy','shop'] as Category[]).every(c => cats.has(c));
+      return (['bar','restaurant','bookshop','pharmacy','shop'] as string[]).every(c => cats.has(c));
     },
   },
 ];
@@ -342,15 +342,15 @@ const StampList: React.FC<{ stamps: Stamp[] }> = ({ stamps }) => {
               width:        40,
               height:       40,
               borderRadius: '50%',
-              background:   `${CATEGORY_COLORS[stamp.category]}18`,
-              border:       `1.5px solid ${CATEGORY_COLORS[stamp.category]}44`,
+              background:   `${CATEGORY_COLORS[stamp.category as Category]}18`,
+              border:       `1.5px solid ${CATEGORY_COLORS[stamp.category as Category]}44`,
               display:      'flex',
               alignItems:   'center',
               justifyContent: 'center',
               fontSize:     18,
               flexShrink:   0,
             }}>
-              {CATEGORY_ICONS[stamp.category]}
+              {CATEGORY_ICONS[stamp.category as Category]}
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -380,7 +380,7 @@ const StampList: React.FC<{ stamps: Stamp[] }> = ({ stamps }) => {
               width:        32,
               height:       32,
               borderRadius: 6,
-              border:       `1.5px solid ${CATEGORY_COLORS[stamp.category]}55`,
+              border:       `1.5px solid ${CATEGORY_COLORS[stamp.category as Category]}55`,
               display:      'flex',
               alignItems:   'center',
               justifyContent: 'center',
@@ -391,7 +391,7 @@ const StampList: React.FC<{ stamps: Stamp[] }> = ({ stamps }) => {
                 position:     'absolute',
                 inset:        3,
                 borderRadius: 3,
-                border:       `1px solid ${CATEGORY_COLORS[stamp.category]}30`,
+                border:       `1px solid ${CATEGORY_COLORS[stamp.category as Category]}30`,
               }} />
               <span style={{ fontSize: 12 }}>✓</span>
             </div>
@@ -434,7 +434,7 @@ const PassaportoView: React.FC<PassaportoViewProps> = ({
   totalLocali,
 }) => {
   const stamps = passport?.stamps ?? [];
-  const city   = stamps[0]?.city ?? 'Barcelona';
+  const city   = 'Barcelona';
 
   const unlockedCount = useMemo(
     () => badges.filter(b => b.condition(stamps)).length,
