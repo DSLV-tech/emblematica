@@ -1,6 +1,7 @@
 'use client'
 
 import { useAudioStory } from '../../hooks/useAudioStory'
+import { useLanguage } from '../../context/LanguageContext'
 
 interface AudioPlayerProps {
     text: string
@@ -8,7 +9,8 @@ interface AudioPlayerProps {
 }
 
 export default function AudioPlayer({ text, localeName }: AudioPlayerProps) {
-    const { state, progress, currentWord, words, toggle, stop } = useAudioStory(text)
+    const { lang } = useLanguage()
+    const { state, progress, currentWord, words, toggle, stop } = useAudioStory(text, lang)
 
     if (state === 'unsupported') {
         return (

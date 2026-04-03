@@ -2,7 +2,21 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 
+import type { LangCode } from '../i18n/translations'
+
 export type AudioState = 'idle' | 'loading' | 'playing' | 'paused' | 'ended' | 'unsupported'
+
+// Mappa LangCode → tag BCP-47 preferiti per Web Speech API
+// L'ordine in ogni array è: voce locale > regionale > qualsiasi
+const VOICE_PREFS: Record<LangCode, string[]> = {
+    it: ['it-IT'],
+    en: ['en-GB', 'en-US', 'en-AU'],
+    es: ['es-ES', 'es-MX', 'es-419'],
+    ca: ['ca-ES', 'es-ES'],                 // Catalano raro nei TTS → fallback spagnolo
+    pt: ['pt-PT', 'pt-BR'],
+    ar: ['ar-SA', 'ar-EG', 'ar-AE'],
+    zh: ['zh-CN', 'zh-TW', 'zh-HK'],       // Mandarino semplificato
+}
 
 export interface UseAudioStoryReturn {
     state: AudioState
@@ -15,15 +29,12 @@ export interface UseAudioStoryReturn {
     toggle: () => void
 }
 
-// Il testo delle storie è in italiano → voce italiana
-const PREFERRED_LANG = 'it-IT'
-const FALLBACK_LANG = 'es-ES'
-
 /**
  * Narrates `text` using the browser Web Speech API.
+ * `lang` specifica la lingua dell'UI (e idealmente del testo).
  * No network calls, no API keys.
  */
-export function useAudioStory(text: string | null): UseAudioStoryReturn {
+export function useAudioStory(text: string | null, lang: LangCode = 'it'): UseAudioStoryReturn {
     const [state, setState] = useState<AudioState>(
         typeof window !== 'undefined' && 'speechSynthesis' in window ? 'idle' : 'unsupported'
     )
@@ -34,20 +45,29 @@ export function useAudioStory(text: string | null): UseAudioStoryReturn {
 
     const words = text ? text.trim().split(/\s+/) : []
 
-    // Choose the best available voice
+    // Choose the best available voice for the current language
     const pickVoice = useCallback((): SpeechSynthesisVoice | null => {
         if (typeof window === 'undefined' || !window.speechSynthesis) return null
         const voices = window.speechSynthesis.getVoices()
-        // 1. Voce italiana (le storie sono in italiano) — preferisci voce locale
-        const it = voices.find(v => v.lang === 'it-IT' && v.localService)
-            ?? voices.find(v => v.lang.startsWith('it'))
+        const prefs = VOICE_PREFS[lang] ?? VOICE_PREFS['it']
+
+        // 1. Cerca una voce locale che corrisponda esattamente al tag preferito
+        for (const tag of prefs) {
+            const exact = voices.find(v => v.lang === tag && v.localService)
+            if (exact) return exact
+        }
+        // 2. Cerca qualsiasi voce (locale o remota) che inizi con la stessa lingua
+        for (const tag of prefs) {
+            const prefix = tag.split('-')[0]
+            const any = voices.find(v => v.lang.startsWith(prefix))
+            if (any) return any
+        }
+        // 3. Fallback italiano (il testo delle storie è in italiano)
+        const it = voices.find(v => v.lang.startsWith('it'))
         if (it) return it
-        // 2. Fallback spagnolo (ritmo simile al catalano)
-        const es = voices.find(v => v.lang.startsWith('es'))
-        if (es) return es
-        // 3. Qualsiasi voce disponibile
+        // 4. Qualsiasi voce disponibile
         return voices[0] ?? null
-    }, [])
+    }, [lang])
 
     // Build a fresh utterance for the current text
     const buildUtterance = useCallback((scriptText: string): SpeechSynthesisUtterance => {

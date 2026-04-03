@@ -31,6 +31,7 @@ function detectBrowserLang(): LangCode {
     if (nav.startsWith('pt')) return 'pt'
     if (nav.startsWith('en')) return 'en'
     if (nav.startsWith('ar')) return 'ar'
+    if (nav.startsWith('zh')) return 'zh'
     return 'it'
 }
 
