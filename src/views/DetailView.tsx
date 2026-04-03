@@ -99,7 +99,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
         {/* Hero Title Container */}
         <div className="absolute bottom-0 left-0 right-0 p-8 pb-12">
           <div className="max-w-4xl mx-auto flex flex-col items-start">
-            {locale.is_protected && (
+            {locale.protected && (
               <span className="inline-flex items-center gap-1.5 bg-gold/90 backdrop-blur-sm text-anthracite text-xs font-sans font-bold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4 shadow-lg">
                 <span className="text-sm">🏛️</span> Patrimonio Protetto
               </span>
@@ -170,7 +170,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
             <h2 className="font-serif text-3xl font-bold text-anthracite">La Storia</h2>
 
             <p className="font-serif text-xl text-gold-dark italic leading-relaxed border-l-4 border-gold pl-6">
-              {locale.short_desc}
+              {locale.description}
             </p>
 
             <div className="space-y-6">

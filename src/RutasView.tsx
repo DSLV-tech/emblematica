@@ -274,7 +274,6 @@ const RutaDetail: React.FC<{
                     height:       32,
                     borderRadius: '50%',
                     border:       `2px solid ${ruta.color}`,
-                    background:   i === 0 ? ruta.color : 'transparent',
                     display:      'flex',
                     alignItems:   'center',
                     justifyContent: 'center',

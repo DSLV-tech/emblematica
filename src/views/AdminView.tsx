@@ -18,13 +18,17 @@ interface AdminViewProps {
 // ─── Initial empty locale form ─────────────────────────────────────────────
 const EMPTY_LOCALE: Omit<Locale, 'id'> = {
     name: '',
-    category: 'Caffè',
+    category: 'bar',
     coordinates: { lat: 41.3851, lng: 2.1734 },
-    short_desc: '',
+    description: '',
     full_story: '',
     image_url: '',
     address: '',
-    is_protected: false,
+    founded_year: new Date().getFullYear(),
+    gallery: [],
+    social: {},
+    protected: false,
+    city: 'Barcelona',
 }
 
 // ─── AdminView ─────────────────────────────────────────────────────────────
@@ -218,7 +222,7 @@ function LocaliTab({ locales, loading, onNew, onEdit, onDelete }: {
                                 <div className="flex items-center gap-2">
                                     <span className="font-sans text-sm">{CATEGORY_ICONS[locale.category] ?? '📍'}</span>
                                     <p className="font-serif text-base font-bold text-anthracite truncate">{locale.name}</p>
-                                    {locale.is_protected && <span className="text-xs bg-gold/15 text-gold-dark px-2 py-0.5 rounded-full font-sans font-semibold hidden sm:inline">Protetto</span>}
+                                    {locale.protected && <span className="text-xs bg-gold/15 text-gold-dark px-2 py-0.5 rounded-full font-sans font-semibold hidden sm:inline">Protetto</span>}
                                 </div>
                                 <p className="font-sans text-xs text-anthracite/50 truncate mt-0.5">{locale.address}</p>
                             </div>
@@ -366,7 +370,7 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
 
                         <Field label="Categoria">
                             <select value={form.category} onChange={e => set('category', e.target.value as any)} className={inputCx}>
-                                {CATEGORIES.filter(c => c !== 'Tutti').map(c => (
+                                {CATEGORIES.map(c => (
                                     <option key={c} value={c}>{CATEGORY_ICONS[c]} {c}</option>
                                 ))}
                             </select>
@@ -387,7 +391,7 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
                     </div>
 
                     <Field label="Anno di fondazione">
-                        <input type="number" value={form.founded_year ?? ''} onChange={e => set('founded_year', e.target.value ? parseInt(e.target.value) : undefined)} placeholder="1897" className={inputCx} />
+                        <input type="number" value={form.founded_year ?? ''} onChange={e => set('founded_year', e.target.value ? parseInt(e.target.value) : 0)} placeholder="1897" className={inputCx} />
                     </Field>
 
                     <Field label="URL immagine principale">
@@ -396,7 +400,7 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
                     </Field>
 
                     <Field label="Breve descrizione (max 200 caratteri)" required>
-                        <textarea required rows={2} value={form.short_desc} onChange={e => set('short_desc', e.target.value)} placeholder="Una frase evocativa che introduce il locale…" className={`${inputCx} resize-none`} />
+                        <textarea required rows={2} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Una frase evocativa che introduce il locale…" className={`${inputCx} resize-none`} />
                     </Field>
 
                     <Field label="Storia completa" required>
@@ -419,8 +423,8 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
                     <label className="flex items-center gap-3 cursor-pointer pt-1">
                         <input
                             type="checkbox"
-                            checked={form.is_protected}
-                            onChange={e => set('is_protected', e.target.checked)}
+                            checked={form.protected}
+                            onChange={e => set('protected', e.target.checked)}
                             className="w-5 h-5 rounded accent-gold"
                         />
                         <span className="font-sans text-sm font-semibold text-anthracite">Patrimonio Protetto 🏛️</span>

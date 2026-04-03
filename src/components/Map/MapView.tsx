@@ -121,13 +121,13 @@ export default function MapView({ locales, selectedLocale, onMarkerClick, routeG
         <Marker
           key={locale.id}
           position={[locale.coordinates.lat, locale.coordinates.lng]}
-          icon={createCustomIcon(locale.category, selectedLocale?.id === locale.id, locale.is_protected)}
+          icon={createCustomIcon(locale.category, selectedLocale?.id === locale.id, locale.protected)}
           eventHandlers={{ click: () => onMarkerClick(locale) }}
         >
           <Popup>
             <div style={{ fontFamily: '"PT Sans", sans-serif' }}>
               <div style={{ fontWeight: 700, color: '#333333', marginBottom: 2 }}>{locale.name}</div>
-              {locale.is_protected && (
+              {locale.protected && (
                 <div style={{ fontSize: 11, color: '#B8860B' }}>🏛️ Patrimonio Protetto</div>
               )}
             </div>

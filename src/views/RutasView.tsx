@@ -197,7 +197,7 @@ function RutaDetail({ ruta, onStartRuta, onClose }: { ruta: Ruta; onStartRuta: (
                                     <div>
                                         <p className="font-serif text-sm font-bold text-anthracite">{locale.name}</p>
                                         <p className="font-sans text-xs text-anthracite/50 mt-0.5">{locale.address}</p>
-                                        <p className="font-sans text-xs text-anthracite/70 mt-1 leading-relaxed line-clamp-2">{locale.short_desc}</p>
+                                        <p className="font-sans text-xs text-anthracite/70 mt-1 leading-relaxed line-clamp-2">{locale.description}</p>
                                     </div>
                                 </div>
                             </div>

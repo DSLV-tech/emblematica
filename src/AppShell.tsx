@@ -397,7 +397,7 @@ onChange={setActiveCategory}
       </div>
 
       {/* ── Navigation panel ────────────────────────────────── */}
-      {navDestination && (
+      {navDestination && currentRoute && (
         <div style={{
           position: 'absolute',
           bottom:   0,
@@ -406,76 +406,55 @@ onChange={setActiveCategory}
           zIndex:   25,
         }}>
           <NavigationPanel
-            destination={navDestination}
-            route={currentRoute}
-            isLoading={isLoadingRoute}
-            onClose={() => { setNavDestination(null); onStopRoute(); }}
+            routeInfo={{
+              totalDistance: currentRoute.distance,
+              totalTime:     currentRoute.duration,
+              steps:         currentRoute.steps as any,
+            }}
+            destName={navDestination.name}
+            onStop={() => { setNavDestination(null); onStopRoute(); }}
           />
         </div>
       )}
 
       {/* ── Bottom Sheet (locale preview) ───────────────────── */}
-      {selectedLocale && !navDestination && (
-        <BottomSheet
-          isOpen={sheetOpen}
-          onClose={() => { setSheetOpen(false); setSelectedLocale(null); }}
-          defaultSnap="peek"
-          previewContent={
-            <LocalePreview
-              locale={selectedLocale}
-              onOpen={handleOpenDetail}
-              onNav={() => handleNavigate(selectedLocale)}
-            />
-          }
-          showCloseButton
-        >
-          {/* Full content when half/full */}
-          <LocalePreview
-            locale={selectedLocale}
-            onOpen={handleOpenDetail}
-            onNav={() => handleNavigate(selectedLocale)}
-          />
-        </BottomSheet>
-      )}
+      <BottomSheet
+        locale={selectedLocale && !navDestination ? selectedLocale : null}
+        isFavorite={selectedLocale ? isFavorite(selectedLocale.id) : false}
+        onClose={() => { setSheetOpen(false); setSelectedLocale(null); }}
+        onToggleFavorite={onToggleFavorite}
+        onViewDetail={() => handleOpenDetail()}
+      />
 
       {/* ── Views (full-screen overlay) ─────────────────────── */}
       <Suspense fallback={null}>
         {activeView === 'detail' && selectedLocale && (
           <DetailView
             locale={selectedLocale}
-            onClose={handleCloseView}
+            onBack={handleCloseView}
             onNavigate={handleNavigate}
             onCheckIn={onCheckIn}
             onToggleFavorite={onToggleFavorite}
             isFavorite={isFavorite(selectedLocale.id)}
-            isLoggedIn={!!user}
             hasStamp={hasStamp(selectedLocale.id)}
-            aiCuriosity={aiCuriosity}
-            isLoadingAI={isLoadingAI}
+            user={user as any}
           />
         )}
 
         {activeView === 'passport' && (
           <PassaportoView
-            passport={passport}
-            badges={BADGE_DEFS}
+            stamps={passport?.stamps as any ?? []}
+            loading={false}
             onClose={handleCloseView}
-            totalLocali={totalLocali}
           />
         )}
 
         {activeView === 'rutas' && (
           <RutasView
-            rutas={rutas}
-            locales={locales}
             onClose={handleCloseView}
-            onStartRuta={r => {
-              onStartRoute(locales.find(l => l.id === r.stops[0]?.localeId) ?? locales[0]);
+            onStartRuta={localeIds => {
+              onStartRoute(locales.find(l => localeIds.includes(l.id)) ?? locales[0]);
               handleCloseView();
-            }}
-            onLocaleOpen={locale => {
-              setSelectedLocale(locale);
-              setActiveView('detail');
             }}
           />
         )}
@@ -492,8 +471,5 @@ onChange={setActiveCategory}
     </div>
   );
 };
-
-/* Import badge defs for PassaportoView */
-import { BADGE_DEFINITIONS as BADGE_DEFS } from '@/views/PassaportoView';
 
 export default AppShell;

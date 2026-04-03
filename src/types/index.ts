@@ -9,6 +9,8 @@ export type Category =
   | 'pharmacy'
   | 'shop';
 
+export const CATEGORIES: Category[] = ['bar', 'restaurant', 'bookshop', 'pharmacy', 'shop'];
+
 export const CATEGORY_ICONS: Record<Category, string> = {
   bar:        '☕',
   restaurant: '🍽️',
