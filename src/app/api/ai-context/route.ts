@@ -36,10 +36,16 @@ ${story}`
         return NextResponse.json({ fact })
     } catch (error: any) {
         console.error('AI context error:', error)
-        const message = error?.message || 'Errore nella generazione del contesto AI'
-        return NextResponse.json(
-            { error: message },
-            { status: 500 }
-        )
+        const raw = error?.message ?? ''
+        // Messaggio user-friendly in base al tipo di errore
+        let userMessage = 'Curiosità AI momentaneamente non disponibile.'
+        if (raw.includes('429') || raw.includes('quota') || raw.includes('Too Many Requests')) {
+            userMessage = 'Troppe richieste AI: riprova tra qualche secondo.'
+        } else if (raw.includes('API key') || raw.includes('invalid') || raw.includes('401')) {
+            userMessage = 'Chiave API non valida. Verifica la configurazione.'
+        } else if (raw.includes('not found') || raw.includes('404')) {
+            userMessage = 'Modello AI non disponibile. Riprova più tardi.'
+        }
+        return NextResponse.json({ error: userMessage }, { status: 500 })
     }
 }
