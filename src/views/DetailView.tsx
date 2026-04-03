@@ -61,7 +61,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
   const hasSocials = !!locale.social?.website || !!locale.social?.instagram || !!locale.social?.facebook
 
   return (
-    <div className="fixed inset-0 z-[3000] overflow-y-auto bg-cream animate-fade-in custom-scrollbar">
+    <div className="fixed inset-0 md:inset-8 z-[3000] overflow-y-auto bg-cream animate-fade-in custom-scrollbar md:rounded-3xl md:shadow-2xl">
       {/* Hero Header */}
       <div className="relative h-[50vh] sm:h-[60vh] w-full overflow-hidden">
         <img

@@ -56,7 +56,7 @@ export default function SponsorsView({ onClose }: SponsorsViewProps) {
     const regular = PLACEHOLDER_SPONSORS.filter(s => !s.featured)
 
     return (
-        <div className="fixed inset-0 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in">
+        <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
             {/* Header */}
             <div className="flex items-center gap-4 px-6 py-5 border-b border-anthracite/10 bg-white shadow-sm flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
