@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BarnaEmblemàtica — Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      background: #333333;
+      color: #F5F5DC;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    .medallion {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 2rem;
+      opacity: 0.6;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #F5F5DC;
+    }
+    .subtitle {
+      font-size: 1rem;
+      color: #B8860B;
+      font-style: italic;
+      margin-bottom: 2rem;
+    }
+    p {
+      font-family: 'PT Sans', sans-serif;
+      font-size: 0.95rem;
+      color: rgba(245,245,220,0.6);
+      line-height: 1.7;
+      max-width: 320px;
+      margin-bottom: 2rem;
+    }
+    button {
+      font-family: 'PT Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #333333;
+      background: #B8860B;
+      border: none;
+      border-radius: 9999px;
+      padding: 0.85rem 2rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: #B8860B;
+      margin: 1.5rem auto;
+      opacity: 0.4;
+    }
+    .note {
+      font-size: 0.75rem;
+      color: rgba(245,245,220,0.3);
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Minimal trencadís medallion SVG -->
+  <svg class="medallion" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="47" fill="none" stroke="rgba(184,134,11,0.4)" stroke-width="2"/>
+    <circle cx="50" cy="50" r="22" fill="rgba(184,134,11,0.15)" stroke="rgba(184,134,11,0.5)" stroke-width="1.5"/>
+    <text x="50" y="55" text-anchor="middle" font-family="Georgia" font-size="18" font-weight="bold" fill="#B8860B">B</text>
+  </svg>
+
+  <h1>BarnaEmblemàtica</h1>
+  <p class="subtitle">Sei offline</p>
+
+  <div class="divider"></div>
+
+  <p>
+    Sembra che tu non sia connesso a Internet. Alcune sezioni dell'app potrebbero non essere disponibili, ma i dati visitati di recente sono già salvati.
+  </p>
+
+  <button onclick="window.location.reload()">
+    Riprova la connessione
+  </button>
+
+  <p class="note">Le tile della mappa e le schede visualizzate di recente sono disponibili offline.</p>
+</body>
+</html>
