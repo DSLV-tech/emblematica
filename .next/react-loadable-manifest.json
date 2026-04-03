@@ -1,0 +1,18 @@
+{
+  "AppShell.tsx -> @/views/DetailView": {
+    "id": "AppShell.tsx -> @/views/DetailView",
+    "files": [
+      "static/chunks/_app-pages-browser_src_views_DetailView_tsx.js"
+    ]
+  },
+  "AppShell.tsx -> @/views/PassaportoView": {
+    "id": "AppShell.tsx -> @/views/PassaportoView",
+    "files": []
+  },
+  "AppShell.tsx -> @/views/RutasView": {
+    "id": "AppShell.tsx -> @/views/RutasView",
+    "files": [
+      "static/chunks/_app-pages-browser_src_views_RutasView_tsx.js"
+    ]
+  }
+}
