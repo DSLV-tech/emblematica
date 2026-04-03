@@ -18,11 +18,18 @@ export default function CategoryFilter({ selected, onChange }: CategoryFilterPro
   }
 
   return (
-    <div
-      ref={scrollRef}
-      className="flex gap-2 overflow-x-auto scrollbar-hide pl-4 pr-4 py-2"
-      style={{ WebkitOverflowScrolling: 'touch' }}
-    >
+    <div className="relative">
+      {/* Gradient hint — indica che ci sono altri chip a destra */}
+      <div
+        className="absolute right-0 top-0 bottom-0 w-10 pointer-events-none z-10"
+        style={{ background: 'linear-gradient(to right, transparent, rgba(28,28,30,0.7))' }}
+        aria-hidden
+      />
+      <div
+        ref={scrollRef}
+        className="flex gap-2 overflow-x-auto scrollbar-hide pl-4 pr-4 py-2"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
       {/* Chip "Tutti" */}
       <button
         onClick={() => onChange(null)}
@@ -63,6 +70,7 @@ export default function CategoryFilter({ selected, onChange }: CategoryFilterPro
       })}
       {/* Spacer per garantire padding destro nello scroll */}
       <div className="flex-shrink-0 w-1" aria-hidden />
+    </div>
     </div>
   )
 }
