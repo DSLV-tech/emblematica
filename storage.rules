@@ -1,0 +1,22 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Immagini locali — lettura pubblica, scrittura solo admin autenticati
+    match /locales/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Immagini blog — lettura pubblica, scrittura solo admin autenticati
+    match /blog/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Blocca tutto il resto
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

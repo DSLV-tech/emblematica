@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
+import { getStorage } from 'firebase/storage'
 
 // Firebase configuration — copy .env.example to .env.local and fill in your values
 // https://console.firebase.google.com/ → Project Settings → Your apps
@@ -17,4 +18,5 @@ const firebaseConfig = {
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
 export const db = getFirestore(app)
 export const auth = getAuth(app)
+export const storage = getStorage(app)
 export default app

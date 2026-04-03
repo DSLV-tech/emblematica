@@ -6,6 +6,7 @@ import { db } from '../firebase/config'
 import type { Locale } from '../types'
 import { CATEGORIES, CATEGORY_ICONS } from '../types'
 import { useAdminLocales, useAdminBlog } from '../hooks/useAdmin'
+import ImageUpload from '../components/UI/ImageUpload'
 import { SAMPLE_LOCALES } from '../data/sampleData'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -190,18 +191,18 @@ function LocaliTab({ locales, loading, onNew, onEdit, onDelete }: {
     onDelete: (id: string) => void
 }) {
     return (
-        <div className="p-6 max-w-5xl mx-auto">
+        <div className="p-4 sm:p-6 max-w-5xl mx-auto">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="font-serif text-2xl font-bold text-anthracite">Locali sulla mappa</h2>
+                    <h2 className="font-serif text-xl sm:text-2xl font-bold text-anthracite">Locali sulla mappa</h2>
                     <p className="font-sans text-sm text-anthracite/50 mt-0.5">{locales.length} locali in totale</p>
                 </div>
                 <button
                     onClick={onNew}
-                    className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gold text-cream font-sans font-bold text-sm shadow-lg hover:bg-gold-dark transition-colors"
+                    className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-2xl bg-gold text-cream font-sans font-bold text-sm shadow-lg hover:bg-gold-dark transition-colors"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-                    Aggiungi Locale
+                    <span className="hidden sm:inline">Aggiungi Locale</span>
                 </button>
             </div>
 
@@ -258,7 +259,7 @@ function BlogTab({ title, setTitle, content, setContent, image, setImage, publis
     saved: boolean
 }) {
     return (
-        <div className="p-6 max-w-3xl mx-auto space-y-6">
+        <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
             <div>
                 <h2 className="font-serif text-2xl font-bold text-anthracite">Nuovo Post Blog</h2>
                 <p className="font-sans text-sm text-anthracite/50 mt-0.5">Scrivi e pubblica un articolo sulla piattaforma</p>
@@ -274,15 +275,13 @@ function BlogTab({ title, setTitle, content, setContent, image, setImage, publis
                     />
                 </Field>
 
-                <Field label="URL immagine di copertina (opzionale)">
-                    <input
-                        value={image}
-                        onChange={e => setImage(e.target.value)}
-                        placeholder="https://..."
-                        className="w-full px-4 py-3 rounded-xl border border-anthracite/15 font-sans text-sm text-anthracite focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all"
-                    />
-                    {image && <img src={image} alt="preview" className="mt-2 w-full h-40 object-cover rounded-xl" />}
-                </Field>
+                <ImageUpload
+                    currentUrl={image}
+                    storagePath={`blog/${title || 'new'}`}
+                    onUploaded={setImage}
+                    label="Immagine di copertina (opzionale)"
+                    aspectRatio="wide"
+                />
 
                 <Field label="Contenuto articolo">
                     <textarea
@@ -348,12 +347,12 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
     }
 
     return (
-        <div className="fixed inset-0 z-[4100] flex items-center justify-center p-4 bg-anthracite/50 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 z-[4100] flex items-end sm:items-center justify-center sm:p-4 bg-anthracite/50 backdrop-blur-sm" onClick={onClose}>
             <div
-                className="bg-cream rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl animate-fade-in"
+                className="bg-cream rounded-t-3xl sm:rounded-3xl w-full max-w-2xl max-h-[92vh] sm:max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl animate-fade-in"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="sticky top-0 bg-cream/95 backdrop-blur-sm flex items-center justify-between px-8 py-5 border-b border-anthracite/10 z-10">
+                <div className="sticky top-0 bg-cream/95 backdrop-blur-sm flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5 border-b border-anthracite/10 z-10">
                     <h2 className="font-serif text-xl font-bold text-anthracite">
                         {initial ? `Modifica: ${initial.name}` : 'Nuovo Locale'}
                     </h2>
@@ -362,7 +361,7 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 space-y-5">
+                <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <Field label="Nome locale" required>
                             <input required value={form.name} onChange={e => set('name', e.target.value)} placeholder="Es. Bar Marsella" className={inputCx} />
@@ -394,10 +393,13 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
                         <input type="number" value={form.founded_year ?? ''} onChange={e => set('founded_year', e.target.value ? parseInt(e.target.value) : 0)} placeholder="1897" className={inputCx} />
                     </Field>
 
-                    <Field label="URL immagine principale">
-                        <input value={form.image_url} onChange={e => set('image_url', e.target.value)} placeholder="https://..." className={inputCx} />
-                        {form.image_url && <img src={form.image_url} alt="preview" className="mt-2 w-full h-32 object-cover rounded-xl" onError={e => ((e.target as HTMLImageElement).style.display = 'none')} />}
-                    </Field>
+                    <ImageUpload
+                        currentUrl={form.image_url}
+                        storagePath={`locales/${form.name || 'new'}`}
+                        onUploaded={url => set('image_url', url)}
+                        label="Immagine principale"
+                        aspectRatio="video"
+                    />
 
                     <Field label="Breve descrizione (max 200 caratteri)" required>
                         <textarea required rows={2} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Una frase evocativa che introduce il locale…" className={`${inputCx} resize-none`} />
