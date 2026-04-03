@@ -331,9 +331,9 @@ const AppShell: React.FC<AppShellProps> = ({
   const [selectedLocale,  setSelectedLocale]  = useState<Locale | null>(null);
   const [sheetOpen,       setSheetOpen]       = useState(false);
   const [menuOpen,        setMenuOpen]        = useState(false);
-  const [activeCategory,  setActiveCategory]  = useState<Category>('bar');
+  const [activeCategory,  setActiveCategory]  = useState<Category | null>(null); // null = Tutti
   const [navDestination,  setNavDestination]  = useState<Locale | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery,     setSearchQuery]     = useState('');
 
   const handleMarkerClick = useCallback((locale: Locale) => {
     setSelectedLocale(locale);
@@ -369,7 +369,13 @@ const AppShell: React.FC<AppShellProps> = ({
       {/* ── Map layer ───────────────────────────────────────────────── */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <MapView
-          locales={locales}
+          locales={locales.filter(l => {
+            const matchesCategory = !activeCategory || l.category === activeCategory;
+            const matchesSearch   = !searchQuery.trim() ||
+              l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              l.address.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchesCategory && matchesSearch;
+          })}
           selectedLocale={selectedLocale}
           onMarkerClick={handleMarkerClick}
           routeGeoJson={routeGeoJson ?? null}
@@ -386,12 +392,14 @@ const AppShell: React.FC<AppShellProps> = ({
         left:           0,
         right:          0,
         zIndex:         30,
-        padding:        '16px 16px 0',
+        padding:        '16px 16px 8px',
         paddingTop:     'max(16px, env(safe-area-inset-top))',
         display:        'flex',
         flexDirection:  'column',
-        gap:            10,
+        gap:            8,
         pointerEvents:  'none',  // click-through sulla mappa
+        background:     'linear-gradient(to bottom, rgba(28,28,30,0.85) 60%, transparent)',
+        backdropFilter: 'blur(0px)',
       }}>
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, pointerEvents: 'auto' }}>
