@@ -57,7 +57,7 @@ export function useGeofencing(
         // Native push notification (only if permission granted)
         if (typeof window !== 'undefined' && Notification.permission === 'granted') {
             new Notification(`📍 Sei vicino a ${locale.name}!`, {
-                body: `${Math.round(distance)}m · ${locale.short_desc ?? locale.address}`,
+                body: `${Math.round(distance)}m · ${locale.description ?? locale.address}`,
                 icon: '/icons/icon-192.png',
                 badge: '/icons/icon-96.png',
                 tag: `locale-${locale.id}`,

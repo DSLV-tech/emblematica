@@ -74,7 +74,7 @@ export default function BottomSheet({
             <span className="bg-gold text-cream text-xs font-sans font-semibold px-2.5 py-1 rounded-full shadow">
               {locale.category}
             </span>
-            {locale.is_protected && (
+            {locale.protected && (
               <span className="bg-anthracite/80 text-cream text-xs font-sans px-2.5 py-1 rounded-full shadow">
                 🏛️ Patrimonio
               </span>
@@ -114,7 +114,7 @@ export default function BottomSheet({
           </div>
 
           <p className="font-sans text-sm text-anthracite/80 leading-relaxed mb-5">
-            {locale.short_desc}
+            {locale.description}
           </p>
 
           {/* Actions */}

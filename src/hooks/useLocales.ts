@@ -48,7 +48,7 @@ export function useLocales(searchQuery: string, selectedCategory: Category | 'Tu
       result = result.filter(
         (l) =>
           l.name.toLowerCase().includes(q) ||
-          l.short_desc.toLowerCase().includes(q) ||
+          l.description.toLowerCase().includes(q) ||
           l.address.toLowerCase().includes(q) ||
           l.full_story.toLowerCase().includes(q)
       )
