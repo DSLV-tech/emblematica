@@ -110,7 +110,7 @@ Oggi Christian Escribà, quarta generazione, continua la tradizione con creazion
 La farmacia è rimasta nella stessa famiglia per quattro generazioni. Il fondatore Miquel Bolós, appassionato di botanica, creò una serie di preparazioni erboristiche che ancora oggi vengono vendute con le ricette originali.
 
 Nel 2003 il Comune di Barcellona ha dichiarato la farmacia "Element d'Interès Local", riconoscendo il suo valore storico e architettonico.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/5/5b/Farmacia_de_la_Boqueria.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Farmacia_Antiga_de_la_Boqueria.jpg/800px-Farmacia_Antiga_de_la_Boqueria.jpg',
         gallery: [],
         social: {},
         address: 'Carrer de Canuda, 6, 08002 Barcelona',
