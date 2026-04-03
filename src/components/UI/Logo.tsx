@@ -67,6 +67,7 @@ export default function Logo({ size = 'md', variant = 'full', dark = false }: Lo
             viewBox={`0 0 ${totalW} ${totalH}`}
             xmlns="http://www.w3.org/2000/svg"
             aria-label="Emblematica"
+            style={{ maxWidth: '100%', height: 'auto' }}
         >
             {/* Medallion centered horizontally */}
             <g transform={`translate(${totalW / 2 - symbolH / 2}, 0)`}>
