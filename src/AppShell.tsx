@@ -18,6 +18,7 @@ const MapView = dynamic(() => import('@/components/Map/MapView'), { ssr: false }
 const DetailView    = lazy(() => import('@/views/DetailView'));
 const PassaportoView = lazy(() => import('@/views/PassaportoView'));
 const RutasView     = lazy(() => import('@/views/RutasView'));
+const AdminView     = lazy(() => import('@/views/AdminView'));
 
 /* ── Types ──────────────────────────────────────────────── */
 type ActiveView = 'none' | 'detail' | 'passport' | 'rutas' | 'blog' | 'about' | 'sponsors';
@@ -82,8 +83,9 @@ const MenuDrawer: React.FC<{
   isOpen:      boolean;
   onClose:     () => void;
   onNavigate:  (view: ActiveView) => void;
+  onShowAdmin: () => void;
   onLogout:    () => void;
-}> = ({ user, isOpen, onClose, onNavigate, onLogout }) => {
+}> = ({ user, isOpen, onClose, onNavigate, onShowAdmin, onLogout }) => {
   if (!isOpen) return null;
 
   const items: { icon: string; label: string; view: ActiveView }[] = [
@@ -93,6 +95,13 @@ const MenuDrawer: React.FC<{
     { icon: 'ℹ️', label: 'Chi siamo',   view: 'about'     },
     { icon: '🤝', label: 'Sponsors',    view: 'sponsors'  },
   ];
+
+  const navItemStyle: React.CSSProperties = {
+    width: '100%', textAlign: 'left', padding: '14px 24px',
+    border: 'none', background: 'transparent', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', gap: 14,
+    color: '#F7F0E4', transition: 'background 120ms ease',
+  };
 
   return (
     <>
@@ -187,6 +196,26 @@ const MenuDrawer: React.FC<{
               </span>
             </button>
           ))}
+
+          {/* Admin button — solo per admin */}
+          {user?.role === 'admin' && (
+            <button
+              onClick={() => { onShowAdmin(); onClose(); }}
+              style={{
+                ...navItemStyle,
+                borderTop: '1px solid rgba(201,168,76,0.12)',
+                marginTop: 8,
+                color: '#C9A84C',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(201,168,76,0.08)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+            >
+              <span style={{ fontSize: 18 }}>⚙️</span>
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 700 }}>
+                Dashboard Admin
+              </span>
+            </button>
+          )}
         </nav>
 
         {/* Logout */}
@@ -331,6 +360,7 @@ const AppShell: React.FC<AppShellProps> = ({
   const [selectedLocale,  setSelectedLocale]  = useState<Locale | null>(null);
   const [sheetOpen,       setSheetOpen]       = useState(false);
   const [menuOpen,        setMenuOpen]        = useState(false);
+  const [showAdmin,       setShowAdmin]       = useState(false);
   const [activeCategory,  setActiveCategory]  = useState<Category | null>(null); // null = Tutti
   const [navDestination,  setNavDestination]  = useState<Locale | null>(null);
   const [searchQuery,     setSearchQuery]     = useState('');
@@ -489,8 +519,16 @@ onChange={setActiveCategory}
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
         onNavigate={view => { setActiveView(view); setMenuOpen(false); }}
+        onShowAdmin={() => setShowAdmin(true)}
         onLogout={onLogout}
       />
+
+      {/* ── Admin view ──────────────────────────────────────── */}
+      <Suspense fallback={null}>
+        {showAdmin && (
+          <AdminView onClose={() => setShowAdmin(false)} />
+        )}
+      </Suspense>
     </div>
   );
 };

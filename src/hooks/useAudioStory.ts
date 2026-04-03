@@ -15,8 +15,9 @@ export interface UseAudioStoryReturn {
     toggle: () => void
 }
 
-const PREFERRED_LANG = 'es-ES'  // Spanish narrator matches Barcelona feel
-const FALLBACK_LANG = 'it-IT'
+// Il testo delle storie è in italiano → voce italiana
+const PREFERRED_LANG = 'it-IT'
+const FALLBACK_LANG = 'es-ES'
 
 /**
  * Narrates `text` using the browser Web Speech API.
@@ -37,14 +38,14 @@ export function useAudioStory(text: string | null): UseAudioStoryReturn {
     const pickVoice = useCallback((): SpeechSynthesisVoice | null => {
         if (typeof window === 'undefined' || !window.speechSynthesis) return null
         const voices = window.speechSynthesis.getVoices()
-        // 1. Prefer Spanish voices (authentic Barcelona feel)
-        const es = voices.find(v => v.lang.startsWith('es') && !v.localService === false)
-            ?? voices.find(v => v.lang.startsWith('es'))
-        if (es) return es
-        // 2. Fall back to Italian (closest to Catalan rhythm)
-        const it = voices.find(v => v.lang.startsWith('it'))
+        // 1. Voce italiana (le storie sono in italiano) — preferisci voce locale
+        const it = voices.find(v => v.lang === 'it-IT' && v.localService)
+            ?? voices.find(v => v.lang.startsWith('it'))
         if (it) return it
-        // 3. Any voice
+        // 2. Fallback spagnolo (ritmo simile al catalano)
+        const es = voices.find(v => v.lang.startsWith('es'))
+        if (es) return es
+        // 3. Qualsiasi voce disponibile
         return voices[0] ?? null
     }, [])
 
