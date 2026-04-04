@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { RUTAS, type Ruta } from '../data/rutas'
 import { SAMPLE_LOCALES } from '../data/sampleData'
 import type { Locale } from '../types'
+import { useLanguage } from '../context/LanguageContext'
 
 interface RutasViewProps {
     onClose: () => void
@@ -11,10 +12,14 @@ interface RutasViewProps {
     onStartRuta: (localeIds: string[]) => void
 }
 
-const DIFFICULTY_LABEL = { facile: '🟢 Facile', media: '🟡 Media', impegnativa: '🔴 Impegnativa' }
-
 export default function RutasView({ onClose, onStartRuta }: RutasViewProps) {
     const [selected, setSelected] = useState<Ruta | null>(null)
+    const { t } = useLanguage()
+    const DIFFICULTY_LABEL = {
+        facile: t('rutas.easy'),
+        media: t('rutas.medium'),
+        impegnativa: t('rutas.hard'),
+    }
 
     return (
         <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
@@ -36,9 +41,9 @@ export default function RutasView({ onClose, onStartRuta }: RutasViewProps) {
                 )}
                 <div className="flex-1">
                     <h1 className="font-serif text-xl font-bold text-anthracite">
-                        {selected ? selected.title : 'Rutas Temàtiques'}
+                        {selected ? selected.title : t('rutas.title')}
                     </h1>
-                    {!selected && <p className="font-sans text-xs text-anthracite/50">Percorsi tematici a piedi nella Barcellona storica</p>}
+                    {!selected && <p className="font-sans text-xs text-anthracite/50">{t('rutas.subtitle')}</p>}
                     {selected && <p className="font-sans text-xs text-anthracite/50">{selected.subtitle}</p>}
                 </div>
                 <button onClick={onClose} className="w-10 h-10 rounded-full bg-anthracite/5 hover:bg-anthracite/10 flex items-center justify-center transition-colors">
@@ -50,9 +55,9 @@ export default function RutasView({ onClose, onStartRuta }: RutasViewProps) {
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {selected ? (
-                    <RutaDetail ruta={selected} onStartRuta={onStartRuta} onClose={onClose} />
+                    <RutaDetail ruta={selected} onStartRuta={onStartRuta} onClose={onClose} t={t} />
                 ) : (
-                    <RutaList onSelect={setSelected} />
+                    <RutaList onSelect={setSelected} difficultyLabel={DIFFICULTY_LABEL} t={t} />
                 )}
             </div>
         </div>
@@ -60,7 +65,11 @@ export default function RutasView({ onClose, onStartRuta }: RutasViewProps) {
 }
 
 // ─── List view ──────────────────────────────────────────────────────────────
-function RutaList({ onSelect }: { onSelect: (r: Ruta) => void }) {
+function RutaList({ onSelect, difficultyLabel, t }: {
+    onSelect: (r: Ruta) => void
+    difficultyLabel: Record<string, string>
+    t: (k: any) => string
+}) {
     return (
         <div className="p-6 max-w-2xl mx-auto space-y-5">
             {/* Intro */}
@@ -69,13 +78,12 @@ function RutaList({ onSelect }: { onSelect: (r: Ruta) => void }) {
                 style={{ background: 'linear-gradient(135deg, #333333 0%, #1a1a1a 100%)' }}
             >
                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(ellipse at 80% 50%, #B8860B 0%, transparent 60%)' }} />
-                <p className="font-sans text-xs font-bold text-gold/70 uppercase tracking-[0.3em] mb-2 relative">Itinerari curati</p>
+                <p className="font-sans text-xs font-bold text-gold/70 uppercase tracking-[0.3em] mb-2 relative">{t('rutas.curated_label')}</p>
                 <h2 className="font-serif text-2xl text-cream font-bold leading-snug relative">
-                    5 percorsi<br />
-                    <span className="text-gold italic font-normal">per scoprire la città vera</span>
+                    {RUTAS.length} {t('rutas.intro_title')}
                 </h2>
                 <p className="font-sans text-sm text-cream/60 mt-3 leading-relaxed relative">
-                    Ogni ruta è progettata per essere percorsa a piedi, collegando locali storici con un filo narrativo comune.
+                    {t('rutas.intro_body')}
                 </p>
             </div>
 
@@ -104,9 +112,9 @@ function RutaList({ onSelect }: { onSelect: (r: Ruta) => void }) {
                         <div className="flex items-center gap-4 mt-4 pt-3 border-t border-anthracite/5">
                             <Stat icon="⏱" label={ruta.duration} />
                             <Stat icon="📍" label={ruta.distance} />
-                            <Stat icon="🏃" label={DIFFICULTY_LABEL[ruta.difficulty]} small />
+                            <Stat icon="🏃" label={difficultyLabel[ruta.difficulty] ?? ruta.difficulty} small />
                             <div className="ml-auto">
-                                <span className="font-sans text-xs font-bold text-gold">{ruta.localeIds.length} tappe →</span>
+                                <span className="font-sans text-xs font-bold text-gold">{ruta.localeIds.length} {t('rutas.stops')} →</span>
                             </div>
                         </div>
                     </div>
@@ -117,7 +125,12 @@ function RutaList({ onSelect }: { onSelect: (r: Ruta) => void }) {
 }
 
 // ─── Detail view ─────────────────────────────────────────────────────────────
-function RutaDetail({ ruta, onStartRuta, onClose }: { ruta: Ruta; onStartRuta: (ids: string[]) => void; onClose: () => void }) {
+function RutaDetail({ ruta, onStartRuta, onClose, t }: {
+    ruta: Ruta
+    onStartRuta: (ids: string[]) => void
+    onClose: () => void
+    t: (k: any) => string
+}) {
     // Resolve locale objects referenced by this ruta
     const stops: Locale[] = ruta.localeIds
         .map(id => SAMPLE_LOCALES.find(l => l.id === id))
@@ -139,10 +152,10 @@ function RutaDetail({ ruta, onStartRuta, onClose }: { ruta: Ruta; onStartRuta: (
                 {/* Stats */}
                 <div className="flex gap-4 mt-6 flex-wrap">
                     {[
-                        { icon: '⏱', val: ruta.duration, label: 'durata' },
-                        { icon: '📍', val: ruta.distance, label: 'distanza' },
-                        { icon: '🏃', val: ruta.difficulty, label: 'difficoltà' },
-                        { icon: '🏛️', val: `${ruta.localeIds.length} tappe`, label: 'fermate' },
+                        { icon: '⏱', val: ruta.duration, label: t('rutas.duration') },
+                        { icon: '📍', val: ruta.distance, label: t('rutas.distance') },
+                        { icon: '🏃', val: ruta.difficulty, label: t('rutas.difficulty') },
+                        { icon: '🏛️', val: `${ruta.localeIds.length} ${t('rutas.stops')}`, label: t('rutas.fermate') },
                     ].map(s => (
                         <div key={s.label} className="bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2 text-center">
                             <p className="font-sans text-lg leading-none">{s.icon}</p>
@@ -155,13 +168,13 @@ function RutaDetail({ ruta, onStartRuta, onClose }: { ruta: Ruta; onStartRuta: (
 
             {/* Description */}
             <div>
-                <h3 className="font-serif text-lg font-bold text-anthracite mb-3">Sul percorso</h3>
+                <h3 className="font-serif text-lg font-bold text-anthracite mb-3">{t('rutas.on_route')}</h3>
                 <p className="font-sans text-sm text-anthracite/70 leading-relaxed">{ruta.description}</p>
             </div>
 
             {/* Highlights */}
             <div>
-                <h3 className="font-serif text-lg font-bold text-anthracite mb-3">Da non perdere</h3>
+                <h3 className="font-serif text-lg font-bold text-anthracite mb-3">{t('rutas.highlights')}</h3>
                 <div className="space-y-3">
                     {ruta.highlights.map((h, i) => (
                         <div key={i} className="flex gap-3 items-start">
@@ -176,7 +189,7 @@ function RutaDetail({ ruta, onStartRuta, onClose }: { ruta: Ruta; onStartRuta: (
 
             {/* Stops */}
             <div>
-                <h3 className="font-serif text-lg font-bold text-anthracite mb-3">Le tappe</h3>
+                <h3 className="font-serif text-lg font-bold text-anthracite mb-3">{t('rutas.stops_label')}</h3>
                 <div className="relative">
                     <div className="absolute left-5 top-0 bottom-0 w-px" style={{ backgroundColor: ruta.colorHex + '40' }} />
                     <div className="space-y-4">
@@ -211,7 +224,7 @@ function RutaDetail({ ruta, onStartRuta, onClose }: { ruta: Ruta; onStartRuta: (
                 <div className="flex gap-3 bg-gold/10 rounded-2xl p-4 border border-gold/20">
                     <span className="text-2xl flex-shrink-0">💡</span>
                     <div>
-                        <p className="font-sans text-xs font-bold text-gold uppercase tracking-wide mb-1">Consiglio</p>
+                        <p className="font-sans text-xs font-bold text-gold uppercase tracking-wide mb-1">{t('rutas.tip')}</p>
                         <p className="font-sans text-sm text-anthracite/80 leading-relaxed">{ruta.tip}</p>
                     </div>
                 </div>
@@ -224,7 +237,7 @@ function RutaDetail({ ruta, onStartRuta, onClose }: { ruta: Ruta; onStartRuta: (
                 style={{ backgroundColor: ruta.colorHex }}
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
-                Apri sulla mappa
+                {t('rutas.open_map')}
             </button>
 
             <div className="pb-8" />

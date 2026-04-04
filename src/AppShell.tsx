@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useMemo, Suspense, lazy } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import dynamic from 'next/dynamic';
 import type { Locale, AppUser, Category } from '@/types';
 import type { Ruta } from '@/types';
@@ -89,14 +90,15 @@ const MenuDrawer: React.FC<{
   onShowAdmin: () => void;
   onLogout:    () => void;
 }> = ({ user, isOpen, onClose, onNavigate, onShowAdmin, onLogout }) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   const items: { icon: string; label: string; view: ActiveView }[] = [
-    { icon: '📒', label: 'Passaporto',  view: 'passport'  },
-    { icon: '🧭', label: 'Rutas',       view: 'rutas'     },
-    { icon: '📰', label: 'Blog & News', view: 'blog'      },
-    { icon: 'ℹ️', label: 'Chi siamo',   view: 'about'     },
-    { icon: '🤝', label: 'Sponsors',    view: 'sponsors'  },
+    { icon: '📒', label: t('nav.passport'), view: 'passport'  },
+    { icon: '🧭', label: t('nav.rutas'),    view: 'rutas'     },
+    { icon: '📰', label: t('nav.blog'),     view: 'blog'      },
+    { icon: 'ℹ️', label: t('nav.about'),    view: 'about'     },
+    { icon: '🤝', label: t('nav.sponsors'), view: 'sponsors'  },
   ];
 
   const navItemStyle: React.CSSProperties = {
@@ -160,13 +162,13 @@ const MenuDrawer: React.FC<{
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
                 }}>
-                  Admin
+                  {t('locale.admin_badge')}
                 </span>
               )}
             </>
           ) : (
             <div style={{ fontFamily: '"Cinzel", serif', fontSize: 14, color: 'rgba(247,240,228,0.5)' }}>
-              Ospite
+              {t('locale.guest_label')}
             </div>
           )}
         </div>
@@ -215,7 +217,7 @@ const MenuDrawer: React.FC<{
             >
               <span style={{ fontSize: 18 }}>⚙️</span>
               <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 700 }}>
-                Dashboard Admin
+                {t('nav.admin')}
               </span>
             </button>
           )}
@@ -241,7 +243,7 @@ const MenuDrawer: React.FC<{
                 cursor:        'pointer',
               }}
             >
-              Esci
+              {t('nav.logout')}
             </button>
           </div>
         )}
@@ -267,7 +269,9 @@ const LocalePreview: React.FC<{
   locale:   Locale;
   onOpen:   () => void;
   onNav:    () => void;
-}> = ({ locale, onOpen, onNav }) => (
+}> = ({ locale, onOpen, onNav }) => {
+  const { t } = useLanguage();
+  return (
   <div style={{ padding: '0 20px 20px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
     <div style={{
       width:        64,
@@ -301,12 +305,13 @@ const LocalePreview: React.FC<{
         {locale.address}
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
-        <button onClick={onOpen} style={previewBtnPrimary}>Vedi dettagli</button>
+        <button onClick={onOpen} style={previewBtnPrimary}>{t('locale.view_details')}</button>
         <button onClick={onNav}  style={previewBtnIcon}>🧭</button>
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const previewBtnPrimary: React.CSSProperties = {
   flex:          1,
@@ -361,6 +366,7 @@ const AppShell: React.FC<AppShellProps> = ({
   routeGeoJson,
   userPosition,
 }) => {
+  const { t } = useLanguage();
   const [activeView,      setActiveView]      = useState<ActiveView>('none');
   const [selectedLocale,  setSelectedLocale]  = useState<Locale | null>(null);
   const [sheetOpen,       setSheetOpen]       = useState(false);
@@ -448,7 +454,7 @@ const AppShell: React.FC<AppShellProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, pointerEvents: 'auto' }}>
           <Logo size="sm" dark={true} />
           <div style={{ flex: 1 }}>
-            <SearchBar value={searchQuery} onChange={(q) => setSearchQuery(q)} />
+            <SearchBar value={searchQuery} onChange={(q) => setSearchQuery(q)} placeholder={t('app.search_placeholder')} />
           </div>
           <Avatar user={user} onClick={() => setMenuOpen(true)} />
         </div>
