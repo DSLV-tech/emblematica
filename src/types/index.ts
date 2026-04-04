@@ -65,12 +65,14 @@ export interface Locale {
 
 /* ── Stamp (timbre passaporto) ──────────────────────────── */
 export interface Stamp {
-  localeId:    string;
-  localeName:  string;
-  category:    Category;
-  city:        string;
-  visitedAt:   string;        // ISO date string
-  coordinates: Coordinates;
+  localeId:      string;
+  localeName:    string;
+  localeCategory: Category;
+  localeImage:   string;
+  localeAddress: string;
+  localeCity?:   string;       // nome città (es. "Rimini") — opzionale per compat. con stamp storici
+  visitedAt:     any;          // Firestore Timestamp | ISO string
+  coordinates:   Coordinates;
 }
 
 /* ── Passport ───────────────────────────────────────────── */
@@ -78,8 +80,8 @@ export interface Passport {
   uid:          string;
   stamps:       Stamp[];
   totalVisits:  number;
-  createdAt:    string;
-  lastVisitAt:  string;
+  createdAt:    any;           // Firestore Timestamp | string | null
+  lastVisitAt:  any;           // Firestore Timestamp | string | null
 }
 
 /* ── Badge ──────────────────────────────────────────────── */
@@ -138,12 +140,12 @@ export interface BlogPost {
 }
 
 /* ── User ───────────────────────────────────────────────── */
-export type UserRole = 'user' | 'admin';
+export type UserRole = 'user' | 'admin' | 'guest';
 
 export interface AppUser {
   uid:         string;
-  displayName: string;
-  email:       string;
-  photoURL?:   string;
+  displayName: string | null;
+  email:       string | null;
+  photoURL?:   string | null;
   role:        UserRole;
 }

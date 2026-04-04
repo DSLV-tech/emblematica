@@ -16,13 +16,18 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-function createCustomIcon(category: string, isSelected: boolean, isProtected: boolean) {
-  const emoji = CATEGORY_ICONS[category as keyof typeof CATEGORY_ICONS] || '📍'
-  const size = isSelected ? 54 : 44
+const CATEGORY_COLORS: Record<string, string> = {
+  bar:        '#C9A84C',
+  restaurant: '#C0552A',
+  bookshop:   '#5B8A72',
+  pharmacy:   '#4A7FA5',
+  shop:       '#8B6B9A',
+}
 
-  const ringColor = isProtected ? '#B8860B' : '#8B6508'
+function createCustomIcon(category: string, isSelected: boolean, isProtected: boolean, imageUrl?: string) {
+  const size = isSelected ? 54 : 44
+  const ringColor = isProtected ? '#B8860B' : (CATEGORY_COLORS[category] ?? '#8B6508')
   const ringWidth = isProtected ? (isSelected ? 4 : 3) : (isSelected ? 3 : 2)
-  const bg = isSelected ? '#FFF8E7' : '#FFFFFF'
   const shadow = isSelected
     ? '0 6px 20px rgba(184,134,11,0.55)'
     : isProtected
@@ -37,28 +42,47 @@ function createCustomIcon(category: string, isSelected: boolean, isProtected: bo
       ">👑</div>`
     : ''
 
+  const imgSize = Math.round(size * 0.78)
+
+  // Inner content: real image if available, otherwise category emoji
+  const emoji = CATEGORY_ICONS[category as keyof typeof CATEGORY_ICONS] || '📍'
+  const innerHtml = imageUrl
+    ? `<img
+        src="${imageUrl}"
+        width="${imgSize}" height="${imgSize}"
+        style="
+          width:${imgSize}px;height:${imgSize}px;
+          border-radius:50%;
+          object-fit:cover;
+          transform:rotate(45deg);
+          display:block;
+        "
+        onerror="this.style.display='none';this.nextSibling.style.display='flex';"
+      /><span style="
+        display:none;
+        transform:rotate(45deg);
+        font-size:${isSelected ? 22 : 18}px;
+        line-height:1;
+      ">${emoji}</span>`
+    : `<span style="transform:rotate(45deg);font-size:${isSelected ? 22 : 18}px;line-height:1;">${emoji}</span>`
+
   return L.divIcon({
     className: '',
     html: `
-      <div style="
-        position:relative;
-        width:${size}px;height:${size}px;
-      ">
+      <div style="position:relative;width:${size}px;height:${size}px;">
         ${crownHtml}
         <div style="
           width:${size}px;height:${size}px;
           border-radius:50% 50% 50% 0;
-          transform:rotate(-45deg);
-          background:${bg};
+          transform:rotate(-45deg)${isSelected ? ' scale(1.05)' : ''};
+          background:#FFFFFF;
           border:${ringWidth}px solid ${ringColor};
           box-shadow:${shadow};
           display:flex;align-items:center;justify-content:center;
+          overflow:hidden;
           transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);
-          ${isSelected ? 'transform:rotate(-45deg) scale(1.05);' : ''}
         ">
-          <span style="transform:rotate(45deg);font-size:${isSelected ? 22 : 18}px;line-height:1;">
-            ${emoji}
-          </span>
+          ${innerHtml}
         </div>
       </div>`,
     iconSize: [size, size + (isProtected ? 10 : 0)],
@@ -126,7 +150,7 @@ export default function MapView({ locales, selectedLocale, onMarkerClick, routeG
         <Marker
           key={locale.id}
           position={[locale.coordinates.lat, locale.coordinates.lng]}
-          icon={createCustomIcon(locale.category, selectedLocale?.id === locale.id, locale.protected)}
+          icon={createCustomIcon(locale.category, selectedLocale?.id === locale.id, locale.protected, locale.image_url || undefined)}
           eventHandlers={{ click: () => onMarkerClick(locale) }}
         >
           <Popup>

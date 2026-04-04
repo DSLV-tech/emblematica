@@ -3,3 +3,12 @@ node_modules
 .env.local
 .env*.local
 .next
+
+# PWA service worker — generato da next-pwa ad ogni build
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+
+# Firebase service account — non committare mai
+service-account.json

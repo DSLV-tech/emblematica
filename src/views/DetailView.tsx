@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { Locale } from '../types'
 import type { User } from 'firebase/auth'
 import { useAiContext } from '../hooks/useAiContext'
+import { useLanguage } from '../context/LanguageContext'
 import AudioPlayer from '../components/UI/AudioPlayer'
 import ClaimModal from '../components/UI/ClaimModal'
 
@@ -25,6 +26,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
   const [navigating, setNavigating] = useState(false)
   const [showClaim, setShowClaim] = useState(false)
   const { fetchFact, fact, loading: aiLoading, error: aiError } = useAiContext()
+  const { t } = useLanguage()
 
   const openMaps = () => {
     const { lat, lng } = locale.coordinates
@@ -101,7 +103,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
           <div className="max-w-4xl mx-auto flex flex-col items-start">
             {locale.protected && (
               <span className="inline-flex items-center gap-1.5 bg-gold/90 backdrop-blur-sm text-anthracite text-xs font-sans font-bold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4 shadow-lg">
-                <span className="text-sm">🏛️</span> Patrimonio Protetto
+                <span className="text-sm">🏛️</span> {t('detail.protected_heritage')}
               </span>
             )}
             <h1 className="font-serif text-4xl sm:text-6xl font-bold text-cream leading-tight drop-shadow-xl mb-3">
@@ -111,7 +113,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
               {locale.founded_year && (
                 <span className="flex items-center gap-1.5">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  Dal {locale.founded_year}
+                  {t('detail.founded_since')} {locale.founded_year}
                 </span>
               )}
               <span className="w-1.5 h-1.5 rounded-full bg-gold/50" />
@@ -136,7 +138,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
                 </svg>
               </div>
               <div>
-                <p className="font-sans text-xs text-anthracite/50 uppercase tracking-wider font-semibold mb-1">Indirizzo</p>
+                <p className="font-sans text-xs text-anthracite/50 uppercase tracking-wider font-semibold mb-1">{t('detail.address_label')}</p>
                 <p className="font-serif text-anthracite text-lg">{locale.address}</p>
               </div>
             </div>
@@ -167,7 +169,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Main Content (Story) */}
           <div className="lg:col-span-2 space-y-8">
-            <h2 className="font-serif text-3xl font-bold text-anthracite">La Storia</h2>
+            <h2 className="font-serif text-3xl font-bold text-anthracite">{t('detail.story')}</h2>
 
             <p className="font-serif text-xl text-gold-dark italic leading-relaxed border-l-4 border-gold pl-6">
               {locale.description}
@@ -197,12 +199,12 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
                 {aiLoading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin relative z-10" />
-                    <span className="relative z-10">L'Intelligenza Artificiale sta cercando...</span>
+                    <span className="relative z-10">{t('detail.ai_loading')}</span>
                   </>
                 ) : (
                   <>
                     <span className="text-xl relative z-10">✨</span>
-                    <span className="relative z-10">Rivela una Curiosità Storica</span>
+                    <span className="relative z-10">{t('detail.ai_fact')}</span>
                     <span className="text-xs font-normal text-anthracite/50 ml-2 relative z-10 hidden sm:inline">powered by Gemini AI</span>
                   </>
                 )}
@@ -213,7 +215,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
           {/* Sidebar (Gallery & Meta) */}
           <div className="lg:col-span-1 space-y-8">
             <div className="bg-white rounded-3xl p-6 shadow-xl shadow-anthracite/5 border border-anthracite/5">
-              <h3 className="font-sans text-sm font-bold text-anthracite uppercase tracking-widest mb-4">La Galleria</h3>
+              <h3 className="font-sans text-sm font-bold text-anthracite uppercase tracking-widest mb-4">{t('detail.gallery')}</h3>
               <div className="space-y-4">
                 {mockGallery.map((img, idx) => (
                   <div key={idx} className="relative aspect-[4/3] rounded-2xl overflow-hidden group cursor-pointer shadow-md">
@@ -250,8 +252,8 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
             </button>
 
             <div className="text-center mt-6 mb-6">
-              <h4 className="font-serif text-2xl font-bold text-anthracite mb-2">Lo Sapevi?</h4>
-              <p className="font-sans text-xs text-anthracite/50 uppercase tracking-widest">Un aneddoto dimenticato</p>
+              <h4 className="font-serif text-2xl font-bold text-anthracite mb-2">{t('detail.ai_reveal_title')}</h4>
+              <p className="font-sans text-xs text-anthracite/50 uppercase tracking-widest">{t('detail.ai_anecdote_subtitle')}</p>
             </div>
 
             {aiError ? (
@@ -265,7 +267,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
             )}
 
             <div className="mt-8 pt-6 border-t border-anthracite/10 flex items-center justify-center gap-2">
-              <span className="font-sans text-[10px] text-anthracite/40 uppercase tracking-widest font-bold">Generato da Google Gemini</span>
+              <span className="font-sans text-[10px] text-anthracite/40 uppercase tracking-widest font-bold">{t('detail.ai_powered_by')}</span>
             </div>
           </div>
         </div>
@@ -279,7 +281,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
             className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-gold/30 bg-gold/5 hover:bg-gold/10 transition-colors"
           >
             <span className="text-lg">🏠</span>
-            <span className="font-sans text-sm font-semibold text-gold">Sei il gestore? Reclama questo locale</span>
+            <span className="font-sans text-sm font-semibold text-gold">{t('detail.claim_venue')}</span>
           </button>
         </div>
       )}
@@ -308,7 +310,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
             ) : (
               <span>📒</span>
             )}
-            {checkingIn ? 'Verifica posizione GPS…' : hasStamp ? 'Già nel passaporto' : 'Timbra Passaporto'}
+            {checkingIn ? t('detail.checking_gps') : hasStamp ? t('detail.already_stamped') : t('detail.stamp_passport')}
           </button>
         )}
 
@@ -325,7 +327,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
             </span>
           )}
-          {navigating ? 'Calcolo percorso…' : onNavigate ? "Naviga nell'app" : 'Apri in Google Maps'}
+          {navigating ? t('detail.calculating_route') : onNavigate ? t('detail.navigate') : t('detail.open_maps')}
         </button>
       </div>
     </div>
