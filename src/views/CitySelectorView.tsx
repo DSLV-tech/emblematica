@@ -1,7 +1,11 @@
 'use client'
 
+import type React from 'react'
 import { CITIES, type CityConfig } from '../data/cities'
 import { useCity } from '../context/CityContext'
+
+// Città "nuove" che mostrano il badge NUOVO
+const NEW_CITY_IDS = ['rimini', 'bologna']
 
 interface CitySelectorViewProps {
     onClose: () => void
@@ -10,7 +14,7 @@ interface CitySelectorViewProps {
 export default function CitySelectorView({ onClose }: CitySelectorViewProps) {
     const { city: activeCity, setCity } = useCity()
 
-    const available = CITIES.filter(c => c.available)
+    const available  = CITIES.filter(c => c.available)
     const comingSoon = CITIES.filter(c => !c.available)
 
     const handleSelect = (c: CityConfig) => {
@@ -20,70 +24,116 @@ export default function CitySelectorView({ onClose }: CitySelectorViewProps) {
     }
 
     return (
-        <div className="fixed inset-0 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in">
+        <div className="fixed inset-0 z-[3500] overflow-hidden flex flex-col" style={{ background: '#111214' }}>
             {/* Header */}
-            <div className="flex items-center gap-4 px-6 py-5 border-b border-anthracite/10 bg-white shadow-sm flex-shrink-0">
-                <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
-                    <span className="text-xl">🌍</span>
-                </div>
-                <div className="flex-1">
-                    <h1 className="font-serif text-xl font-bold text-anthracite">Scegli la città</h1>
-                    <p className="font-sans text-xs text-anthracite/50">Emblematica è disponibile in queste città</p>
+            <div style={{
+                display: 'flex', alignItems: 'center', gap: 14,
+                padding: '20px 20px 16px',
+                paddingTop: 'max(20px, env(safe-area-inset-top))',
+                borderBottom: '1px solid rgba(255,255,255,0.07)',
+                background: 'rgba(17,18,20,0.95)',
+                backdropFilter: 'blur(12px)',
+                flexShrink: 0,
+            }}>
+                <div style={{
+                    width: 42, height: 42, borderRadius: '50%',
+                    background: 'rgba(201,168,76,0.12)',
+                    border: '1px solid rgba(201,168,76,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 20, flexShrink: 0,
+                }}>🌍</div>
+                <div style={{ flex: 1 }}>
+                    <h1 style={{ fontFamily: '"Cinzel", serif', fontSize: 18, fontWeight: 700, color: '#F7F0E4', margin: 0 }}>
+                        Scegli la città
+                    </h1>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(247,240,228,0.4)', margin: '2px 0 0' }}>
+                        Emblematica è disponibile in queste città
+                    </p>
                 </div>
                 <button
                     onClick={onClose}
-                    className="w-10 h-10 rounded-full bg-anthracite/5 hover:bg-anthracite/10 flex items-center justify-center transition-colors"
-                >
-                    <svg className="w-5 h-5 text-anthracite" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                    style={{
+                        width: 38, height: 38, borderRadius: '50%',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        background: 'rgba(255,255,255,0.05)',
+                        color: 'rgba(247,240,228,0.6)',
+                        fontSize: 20, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                >×</button>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="max-w-lg mx-auto px-6 py-8 space-y-8">
+            <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
+                <div style={{ maxWidth: 500, margin: '0 auto', padding: '28px 16px 40px' }}>
 
-                    {/* Active */}
-                    <div>
-                        <h2 className="font-sans text-xs font-bold text-anthracite/40 uppercase tracking-[0.2em] mb-4">Disponibile ora</h2>
-                        {available.map(c => (
-                            <CityCard
-                                key={c.id}
-                                city={c}
-                                isActive={c.id === activeCity.id}
-                                onSelect={() => handleSelect(c)}
-                            />
-                        ))}
-                    </div>
-
-                    {/* Coming soon */}
-                    <div>
-                        <h2 className="font-sans text-xs font-bold text-anthracite/40 uppercase tracking-[0.2em] mb-4">In arrivo</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {comingSoon.map(c => (
-                                <div key={c.id} className="bg-white rounded-2xl border border-anthracite/5 p-4 opacity-60 flex items-center gap-3">
-                                    <span className="text-2xl">{c.flag}</span>
-                                    <div>
-                                        <p className="font-serif text-sm font-bold text-anthracite">{c.name}</p>
-                                        <p className="font-sans text-[10px] text-anthracite/40">{c.country}</p>
-                                    </div>
-                                    <span className="ml-auto font-sans text-[10px] font-bold text-gold/60 uppercase tracking-wider bg-gold/10 px-2 py-0.5 rounded-full">Presto</span>
-                                </div>
+                    {/* ── Disponibili ── */}
+                    <div style={{ marginBottom: 36 }}>
+                        <p style={{
+                            fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 700,
+                            color: 'rgba(201,168,76,0.7)', letterSpacing: '0.2em',
+                            textTransform: 'uppercase', marginBottom: 14, paddingLeft: 4,
+                        }}>Disponibile ora</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {available.map(c => (
+                                <CityCard
+                                    key={c.id}
+                                    city={c}
+                                    isActive={c.id === activeCity.id}
+                                    isNew={NEW_CITY_IDS.includes(c.id)}
+                                    onSelect={() => handleSelect(c)}
+                                />
                             ))}
                         </div>
                     </div>
 
-                    {/* Propose CTA */}
-                    <div className="rounded-3xl border-2 border-dashed border-gold/30 p-6 text-center">
-                        <p className="font-sans text-xs font-bold text-gold uppercase tracking-[0.2em] mb-2">Vuoi la tua città?</p>
-                        <p className="font-sans text-sm text-anthracite/60 leading-relaxed mb-4 max-w-xs mx-auto">
+                    {/* ── In arrivo ── */}
+                    {comingSoon.length > 0 && (
+                        <div style={{ marginBottom: 36 }}>
+                            <p style={{
+                                fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 700,
+                                color: 'rgba(247,240,228,0.3)', letterSpacing: '0.2em',
+                                textTransform: 'uppercase', marginBottom: 14, paddingLeft: 4,
+                            }}>In arrivo</p>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                                {comingSoon.map(c => (
+                                    <ComingSoonCard key={c.id} city={c} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── CTA proponi città ── */}
+                    <div style={{
+                        borderRadius: 20,
+                        border: '1.5px dashed rgba(201,168,76,0.25)',
+                        padding: '24px 20px',
+                        textAlign: 'center',
+                    }}>
+                        <p style={{
+                            fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 700,
+                            color: '#C9A84C', letterSpacing: '0.2em', textTransform: 'uppercase',
+                            marginBottom: 8,
+                        }}>Vuoi la tua città?</p>
+                        <p style={{
+                            fontFamily: '"Literata", serif', fontSize: 13, fontStyle: 'italic',
+                            color: 'rgba(247,240,228,0.45)', lineHeight: 1.6,
+                            margin: '0 auto 16px', maxWidth: 280,
+                        }}>
                             Sei un'associazione culturale o un ente municipale? Possiamo portare Emblematica nella tua città.
                         </p>
                         <a
-                            href="mailto:info@barnaemblematica.com?subject=Proposta%20nuova%20citt%C3%A0"
-                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-anthracite text-cream font-sans font-bold text-sm hover:bg-anthracite/80 transition-colors"
+                            href="mailto:info@emblematica.app?subject=Proposta%20nuova%20citt%C3%A0"
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 8,
+                                padding: '10px 22px', borderRadius: 999,
+                                background: 'rgba(201,168,76,0.12)',
+                                border: '1px solid rgba(201,168,76,0.3)',
+                                color: '#C9A84C',
+                                fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 700,
+                                letterSpacing: '0.05em', textDecoration: 'none',
+                            }}
                         >
-                            <span>✉️</span> Proponi la tua città
+                            ✉️ Proponi la tua città
                         </a>
                     </div>
 
@@ -93,33 +143,154 @@ export default function CitySelectorView({ onClose }: CitySelectorViewProps) {
     )
 }
 
-function CityCard({ city, isActive, onSelect }: { city: CityConfig; isActive: boolean; onSelect: () => void }) {
+// ── CityCard — città disponibili ─────────────────────────────────────────────
+function CityCard({ city, isActive, isNew, onSelect }: {
+    city: CityConfig
+    isActive: boolean
+    isNew: boolean
+    onSelect: () => void
+}) {
     return (
         <button
             onClick={onSelect}
-            className={`w-full text-left rounded-3xl overflow-hidden mb-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group ${isActive ? 'ring-2 ring-offset-2 ring-gold' : ''
-                }`}
+            style={{
+                width: '100%', textAlign: 'left',
+                border: isActive ? `2px solid ${city.accentColor}` : '2px solid rgba(255,255,255,0.06)',
+                borderRadius: 20, overflow: 'hidden',
+                cursor: 'pointer', background: 'none', padding: 0,
+                transition: 'transform 150ms ease, box-shadow 150ms ease',
+                boxShadow: isActive
+                    ? `0 0 0 4px ${city.accentColor}28, 0 4px 20px rgba(0,0,0,0.4)`
+                    : '0 2px 12px rgba(0,0,0,0.3)',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)' }}
         >
-            {/* City background strip */}
-            <div
-                className="relative h-28 w-full overflow-hidden"
-                style={{ backgroundImage: `url(${city.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-            >
-                <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${city.accentColor}CC, transparent)` }} />
-                <div className="absolute inset-0 flex items-center px-6 gap-4">
-                    <span className="text-4xl">{city.flag}</span>
-                    <div>
-                        <p className="font-serif text-2xl font-bold text-white drop-shadow">{city.name}</p>
-                        <p className="font-sans text-xs text-white/80">{city.tagline.slice(0, 50)}…</p>
-                    </div>
-                    {isActive && (
-                        <div className="ml-auto bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5">
-                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                            <span className="font-sans text-xs font-bold text-white">Attiva</span>
+            {/* Background image strip */}
+            <div style={{
+                position: 'relative', height: 112,
+                backgroundImage: `url(${city.backgroundImage})`,
+                backgroundSize: 'cover', backgroundPosition: 'center top',
+            }}>
+                {/* Gradient overlay con accent color */}
+                <div style={{
+                    position: 'absolute', inset: 0,
+                    background: `linear-gradient(105deg, ${city.accentColor}EE 0%, ${city.accentColor}99 45%, rgba(0,0,0,0.25) 100%)`,
+                }} />
+
+                {/* Content */}
+                <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', alignItems: 'center',
+                    padding: '0 20px', gap: 14,
+                }}>
+                    <span style={{ fontSize: 38, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))', flexShrink: 0 }}>
+                        {city.flag}
+                    </span>
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                            <p style={{
+                                fontFamily: '"Cinzel", serif', fontSize: 22, fontWeight: 700,
+                                color: '#fff', margin: 0, textShadow: '0 1px 6px rgba(0,0,0,0.5)',
+                            }}>{city.name}</p>
+                            {isNew && (
+                                <span style={{
+                                    fontFamily: 'var(--font-body)', fontSize: 9, fontWeight: 900,
+                                    letterSpacing: '0.12em', textTransform: 'uppercase',
+                                    background: '#fff', color: city.accentColor,
+                                    padding: '2px 7px', borderRadius: 999,
+                                    flexShrink: 0,
+                                }}>NUOVO</span>
+                            )}
                         </div>
-                    )}
+                        <p style={{
+                            fontFamily: '"Literata", serif', fontStyle: 'italic',
+                            fontSize: 11, color: 'rgba(255,255,255,0.82)', margin: 0,
+                            lineHeight: 1.35, overflow: 'hidden',
+                            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                        } as React.CSSProperties}>
+                            {city.tagline}
+                        </p>
+                    </div>
+
+                    {/* Stato: active pill o freccia */}
+                    <div style={{ flexShrink: 0 }}>
+                        {isActive ? (
+                            <div style={{
+                                background: 'rgba(255,255,255,0.18)',
+                                backdropFilter: 'blur(8px)',
+                                borderRadius: 999, padding: '5px 11px',
+                                display: 'flex', alignItems: 'center', gap: 6,
+                            }}>
+                                <span style={{
+                                    width: 7, height: 7, borderRadius: '50%',
+                                    background: '#4ade80', boxShadow: '0 0 8px #4ade80',
+                                    display: 'inline-block', flexShrink: 0,
+                                }} />
+                                <span style={{
+                                    fontFamily: 'var(--font-body)', fontSize: 10,
+                                    fontWeight: 800, color: '#fff', letterSpacing: '0.06em',
+                                }}>ATTIVA</span>
+                            </div>
+                        ) : (
+                            <div style={{
+                                width: 32, height: 32, borderRadius: '50%',
+                                background: 'rgba(255,255,255,0.15)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: 16, color: '#fff',
+                            }}>›</div>
+                        )}
+                    </div>
                 </div>
             </div>
         </button>
+    )
+}
+
+// ── ComingSoonCard — città in arrivo ──────────────────────────────────────────
+function ComingSoonCard({ city }: { city: CityConfig }) {
+    return (
+        <div style={{
+            borderRadius: 16, overflow: 'hidden',
+            position: 'relative',
+            border: '1px solid rgba(255,255,255,0.06)',
+            cursor: 'default',
+        }}>
+            {/* Mini background desaturato */}
+            <div style={{
+                height: 80,
+                backgroundImage: `url(${city.backgroundImage})`,
+                backgroundSize: 'cover', backgroundPosition: 'center',
+                filter: 'saturate(0.3) brightness(0.45)',
+            }} />
+            {/* Gradient con accent color */}
+            <div style={{
+                position: 'absolute', inset: 0,
+                background: `linear-gradient(160deg, ${city.accentColor}55 0%, rgba(17,18,20,0.88) 65%)`,
+            }} />
+            {/* Content */}
+            <div style={{
+                position: 'absolute', inset: 0,
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'flex-start', justifyContent: 'flex-end',
+                padding: '10px 12px',
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                    <span style={{ fontSize: 16 }}>{city.flag}</span>
+                    <p style={{
+                        fontFamily: '"Cinzel", serif', fontSize: 13, fontWeight: 700,
+                        color: '#F7F0E4', margin: 0,
+                    }}>{city.name}</p>
+                </div>
+                <span style={{
+                    fontFamily: 'var(--font-body)', fontSize: 9, fontWeight: 700,
+                    letterSpacing: '0.15em', textTransform: 'uppercase',
+                    color: city.accentColorLight,
+                    background: `${city.accentColor}33`,
+                    border: `1px solid ${city.accentColor}55`,
+                    padding: '2px 7px', borderRadius: 999,
+                }}>Presto</span>
+            </div>
+        </div>
     )
 }
