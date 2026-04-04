@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useCallback, useMemo, Suspense, lazy } from 'react';
 import dynamic from 'next/dynamic';
-import type { Locale, Route, AppUser, Category } from '@/types';
+import type { Locale, AppUser, Category } from '@/types';
 import type { Ruta } from '@/types';
-import type { UserPosition } from '@/hooks/useRouting';
+import type { RouteInfo, UserPosition } from '@/hooks/useRouting';
 import Logo from '@/components/UI/Logo';
 import SearchBar from '@/components/UI/SearchBar';
 import NavigationPanel from '@/components/UI/NavigationPanel';
@@ -37,7 +37,7 @@ interface AppShellProps {
   isFavorite:     (id: string) => boolean;
   hasStamp:       (id: string) => boolean;
   onStartRoute:   (locale: Locale) => void;
-  currentRoute:   Route | null;
+  currentRoute:   RouteInfo | null;
   isLoadingRoute: boolean;
   onStopRoute:    () => void;
   passport:       import('@/types').Passport | null;
@@ -397,6 +397,17 @@ const AppShell: React.FC<AppShellProps> = ({
     setSheetOpen(true);
   }, []);
 
+  const filteredLocales = useMemo(() =>
+    locales.filter(l => {
+      const matchesCategory = !activeCategory || l.category === activeCategory;
+      const matchesSearch   = !searchQuery.trim() ||
+        l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        l.address.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    }),
+    [locales, activeCategory, searchQuery]
+  );
+
   return (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
 
@@ -404,13 +415,7 @@ const AppShell: React.FC<AppShellProps> = ({
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <MapView
           key={city}
-          locales={locales.filter(l => {
-            const matchesCategory = !activeCategory || l.category === activeCategory;
-            const matchesSearch   = !searchQuery.trim() ||
-              l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              l.address.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesCategory && matchesSearch;
-          })}
+          locales={filteredLocales}
           selectedLocale={selectedLocale}
           onMarkerClick={handleMarkerClick}
           routeGeoJson={routeGeoJson ?? null}
@@ -466,11 +471,7 @@ onChange={setActiveCategory}
           zIndex:   25,
         }}>
           <NavigationPanel
-            routeInfo={{
-              totalDistance: currentRoute.distance,
-              totalTime:     currentRoute.duration,
-              steps:         currentRoute.steps as any,
-            }}
+            routeInfo={currentRoute}
             destName={navDestination.name}
             onStop={() => { setNavDestination(null); onStopRoute(); }}
           />
@@ -497,7 +498,7 @@ onChange={setActiveCategory}
             onToggleFavorite={onToggleFavorite}
             isFavorite={isFavorite(selectedLocale.id)}
             hasStamp={hasStamp(selectedLocale.id)}
-            user={user as any}
+            user={user}
           />
         )}
 

@@ -36,6 +36,13 @@ export function useGeofencing(
     const cooldownRef = useRef<Map<string, number>>(new Map())
     const watchIdRef = useRef<number | null>(null)
 
+    // Refs to hold current values so the GPS watch effect doesn't need
+    // them as deps (avoids remounting on every render)
+    const localesRef = useRef(locales)
+    const stampedIdsRef = useRef(stampedIds)
+    useEffect(() => { localesRef.current = locales }, [locales])
+    useEffect(() => { stampedIdsRef.current = stampedIds }, [stampedIds])
+
     // Check / request notification permission
     const requestPermission = useCallback(async () => {
         if (typeof window === 'undefined' || !('Notification' in window)) return 'denied'
@@ -72,9 +79,9 @@ export function useGeofencing(
             const { latitude, longitude } = pos.coords
             const now = Date.now()
 
-            for (const locale of locales) {
+            for (const locale of localesRef.current) {
                 // Skip if already in passport
-                if (stampedIds.has(locale.id)) continue
+                if (stampedIdsRef.current.has(locale.id)) continue
 
                 const dist = haversineMetres(
                     latitude, longitude,
@@ -103,7 +110,7 @@ export function useGeofencing(
                 navigator.geolocation.clearWatch(watchIdRef.current)
             }
         }
-    }, [enabled, locales, stampedIds, sendNotification])
+    }, [enabled, sendNotification])
 
     const dismissAlert = useCallback(() => setNearbyAlert(null), [])
 

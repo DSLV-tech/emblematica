@@ -1,6 +1,6 @@
 'use client'
 
-import type { Stamp } from '../hooks/usePassport'
+import type { Stamp } from '../types'
 import { SAMPLE_LOCALES } from '../data/sampleData'
 import { CATEGORY_ICONS } from '../types'
 

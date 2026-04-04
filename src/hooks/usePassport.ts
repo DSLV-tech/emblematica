@@ -13,25 +13,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import type { User } from 'firebase/auth'
-import type { Locale } from '../types'
-
-export interface Stamp {
-    localeId: string
-    localeName: string
-    localeCategory: string
-    localeImage: string
-    localeAddress: string
-    visitedAt: any // Firestore Timestamp
-    coordinates: { lat: number; lng: number }
-}
-
-export interface Passport {
-    uid: string
-    stamps: Stamp[]
-    totalVisits: number
-    createdAt: any
-    lastVisitAt: any
-}
+import type { Locale, Stamp, Passport } from '../types'
 
 const CHECKIN_RADIUS_M = 100 // metres
 

@@ -57,28 +57,28 @@ const { user, profile, loading: authLoading } = useAuth()
 
   return (
     <AppShell
-  user={profile as any}
-  locales={locales as any}
-  rutas={rutas as any}
-  city={city?.name}
-  cityCenter={city?.center}
-  cityZoom={city?.zoom}
-  onLogout={handleLogout}
-  onCheckIn={checkIn as any}
-  onToggleFavorite={toggleFavorite}
-  isFavorite={isFavorite}
-  hasStamp={hasStamp}
-  onStartRoute={handleStartRoute as any}
-  currentRoute={routeInfo as any}
-  isLoadingRoute={isNavigating}
-  onStopRoute={stopNavigation}
-  passport={passport as any}
-  aiCuriosity={aiCuriosity ?? undefined}
-  isLoadingAI={aiLoading}
-  totalLocali={locales.length}
-  routeGeoJson={routeGeoJson}
-  userPosition={userPosition}
-/>
+      user={profile}
+      locales={locales}
+      rutas={rutas}
+      city={city?.name}
+      cityCenter={city?.center}
+      cityZoom={city?.zoom}
+      onLogout={handleLogout}
+      onCheckIn={checkIn}
+      onToggleFavorite={toggleFavorite}
+      isFavorite={isFavorite}
+      hasStamp={hasStamp}
+      onStartRoute={handleStartRoute}
+      currentRoute={routeInfo}
+      isLoadingRoute={isNavigating}
+      onStopRoute={stopNavigation}
+      passport={passport}
+      aiCuriosity={aiCuriosity ?? undefined}
+      isLoadingAI={aiLoading}
+      totalLocali={locales.length}
+      routeGeoJson={routeGeoJson}
+      userPosition={userPosition}
+    />
   )
 }
 

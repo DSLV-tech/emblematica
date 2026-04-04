@@ -84,6 +84,18 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    match /locales_rimini/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /locales_ravenna/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /locales_forli/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
 
     // ─── Default: deny everything else ───────────────────────────────
     match /{document=**} {
