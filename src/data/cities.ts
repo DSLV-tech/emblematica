@@ -22,6 +22,7 @@ export interface CityConfig {
     accentColorLight: string
     backgroundImage: string // Unsplash URL for splash
     available: boolean     // false = "coming soon"
+    totalLocales: number   // numero totale locali nella città (per badge completamento)
 }
 
 export const CITIES: CityConfig[] = [
@@ -39,6 +40,7 @@ export const CITIES: CityConfig[] = [
         accentColorLight: '#D4AF37',
         backgroundImage: 'https://images.unsplash.com/photo-1583422409516-15951797f0a9?q=80&w=2600&auto=format&fit=crop',
         available: true,
+        totalLocales: 9,
     },
     {
         id: 'napoli',
@@ -54,6 +56,7 @@ export const CITIES: CityConfig[] = [
         accentColorLight: '#E8956D',
         backgroundImage: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=2600&auto=format&fit=crop',
         available: false,
+        totalLocales: 0,
     },
     {
         id: 'lisbona',
@@ -69,6 +72,7 @@ export const CITIES: CityConfig[] = [
         accentColorLight: '#3AAAD4',
         backgroundImage: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?q=80&w=2600&auto=format&fit=crop',
         available: false,
+        totalLocales: 0,
     },
     {
         id: 'bologna',
@@ -84,6 +88,7 @@ export const CITIES: CityConfig[] = [
         accentColorLight: '#C41E3A',
         backgroundImage: 'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?q=80&w=2600&auto=format&fit=crop',
         available: false,
+        totalLocales: 0,
     },
     {
         id: 'porto',
@@ -99,6 +104,7 @@ export const CITIES: CityConfig[] = [
         accentColorLight: '#9B59B6',
         backgroundImage: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?q=80&w=2600&auto=format&fit=crop',
         available: false,
+        totalLocales: 0,
     },
     {
         id: 'palermo',
@@ -114,6 +120,7 @@ export const CITIES: CityConfig[] = [
         accentColorLight: '#F0D080',
         backgroundImage: 'https://images.unsplash.com/photo-1589825743636-b78e9889e8ba?q=80&w=2600&auto=format&fit=crop',
         available: false,
+        totalLocales: 0,
     },
     {
         id: 'rimini',
@@ -129,6 +136,7 @@ export const CITIES: CityConfig[] = [
         accentColorLight: '#D4693A',
         backgroundImage: 'https://images.unsplash.com/photo-1609358905581-e5381612486e?q=80&w=2600&auto=format&fit=crop',
         available: true,
+        totalLocales: 8,
     },
     {
         id: 'ravenna',
@@ -144,6 +152,7 @@ export const CITIES: CityConfig[] = [
         accentColorLight: '#3A7DD4',
         backgroundImage: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?q=80&w=2600&auto=format&fit=crop',
         available: false,
+        totalLocales: 0,
     },
     {
         id: 'forli',
@@ -159,6 +168,7 @@ export const CITIES: CityConfig[] = [
         accentColorLight: '#9B6FAF',
         backgroundImage: 'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?q=80&w=2600&auto=format&fit=crop',
         available: false,
+        totalLocales: 0,
     },
 ]
 

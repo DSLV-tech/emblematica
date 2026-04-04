@@ -108,6 +108,7 @@ export function usePassport(user: User | null) {
                 localeCategory: locale.category,
                 localeImage: locale.image_url,
                 localeAddress: locale.address,
+                localeCity: locale.city,
                 visitedAt: serverTimestamp(),
                 coordinates: { lat: latitude, lng: longitude },
             }

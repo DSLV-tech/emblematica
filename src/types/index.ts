@@ -70,6 +70,7 @@ export interface Stamp {
   localeCategory: Category;
   localeImage:   string;
   localeAddress: string;
+  localeCity?:   string;       // nome città (es. "Rimini") — opzionale per compat. con stamp storici
   visitedAt:     any;          // Firestore Timestamp | ISO string
   coordinates:   Coordinates;
 }
