@@ -10,6 +10,7 @@ import SearchBar from '@/components/UI/SearchBar';
 import NavigationPanel from '@/components/UI/NavigationPanel';
 import CategoryFilter from '@/components/UI/CategoryFilter';
 import BottomSheet from '@/components/UI/BottomSheet';
+import CitySelector from '@/components/UI/CitySelector';
 
 /* Lazy-load MapView — react-leaflet requires browser APIs, no SSR */
 const MapView = dynamic(() => import('@/components/Map/MapView'), { ssr: false });
@@ -452,11 +453,12 @@ const AppShell: React.FC<AppShellProps> = ({
           <Avatar user={user} onClick={() => setMenuOpen(true)} />
         </div>
 
-        {/* Category filter */}
-        <div style={{ pointerEvents: 'auto' }}>
+        {/* City selector + category filter */}
+        <div style={{ pointerEvents: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <CitySelector />
           <CategoryFilter
             selected={activeCategory}
-onChange={setActiveCategory}
+            onChange={setActiveCategory}
           />
         </div>
       </div>
