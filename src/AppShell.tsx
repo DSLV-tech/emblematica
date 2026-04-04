@@ -28,6 +28,8 @@ interface AppShellProps {
   locales:        Locale[];
   rutas:          Ruta[];
   city?:          string;
+  cityCenter?:    { lat: number; lng: number };
+  cityZoom?:      number;
   onLogout:       () => void;
   /* Callbacks per features (implementati nei rispettivi hooks) */
   onCheckIn:      (locale: Locale) => Promise<void>;
@@ -340,6 +342,8 @@ const AppShell: React.FC<AppShellProps> = ({
   locales,
   rutas,
   city = 'Barcelona',
+  cityCenter,
+  cityZoom,
   onLogout,
   onCheckIn,
   onToggleFavorite,
@@ -399,6 +403,7 @@ const AppShell: React.FC<AppShellProps> = ({
       {/* ── Map layer ───────────────────────────────────────────────── */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <MapView
+          key={city}
           locales={locales.filter(l => {
             const matchesCategory = !activeCategory || l.category === activeCategory;
             const matchesSearch   = !searchQuery.trim() ||
@@ -412,6 +417,8 @@ const AppShell: React.FC<AppShellProps> = ({
           userPosition={userPosition ?? null}
           destLat={navDestination?.coordinates.lat}
           destLng={navDestination?.coordinates.lng}
+          center={cityCenter}
+          zoom={cityZoom}
         />
       </div>
 

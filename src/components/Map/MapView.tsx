@@ -89,13 +89,18 @@ interface MapViewProps {
   userPosition?: UserPosition | null
   destLat?: number
   destLng?: number
+  center?: { lat: number; lng: number }
+  zoom?: number
 }
 
-export default function MapView({ locales, selectedLocale, onMarkerClick, routeGeoJson, userPosition, destLat, destLng }: MapViewProps) {
+export default function MapView({ locales, selectedLocale, onMarkerClick, routeGeoJson, userPosition, destLat, destLng, center, zoom }: MapViewProps) {
+  const mapCenter: [number, number] = center ? [center.lat, center.lng] : [41.3851, 2.1734]
+  const mapZoom = zoom ?? 14
+
   return (
     <MapContainer
-      center={[41.3851, 2.1734]}
-      zoom={14}
+      center={mapCenter}
+      zoom={mapZoom}
       style={{ height: '100%', width: '100%' }}
       zoomControl={false}
     >

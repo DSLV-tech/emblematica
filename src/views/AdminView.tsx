@@ -8,6 +8,7 @@ import { CATEGORIES, CATEGORY_ICONS } from '../types'
 import { useAdminLocales, useAdminBlog } from '../hooks/useAdmin'
 import ImageUpload from '../components/UI/ImageUpload'
 import { SAMPLE_LOCALES } from '../data/sampleData'
+import { useCity } from '../context/CityContext'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type AdminTab = 'locali' | 'blog'
@@ -16,24 +17,27 @@ interface AdminViewProps {
     onClose: () => void
 }
 
-// ─── Initial empty locale form ─────────────────────────────────────────────
-const EMPTY_LOCALE: Omit<Locale, 'id'> = {
-    name: '',
-    category: 'bar',
-    coordinates: { lat: 41.3851, lng: 2.1734 },
-    description: '',
-    full_story: '',
-    image_url: '',
-    address: '',
-    founded_year: new Date().getFullYear(),
-    gallery: [],
-    social: {},
-    protected: false,
-    city: 'Barcelona',
-}
-
 // ─── AdminView ─────────────────────────────────────────────────────────────
 export default function AdminView({ onClose }: AdminViewProps) {
+    const { city } = useCity()
+    const collectionName = city?.collection ?? 'locales'
+
+    // ─── Initial empty locale form (city-aware) ─────────────────────────────
+    const emptyLocale = (): Omit<Locale, 'id'> => ({
+        name: '',
+        category: 'bar',
+        coordinates: { lat: city?.center.lat ?? 41.3851, lng: city?.center.lng ?? 2.1734 },
+        description: '',
+        full_story: '',
+        image_url: '',
+        address: '',
+        founded_year: new Date().getFullYear(),
+        gallery: [],
+        social: {},
+        protected: false,
+        city: city?.name ?? 'Barcelona',
+    })
+
     const [tab, setTab] = useState<AdminTab>('locali')
     const [locales, setLocales] = useState<Locale[]>([])
     const [loadingLocales, setLoadingLocales] = useState(true)
@@ -41,7 +45,7 @@ export default function AdminView({ onClose }: AdminViewProps) {
     const [showLocaleForm, setShowLocaleForm] = useState(false)
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
-    const { saveLocale, deleteLocale: del, saving, deleting } = useAdminLocales()
+    const { saveLocale, deleteLocale: del, saving, deleting } = useAdminLocales(collectionName)
     const { savePost, saving: savingPost } = useAdminBlog()
 
     // Blog form state
@@ -51,9 +55,9 @@ export default function AdminView({ onClose }: AdminViewProps) {
     const [blogPublished, setBlogPublished] = useState(false)
     const [blogSaved, setBlogSaved] = useState(false)
 
-    // Load all locales for the admin table (unfiltered)
+    // Load all locales for the admin table (unfiltered, city-aware)
     useEffect(() => {
-        const q = query(collection(db, 'locales'), orderBy('name'))
+        const q = query(collection(db, collectionName), orderBy('name'))
         const unsub = onSnapshot(q, (snap) => {
             if (snap.empty) {
                 setLocales(SAMPLE_LOCALES)
@@ -153,7 +157,7 @@ export default function AdminView({ onClose }: AdminViewProps) {
             {/* Locale Form Modal */}
             {showLocaleForm && (
                 <LocaleFormModal
-                    initial={editingLocale ?? undefined}
+                    initial={editingLocale ?? ({ id: '', ...emptyLocale() } as Locale)}
                     onSave={handleSaveLocale}
                     onClose={() => { setShowLocaleForm(false); setEditingLocale(null) }}
                     saving={saving}
@@ -335,7 +339,7 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
     saving: boolean
 }) {
     const [form, setForm] = useState<Omit<Locale, 'id'>>(
-        initial ? (({ id: _, ...rest }) => rest)(initial) : EMPTY_LOCALE
+        (({ id: _, ...rest }) => rest)(initial)
     )
 
     const set = <K extends keyof typeof form>(key: K, val: typeof form[K]) =>

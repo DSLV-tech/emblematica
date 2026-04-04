@@ -14,7 +14,7 @@ import type { Locale } from '../types'
 
 export type LocaleFormData = Omit<Locale, 'id'>
 
-export function useAdminLocales() {
+export function useAdminLocales(collectionName: string = 'locales') {
     const [saving, setSaving] = useState(false)
     const [deleting, setDeleting] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -29,12 +29,12 @@ export function useAdminLocales() {
             }
             if (id) {
                 // Update existing
-                await updateDoc(doc(db, 'locales', id), payload)
+                await updateDoc(doc(db, collectionName, id), payload)
                 setSaving(false)
                 return id
             } else {
                 // Create new
-                const ref = await addDoc(collection(db, 'locales'), {
+                const ref = await addDoc(collection(db, collectionName), {
                     ...payload,
                     createdAt: serverTimestamp(),
                 })
@@ -53,7 +53,7 @@ export function useAdminLocales() {
         setDeleting(true)
         setError(null)
         try {
-            await deleteDoc(doc(db, 'locales', id))
+            await deleteDoc(doc(db, collectionName, id))
         } catch (err) {
             const msg = err instanceof Error ? err.message : 'Errore nella eliminazione.'
             setError(msg)
