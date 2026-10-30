@@ -1,12 +1,17 @@
 'use client'
 
+import { ArrowSquareOut, Buildings, Champagne, Envelope, Handshake, Scroll, Storefront, type Icon } from '@phosphor-icons/react'
+import ViewHeader from '../components/UI/ViewHeader'
+import { useLanguage } from '../context/LanguageContext'
+import type { TranslationKey } from '../i18n/translations'
+
 interface Sponsor {
     name: string
-    tagline: string
-    logo: string        // emoji or URL
-    category: string
+    tagline: TranslationKey
+    logo: Icon | string     // icona o URL del logo
+    category: TranslationKey
     website?: string
-    description: string
+    description?: TranslationKey
     featured?: boolean
 }
 
@@ -14,36 +19,34 @@ interface Sponsor {
 const PLACEHOLDER_SPONSORS: Sponsor[] = [
     {
         name: 'El Corte Inglés',
-        tagline: 'La grande distribuzione del cuore di Barcellona',
-        logo: '🏬',
-        category: 'Retail',
+        tagline: 'sponsors.s1_tagline',
+        logo: Storefront,
+        category: 'sponsors.cat_retail',
         website: 'https://www.elcorteingles.es',
-        description: 'Partner storico per la valorizzazione del commercio tradizionale barcellonese.',
+        description: 'sponsors.s1_desc',
         featured: true,
     },
     {
         name: 'Turisme de Barcelona',
-        tagline: 'L\'ente ufficiale del turismo di Barcellona',
-        logo: '🌆',
-        category: 'Istituzionale',
+        tagline: 'sponsors.s2_tagline',
+        logo: Buildings,
+        category: 'sponsors.cat_institution',
         website: 'https://www.barcelonaturisme.com',
-        description: 'Collaboriamo per promuovere il patrimonio culturale e commerciale della città.',
+        description: 'sponsors.s2_desc',
         featured: true,
     },
     {
         name: 'Cava Codorníu',
-        tagline: 'Il cava catalano dal 1551',
-        logo: '🍾',
-        category: 'Enogastronomia',
+        tagline: 'sponsors.s3_tagline',
+        logo: Champagne,
+        category: 'sponsors.cat_food',
         website: 'https://www.codorniu.com',
-        description: 'Supporta la narrazione delle tradizioni gastronomiche catalane.',
     },
     {
         name: 'Arxiu Nacional de Catalunya',
-        tagline: 'Memoria storica della Catalogna',
-        logo: '📜',
-        category: 'Cultura',
-        description: 'Fornitore di documentazione storica per le schede dei locali.',
+        tagline: 'sponsors.s4_tagline',
+        logo: Scroll,
+        category: 'sponsors.cat_culture',
     },
 ]
 
@@ -52,29 +55,13 @@ interface SponsorsViewProps {
 }
 
 export default function SponsorsView({ onClose }: SponsorsViewProps) {
+    const { t } = useLanguage()
     const featured = PLACEHOLDER_SPONSORS.filter(s => s.featured)
     const regular = PLACEHOLDER_SPONSORS.filter(s => !s.featured)
 
     return (
         <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center gap-4 px-6 py-5 border-b border-anthracite/10 bg-white shadow-sm flex-shrink-0">
-                <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
-                    <span className="text-xl">🤝</span>
-                </div>
-                <div className="flex-1">
-                    <h1 className="font-serif text-xl font-bold text-anthracite">Sponsors & Partner</h1>
-                    <p className="font-sans text-xs text-anthracite/50">Chi rende possibile Emblematica</p>
-                </div>
-                <button
-                    onClick={onClose}
-                    className="w-10 h-10 rounded-full bg-anthracite/5 hover:bg-anthracite/10 flex items-center justify-center transition-colors"
-                >
-                    <svg className="w-5 h-5 text-anthracite" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+            <ViewHeader icon={Handshake} title={t('sponsors.title')} subtitle={t('sponsors.subtitle')} onClose={onClose} />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 <div className="max-w-2xl mx-auto px-6 py-8 space-y-10">
@@ -82,57 +69,55 @@ export default function SponsorsView({ onClose }: SponsorsViewProps) {
                     {/* Hero strip */}
                     <div
                         className="rounded-3xl p-8 text-center relative overflow-hidden"
-                        style={{ background: 'linear-gradient(135deg, #333333 0%, #1a1a1a 100%)' }}
+                        style={{ background: 'linear-gradient(135deg, #26262B 0%, #141416 100%)' }}
                     >
                         <div className="absolute inset-0 opacity-10"
-                            style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #B8860B 0%, transparent 60%), radial-gradient(circle at 70% 50%, #B8860B 0%, transparent 60%)' }}
+                            style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C9A84C 0%, transparent 60%), radial-gradient(circle at 70% 50%, #C9A84C 0%, transparent 60%)' }}
                         />
-                        <p className="font-sans text-xs font-bold text-gold/80 uppercase tracking-[0.3em] mb-3 relative">Con il supporto di</p>
-                        <h2 className="font-serif text-3xl font-bold text-cream relative">
-                            I nostri partner<br />
-                            <span className="text-gold italic font-normal text-xl">rendono viva la storia</span>
+                        <p className="eyebrow text-gold/80 mb-3 relative">{t('sponsors.support')}</p>
+                        <h2 className="font-serif text-3xl font-semibold text-cream relative">
+                            {t('sponsors.hero')}<br />
+                            <span className="text-gold italic font-normal text-xl">{t('sponsors.hero_sub')}</span>
                         </h2>
                     </div>
 
-                    {/* Featured sponsors */}
                     {featured.length > 0 && (
-                        <div>
-                            <h3 className="font-sans text-xs font-bold text-anthracite/40 uppercase tracking-[0.2em] mb-4">Partner principali</h3>
+                        <section>
+                            <h3 className="eyebrow text-anthracite/45 mb-4">{t('sponsors.main')}</h3>
                             <div className="space-y-4">
                                 {featured.map(sponsor => (
                                     <SponsorCard key={sponsor.name} sponsor={sponsor} featured />
                                 ))}
                             </div>
-                        </div>
+                        </section>
                     )}
 
-                    {/* Regular sponsors */}
                     {regular.length > 0 && (
-                        <div>
-                            <h3 className="font-sans text-xs font-bold text-anthracite/40 uppercase tracking-[0.2em] mb-4">Sostenitori</h3>
+                        <section>
+                            <h3 className="eyebrow text-anthracite/45 mb-4">{t('sponsors.supporters')}</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {regular.map(sponsor => (
                                     <SponsorCard key={sponsor.name} sponsor={sponsor} />
                                 ))}
                             </div>
-                        </div>
+                        </section>
                     )}
 
                     {/* Become a sponsor CTA */}
-                    <div className="rounded-3xl border-2 border-gold/30 p-8 text-center bg-gold/5">
-                        <p className="font-sans text-xs font-bold text-gold uppercase tracking-[0.2em] mb-2">Vuoi diventare partner?</p>
-                        <h3 className="font-serif text-2xl font-bold text-anthracite mb-3">Collabora con noi</h3>
+                    <section className="rounded-3xl border border-gold/35 p-8 text-center bg-gold/[0.06]">
+                        <p className="eyebrow text-gold-dark mb-2">{t('sponsors.become_partner')}</p>
+                        <h3 className="font-serif text-2xl font-semibold text-anthracite mb-3">{t('sponsors.cta_title')}</h3>
                         <p className="font-sans text-sm text-anthracite/60 leading-relaxed mb-6 max-w-xs mx-auto">
-                            Raggiungi un pubblico di appassionati di cultura, storia e turismo di qualità a Barcellona.
+                            {t('sponsors.cta_body')}
                         </p>
                         <a
                             href="mailto:info@barnaemblematica.com"
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gold hover:bg-gold-dark text-cream font-sans font-bold text-sm transition-colors shadow-lg"
+                            className="inline-flex items-center gap-2 h-11 px-6 rounded-full bg-gold hover:bg-gold-light text-ink font-sans font-semibold text-sm transition-colors"
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                            Contattaci via email
+                            <Envelope size={18} />
+                            {t('sponsors.cta_button')}
                         </a>
-                    </div>
+                    </section>
 
                 </div>
             </div>
@@ -141,43 +126,43 @@ export default function SponsorsView({ onClose }: SponsorsViewProps) {
 }
 
 function SponsorCard({ sponsor, featured }: { sponsor: Sponsor; featured?: boolean }) {
-    const card = (
-        <div className={`bg-white rounded-3xl border border-anthracite/5 shadow-sm overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 ${featured ? 'p-6' : 'p-5'}`}>
+    const { t } = useLanguage()
+    const Logo = sponsor.logo
+
+    return (
+        <div className={`bg-card rounded-3xl border border-anthracite/[0.07] overflow-hidden ${featured ? 'p-6' : 'p-5'}`}>
             <div className="flex items-start gap-4">
-                <div className={`${featured ? 'w-14 h-14 text-3xl' : 'w-11 h-11 text-2xl'} rounded-2xl bg-gold/10 flex items-center justify-center flex-shrink-0`}>
-                    {sponsor.logo.startsWith('http') ? (
-                        <img src={sponsor.logo} alt={sponsor.name} className="w-full h-full object-contain p-1" />
+                <div className={`${featured ? 'w-14 h-14' : 'w-11 h-11'} rounded-2xl bg-gold/10 text-gold-dark flex items-center justify-center flex-shrink-0`}>
+                    {typeof Logo === 'string' ? (
+                        <img src={Logo} alt={sponsor.name} className="w-full h-full object-contain p-1" />
                     ) : (
-                        <span>{sponsor.logo}</span>
+                        <Logo size={featured ? 28 : 22} />
                     )}
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className={`font-serif font-bold text-anthracite ${featured ? 'text-lg' : 'text-base'}`}>{sponsor.name}</h3>
-                        <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-gold bg-gold/10 px-2 py-0.5 rounded-full">{sponsor.category}</span>
+                        <h3 className={`font-serif font-semibold text-anthracite ${featured ? 'text-lg' : 'text-base'}`}>{sponsor.name}</h3>
+                        <span className="eyebrow text-[10px] text-gold-dark bg-gold/10 px-2 py-0.5 rounded-full">{t(sponsor.category)}</span>
                     </div>
-                    <p className={`font-sans text-anthracite/50 mt-0.5 ${featured ? 'text-sm' : 'text-xs'}`}>{sponsor.tagline}</p>
-                    {featured && (
-                        <p className="font-sans text-sm text-anthracite/70 leading-relaxed mt-2">{sponsor.description}</p>
+                    <p className={`font-sans text-anthracite/55 mt-0.5 ${featured ? 'text-sm' : 'text-xs'}`}>{t(sponsor.tagline)}</p>
+                    {featured && sponsor.description && (
+                        <p className="font-sans text-sm text-anthracite/70 leading-relaxed mt-2">{t(sponsor.description)}</p>
                     )}
                 </div>
             </div>
             {sponsor.website && (
-                <div className="mt-4 pt-4 border-t border-anthracite/5">
+                <div className="mt-4 pt-4 border-t border-anthracite/[0.06]">
                     <a
                         href={sponsor.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={e => e.stopPropagation()}
-                        className="font-sans text-xs font-semibold text-gold hover:underline flex items-center gap-1"
+                        className="font-sans text-xs font-semibold text-gold-dark hover:underline inline-flex items-center gap-1"
                     >
-                        Visita il sito
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                        {t('sponsors.visit')}
+                        <ArrowSquareOut size={14} />
                     </a>
                 </div>
             )}
         </div>
     )
-
-    return card
 }

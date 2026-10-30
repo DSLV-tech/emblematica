@@ -43,7 +43,7 @@ export default function CitySelectorView({ onClose }: CitySelectorViewProps) {
                     fontSize: 20, flexShrink: 0,
                 }}>🌍</div>
                 <div style={{ flex: 1 }}>
-                    <h1 style={{ fontFamily: '"Cinzel", serif', fontSize: 18, fontWeight: 700, color: '#F7F0E4', margin: 0 }}>
+                    <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: '#F7F0E4', margin: 0 }}>
                         Scegli la città
                     </h1>
                     <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(247,240,228,0.4)', margin: '2px 0 0' }}>
@@ -115,7 +115,7 @@ export default function CitySelectorView({ onClose }: CitySelectorViewProps) {
                             marginBottom: 8,
                         }}>Vuoi la tua città?</p>
                         <p style={{
-                            fontFamily: '"Literata", serif', fontSize: 13, fontStyle: 'italic',
+                            fontFamily: 'var(--font-serif)', fontSize: 13, fontStyle: 'italic',
                             color: 'rgba(247,240,228,0.45)', lineHeight: 1.6,
                             margin: '0 auto 16px', maxWidth: 280,
                         }}>
@@ -190,7 +190,7 @@ function CityCard({ city, isActive, isNew, onSelect }: {
                     <div style={{ flex: 1, overflow: 'hidden' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
                             <p style={{
-                                fontFamily: '"Cinzel", serif', fontSize: 22, fontWeight: 700,
+                                fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700,
                                 color: '#fff', margin: 0, textShadow: '0 1px 6px rgba(0,0,0,0.5)',
                             }}>{city.name}</p>
                             {isNew && (
@@ -204,7 +204,7 @@ function CityCard({ city, isActive, isNew, onSelect }: {
                             )}
                         </div>
                         <p style={{
-                            fontFamily: '"Literata", serif', fontStyle: 'italic',
+                            fontFamily: 'var(--font-serif)', fontStyle: 'italic',
                             fontSize: 11, color: 'rgba(255,255,255,0.82)', margin: 0,
                             lineHeight: 1.35, overflow: 'hidden',
                             display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
@@ -278,7 +278,7 @@ function ComingSoonCard({ city }: { city: CityConfig }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
                     <span style={{ fontSize: 16 }}>{city.flag}</span>
                     <p style={{
-                        fontFamily: '"Cinzel", serif', fontSize: 13, fontWeight: 700,
+                        fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700,
                         color: '#F7F0E4', margin: 0,
                     }}>{city.name}</p>
                 </div>

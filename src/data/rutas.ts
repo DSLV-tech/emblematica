@@ -1,10 +1,11 @@
 import type { Locale } from '../types'
+import { Anchor, Bank, BookOpenText, Palette, Wine, type Icon } from '@phosphor-icons/react'
 
 export interface Ruta {
     id: string
     title: string
     subtitle: string
-    emoji: string
+    icon: Icon
     color: string          // Tailwind bg class
     colorHex: string
     duration: string       // e.g. "2h 30min"
@@ -21,7 +22,7 @@ export const RUTAS: Ruta[] = [
         id: 'picasso-trail',
         title: 'Barcellona di Picasso',
         subtitle: 'Sui passi del giovane Pablo',
-        emoji: '🎨',
+        icon: Palette,
         color: 'bg-blue-600',
         colorHex: '#2563EB',
         duration: '2h',
@@ -40,7 +41,7 @@ export const RUTAS: Ruta[] = [
         id: 'modernisme-route',
         title: 'Ruta Modernista',
         subtitle: 'Art Nouveau e belle époque catalana',
-        emoji: '🏛️',
+        icon: Bank,
         color: 'bg-amber-600',
         colorHex: '#D97706',
         duration: '2h 30min',
@@ -59,7 +60,7 @@ export const RUTAS: Ruta[] = [
         id: 'gastronomia-storica',
         title: 'Gastronomia Storica',
         subtitle: 'Sapori e memorie del mercato barcellonese',
-        emoji: '🍷',
+        icon: Wine,
         color: 'bg-red-700',
         colorHex: '#B91C1C',
         duration: '3h',
@@ -78,7 +79,7 @@ export const RUTAS: Ruta[] = [
         id: 'letteratura-barcellona',
         title: 'Barcellona Letteraria',
         subtitle: 'Librerie e caffè degli intellettuali',
-        emoji: '📚',
+        icon: BookOpenText,
         color: 'bg-emerald-700',
         colorHex: '#047857',
         duration: '1h 45min',
@@ -97,7 +98,7 @@ export const RUTAS: Ruta[] = [
         id: 'mare-olimpiadi',
         title: 'Dal Mare alle Olimpiadi',
         subtitle: 'La Barcellona che guardò al futuro',
-        emoji: '⚓',
+        icon: Anchor,
         color: 'bg-sky-600',
         colorHex: '#0284C7',
         duration: '2h 15min',

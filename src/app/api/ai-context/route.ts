@@ -3,9 +3,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
+// Lingua in cui Gemini deve rispondere, per codice UI
+const LANGUAGE_NAMES: Record<string, string> = {
+    it: 'italiano', en: 'English', es: 'español', ca: 'català', pt: 'português', ar: 'العربية', zh: '简体中文',
+}
+
 export async function POST(request: NextRequest) {
     try {
-        const { story, name } = await request.json()
+        const { story, name, lang } = await request.json()
+        const language = LANGUAGE_NAMES[lang] ?? LANGUAGE_NAMES.it
 
         if (!story || !name) {
             return NextResponse.json({ error: 'Missing story or name' }, { status: 400 })
@@ -25,7 +31,7 @@ export async function POST(request: NextRequest) {
         const prompt = `Sei una guida esperta di storia culturale catalana e barcellonese. 
 Basandoti sulla seguente storia del luogo storico "${name}", genera UN SINGOLO fatto curioso, 
 sorprendente o poco conosciuto (max 3 frasi). Deve essere coinvolgente, specifico e autentico.
-Rispondi SOLO con il fatto, senza introduzioni o titoli. Scrivi in italiano.
+Rispondi SOLO con il fatto, senza introduzioni o titoli. Scrivi in questa lingua: ${language}.
 
 Storia:
 ${story}`
@@ -37,15 +43,8 @@ ${story}`
     } catch (error: any) {
         console.error('AI context error:', error)
         const raw = error?.message ?? ''
-        // Messaggio user-friendly in base al tipo di errore
-        let userMessage = 'Curiosità AI momentaneamente non disponibile.'
-        if (raw.includes('429') || raw.includes('quota') || raw.includes('Too Many Requests')) {
-            userMessage = 'Troppe richieste AI: riprova tra qualche secondo.'
-        } else if (raw.includes('API key') || raw.includes('invalid') || raw.includes('401')) {
-            userMessage = 'Chiave API non valida. Verifica la configurazione.'
-        } else if (raw.includes('not found') || raw.includes('404')) {
-            userMessage = 'Modello AI non disponibile. Riprova più tardi.'
-        }
-        return NextResponse.json({ error: userMessage }, { status: 500 })
+        // Codice d'errore: il client lo traduce nella lingua dell'utente
+        const busy = raw.includes('429') || raw.includes('quota') || raw.includes('Too Many Requests')
+        return NextResponse.json({ error: busy ? 'busy' : 'unavailable' }, { status: busy ? 429 : 500 })
     }
 }

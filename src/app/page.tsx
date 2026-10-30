@@ -10,6 +10,7 @@ import { useAiContext } from '@/hooks/useAiContext'
 import { useCity } from '@/context/CityContext'
 import { CityProvider } from '@/context/CityContext'
 import { LanguageProvider } from '@/context/LanguageContext'
+import { IconContext } from '@phosphor-icons/react'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/firebase/config'
 import AppShell from '@/AppShell'
@@ -86,7 +87,10 @@ export default function Home() {
   return (
     <CityProvider>
       <LanguageProvider>
-        <AppContent />
+        {/* Phosphor Light come peso di default in tutta l'app */}
+        <IconContext.Provider value={{ weight: 'light', size: 20 }}>
+          <AppContent />
+        </IconContext.Provider>
       </LanguageProvider>
     </CityProvider>
   )

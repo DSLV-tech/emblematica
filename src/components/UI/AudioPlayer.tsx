@@ -2,6 +2,7 @@
 
 import { useAudioStory } from '../../hooks/useAudioStory'
 import { useLanguage } from '../../context/LanguageContext'
+import { CheckCircle, Microphone, SpeakerSlash } from '@phosphor-icons/react'
 
 interface AudioPlayerProps {
     text: string
@@ -9,14 +10,15 @@ interface AudioPlayerProps {
 }
 
 export default function AudioPlayer({ text, localeName }: AudioPlayerProps) {
-    const { lang } = useLanguage()
-    const { state, progress, currentWord, words, toggle, stop } = useAudioStory(text, lang)
+    const { t } = useLanguage()
+    // La voce segue la lingua del testo (le storie sono scritte in italiano), non quella dell'interfaccia
+    const { state, progress, currentWord, words, toggle, stop } = useAudioStory(text, 'it')
 
     if (state === 'unsupported') {
         return (
             <div className="flex items-center gap-3 bg-anthracite/5 rounded-2xl px-4 py-3 text-anthracite/40">
-                <span className="text-lg">🔇</span>
-                <p className="font-sans text-xs">Audio non supportato su questo browser</p>
+                <SpeakerSlash size={20} />
+                <p className="font-sans text-xs">{t('audio.unsupported')}</p>
             </div>
         )
     }
@@ -26,7 +28,7 @@ export default function AudioPlayer({ text, localeName }: AudioPlayerProps) {
     return (
         <div className={`rounded-3xl border transition-all duration-300 overflow-hidden ${isActive
                 ? 'bg-anthracite border-anthracite/20 shadow-xl'
-                : 'bg-white border-anthracite/10 shadow-sm hover:shadow-md'
+                : 'bg-card border-anthracite/10 shadow-sm hover:shadow-md'
             }`}>
             {/* Top bar */}
             <div className="flex items-center gap-4 px-5 py-4">
@@ -35,7 +37,7 @@ export default function AudioPlayer({ text, localeName }: AudioPlayerProps) {
                     onClick={toggle}
                     disabled={state === 'loading'}
                     className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 ${isActive
-                            ? 'bg-gold shadow-[0_0_20px_rgba(184,134,11,0.5)]'
+                            ? 'bg-gold shadow-[0_0_20px_rgba(201,168,76,0.5)]'
                             : 'bg-gold/90 hover:bg-gold'
                         } disabled:opacity-60`}
                 >
@@ -59,9 +61,9 @@ export default function AudioPlayer({ text, localeName }: AudioPlayerProps) {
                     <div className="flex items-center justify-between mb-1">
                         <div>
                             <p className={`font-sans text-[10px] font-bold uppercase tracking-[0.2em] ${isActive ? 'text-gold/70' : 'text-gold/60'}`}>
-                                🎙 Audio Story
+                                <Microphone size={12} className="inline -mt-0.5 me-1" />{t('detail.audio')}
                             </p>
-                            <p className={`font-serif text-sm font-bold truncate ${isActive ? 'text-cream' : 'text-anthracite'}`}>
+                            <p className={`font-serif text-sm font-semibold truncate ${isActive ? 'text-cream' : 'text-anthracite'}`}>
                                 {localeName}
                             </p>
                         </div>
@@ -133,7 +135,7 @@ export default function AudioPlayer({ text, localeName }: AudioPlayerProps) {
             {state === 'ended' && (
                 <div className="px-5 pb-4">
                     <p className="font-sans text-xs text-anthracite/50 text-center">
-                        ✓ Storia completata · Premi ▶ per riascoltare
+                        <CheckCircle size={14} weight="fill" className="inline -mt-0.5 me-1 text-gold-dark" />{t('audio.completed')}
                     </p>
                 </div>
             )}

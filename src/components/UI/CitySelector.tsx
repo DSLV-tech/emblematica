@@ -22,7 +22,7 @@ export default function CitySelector() {
         display:        'flex',
         gap:            6,
         flexWrap:       'wrap',
-        justifyContent: 'flex-end',
+        justifyContent: 'flex-start',
       }}
     >
       {availableCities.map((c: CityConfig) => {
@@ -31,34 +31,34 @@ export default function CitySelector() {
           <button
             key={c.id}
             onClick={() => setCity(c.id)}
+            aria-pressed={isActive}
             title={c.name}
             style={{
               display:        'flex',
               alignItems:     'center',
               gap:            5,
-              padding:        '6px 12px',
+              height:         30,
+              padding:        '0 12px 0 9px',
               borderRadius:   999,
               border:         isActive
-                ? `1.5px solid ${c.accentColor}`
-                : '1.5px solid rgba(255,255,255,0.18)',
+                ? `1px solid ${c.accentColor}`
+                : '1px solid rgba(244,237,225,0.09)',
               background:     isActive
-                ? `${c.accentColor}22`
-                : 'rgba(28,28,30,0.72)',
-              backdropFilter: 'blur(8px)',
+                ? `${c.accentColor}26`
+                : 'rgba(20,20,22,0.78)',
+              backdropFilter: 'blur(14px) saturate(1.4)',
               cursor:         'pointer',
               transition:     'all 180ms ease',
-              boxShadow:      isActive
-                ? `0 0 0 2px ${c.accentColor}44`
-                : '0 2px 8px rgba(0,0,0,0.25)',
+              boxShadow:      '0 4px 14px rgba(0,0,0,0.22)',
             }}
           >
             <span style={{ fontSize: 14 }}>{c.flag}</span>
             <span style={{
               fontFamily:    'var(--font-body, sans-serif)',
-              fontSize:      11,
-              fontWeight:    700,
-              letterSpacing: '0.05em',
-              color:         isActive ? c.accentColor : 'rgba(247,240,228,0.85)',
+              fontSize:      12,
+              fontWeight:    600,
+              letterSpacing: '0.02em',
+              color:         isActive ? '#F4EDE1' : 'rgba(244,237,225,0.7)',
               whiteSpace:    'nowrap',
             }}>
               {c.name}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import type { TranslationKey } from '../i18n/translations'
 
 export interface RouteInfo {
     totalDistance: number // metres
@@ -9,7 +10,9 @@ export interface RouteInfo {
 }
 
 export interface RouteStep {
-    instruction: string
+    /** Manovra come chiave i18n: il testo si compone in UI, nella lingua attiva */
+    maneuver: TranslationKey
+    road?: string
     distance: number
     time: number
     type: number
@@ -66,7 +69,8 @@ export function useRouting() {
             const route = data.routes[0]
             const steps: RouteStep[] = route.legs.flatMap((leg: any) =>
                 leg.steps.map((step: any) => ({
-                    instruction: humanizeInstruction(step.maneuver.type, step.maneuver.modifier, step.name),
+                    maneuver: maneuverKey(step.maneuver.type, step.maneuver.modifier),
+                    road: step.name || undefined,
                     distance: step.distance,
                     time: step.duration,
                     type: step.maneuver.type,
@@ -93,32 +97,32 @@ export function useRouting() {
     return { userPosition, routeInfo, routeGeoJson, isNavigating, locatingUser, error, startNavigation, stopNavigation, locateUser }
 }
 
-// Translate OSRM maneuver types to Italian instructions
-function humanizeInstruction(type: string, modifier?: string, name?: string): string {
-    const road = name && name !== '' ? ` su ${name}` : ''
-    const turns: Record<string, string> = {
-        'turn left': 'Gira a sinistra',
-        'turn right': 'Gira a destra',
-        'turn slight left': 'Tieniti a sinistra',
-        'turn slight right': 'Tieniti a destra',
-        'turn sharp left': 'Svolta decisa a sinistra',
-        'turn sharp right': 'Svolta decisa a destra',
-        'turn uturn': 'Fai inversione a U',
-        'arrive left': 'Sei arrivato (lato sinistro)',
-        'arrive right': 'Sei arrivato (lato destro)',
-        'arrive': 'Sei arrivato a destinazione',
-        'depart': 'Parti',
-        'continue straight': 'Vai dritto',
-        'continue': 'Continua',
-        'roundabout': 'Imbocca la rotonda',
-        'merge': 'Unisciti alla corsia',
-        'fork left': 'Al bivio, tieni a sinistra',
-        'fork right': 'Al bivio, tieni a destra',
-        'end of road left': 'Fine della strada, gira a sinistra',
-        'end of road right': 'Fine della strada, gira a destra',
-    }
-    const key = modifier ? `${type} ${modifier}` : type
-    return (turns[key] || turns[type] || `Continua${road}`) + road
+// OSRM maneuver type/modifier → chiave i18n `turn.*`
+const MANEUVERS: Record<string, TranslationKey> = {
+    'turn left': 'turn.turn_left',
+    'turn right': 'turn.turn_right',
+    'turn slight left': 'turn.slight_left',
+    'turn slight right': 'turn.slight_right',
+    'turn sharp left': 'turn.sharp_left',
+    'turn sharp right': 'turn.sharp_right',
+    'turn uturn': 'turn.uturn',
+    'arrive': 'turn.arrive',
+    'depart': 'turn.depart',
+    'continue straight': 'turn.straight',
+    'continue': 'turn.continue',
+    'roundabout': 'turn.roundabout',
+    'rotary': 'turn.roundabout',
+    'merge': 'turn.merge',
+    'fork left': 'turn.fork_left',
+    'fork slight left': 'turn.fork_left',
+    'fork right': 'turn.fork_right',
+    'fork slight right': 'turn.fork_right',
+    'end of road left': 'turn.end_left',
+    'end of road right': 'turn.end_right',
+}
+
+function maneuverKey(type: string, modifier?: string): TranslationKey {
+    return (modifier && MANEUVERS[`${type} ${modifier}`]) || MANEUVERS[type] || 'turn.continue'
 }
 
 export function formatDistance(metres: number): string {

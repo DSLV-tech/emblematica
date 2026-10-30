@@ -11,22 +11,7 @@ export type Category =
 
 export const CATEGORIES: Category[] = ['bar', 'restaurant', 'bookshop', 'pharmacy', 'shop'];
 
-export const CATEGORY_ICONS: Record<Category, string> = {
-  bar:        '☕',
-  restaurant: '🍽️',
-  bookshop:   '📚',
-  pharmacy:   '⚕️',
-  shop:       '🏪',
-};
-
-export const CATEGORY_LABELS: Record<Category, string> = {
-  bar:        'Bar & Cafè',
-  restaurant: 'Ristorante',
-  bookshop:   'Libreria',
-  pharmacy:   'Farmacia',
-  shop:       'Negozio',
-};
-
+// Icone: components/UI/CategoryIcon.tsx · Etichette: chiavi i18n `cat.<categoria>`
 export const CATEGORY_COLORS: Record<Category, string> = {
   bar:        '#C9A84C',
   restaurant: '#C0552A',

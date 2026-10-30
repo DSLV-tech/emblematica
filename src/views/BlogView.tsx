@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import { ArrowRight, Newspaper, PencilSimpleLine } from '@phosphor-icons/react'
+import ViewHeader from '../components/UI/ViewHeader'
+import { useLanguage } from '../context/LanguageContext'
 
 interface BlogPost {
     id: string
@@ -21,6 +24,7 @@ export default function BlogView({ onClose }: BlogViewProps) {
     const [posts, setPosts] = useState<BlogPost[]>([])
     const [loading, setLoading] = useState(true)
     const [selected, setSelected] = useState<BlogPost | null>(null)
+    const { t } = useLanguage()
 
     useEffect(() => {
         const q = query(collection(db, 'blog'), orderBy('createdAt', 'desc'))
@@ -38,37 +42,13 @@ export default function BlogView({ onClose }: BlogViewProps) {
 
     return (
         <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center gap-4 px-6 py-5 border-b border-anthracite/10 bg-white shadow-sm flex-shrink-0">
-                {selected ? (
-                    <button
-                        onClick={() => setSelected(null)}
-                        className="w-9 h-9 rounded-full bg-anthracite/5 hover:bg-anthracite/10 flex items-center justify-center transition-colors"
-                    >
-                        <svg className="w-5 h-5 text-anthracite" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                ) : (
-                    <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
-                        <span className="text-xl">📰</span>
-                    </div>
-                )}
-                <div className="flex-1">
-                    <h1 className="font-serif text-xl font-bold text-anthracite">
-                        {selected ? selected.title : 'Blog & News'}
-                    </h1>
-                    {!selected && <p className="font-sans text-xs text-anthracite/50">Storie, scoperte e notizie da Barcellona</p>}
-                </div>
-                <button
-                    onClick={onClose}
-                    className="w-10 h-10 rounded-full bg-anthracite/5 hover:bg-anthracite/10 flex items-center justify-center transition-colors"
-                >
-                    <svg className="w-5 h-5 text-anthracite" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+            <ViewHeader
+                icon={Newspaper}
+                title={selected ? selected.title : t('blog.title')}
+                subtitle={selected ? undefined : t('blog.subtitle')}
+                onClose={onClose}
+                onBack={selected ? () => setSelected(null) : undefined}
+            />
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -98,11 +78,11 @@ export default function BlogView({ onClose }: BlogViewProps) {
                     // ── Empty state ──
                     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
                         <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mb-6">
-                            <span className="text-4xl">✍️</span>
+                            <PencilSimpleLine size={36} className="text-gold-dark" />
                         </div>
-                        <h2 className="font-serif text-2xl font-bold text-anthracite mb-2">Nessun articolo ancora</h2>
-                        <p className="font-sans text-sm text-anthracite/50 max-w-xs">
-                            Gli amministratori potranno pubblicare articoli dalla Dashboard Admin.
+                        <h2 className="font-serif text-2xl font-semibold text-anthracite mb-2">{t('blog.empty')}</h2>
+                        <p className="font-sans text-sm text-anthracite/55 max-w-xs">
+                            {t('blog.empty_body')}
                         </p>
                     </div>
                 ) : (
@@ -112,7 +92,7 @@ export default function BlogView({ onClose }: BlogViewProps) {
                             <button
                                 key={post.id}
                                 onClick={() => setSelected(post)}
-                                className="w-full text-left bg-white rounded-3xl shadow-sm border border-anthracite/5 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group"
+                                className="w-full text-left bg-card rounded-3xl shadow-sm border border-anthracite/5 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group"
                             >
                                 {post.image_url && (
                                     <img
@@ -122,15 +102,15 @@ export default function BlogView({ onClose }: BlogViewProps) {
                                     />
                                 )}
                                 <div className="p-5">
-                                    <h2 className="font-serif text-lg font-bold text-anthracite mb-1 group-hover:text-gold transition-colors">
+                                    <h2 className="font-serif text-lg font-semibold text-anthracite mb-1 group-hover:text-gold-dark transition-colors">
                                         {post.title}
                                     </h2>
                                     <p className="font-sans text-sm text-anthracite/60 leading-relaxed line-clamp-2">
                                         {post.content.split('\n')[0]}
                                     </p>
-                                    <span className="inline-flex items-center gap-1 mt-3 font-sans text-xs font-semibold text-gold">
-                                        Leggi tutto
-                                        <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                                    <span className="inline-flex items-center gap-1 mt-3 font-sans text-xs font-semibold text-gold-dark">
+                                        {t('blog.read_more')}
+                                        <ArrowRight size={14} className="group-hover:translate-x-1 rtl:rotate-180 transition-transform" />
                                     </span>
                                 </div>
                             </button>

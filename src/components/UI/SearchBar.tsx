@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
+import { MagnifyingGlass, X } from '@phosphor-icons/react'
+import { useLanguage } from '../../context/LanguageContext'
 
 interface SearchBarProps {
   value: string
@@ -8,51 +10,38 @@ interface SearchBarProps {
   placeholder?: string
 }
 
-export default function SearchBar({ value, onChange, placeholder = 'Cerca un locale...' }: SearchBarProps) {
-  const [focused, setFocused] = useState(false)
+export default function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
+  const { t } = useLanguage()
   const inputRef = useRef<HTMLInputElement>(null)
 
   return (
-    <div
-      className={`
-        flex items-center gap-2 bg-white/95 rounded-full px-4 py-2.5
-        shadow-md transition-all duration-200
-        ${focused ? 'ring-2 ring-gold shadow-lg' : ''}
-      `}
+    <label
+      className="
+        glass flex items-center gap-2.5 h-11 rounded-full ps-4 pe-1.5
+        shadow-[0_6px_24px_rgba(0,0,0,0.28)] transition-[border-color,box-shadow] duration-200
+        focus-within:border-gold/50 focus-within:shadow-[0_0_0_3px_rgba(201,168,76,0.18),0_6px_24px_rgba(0,0,0,0.28)]
+      "
     >
-      <svg
-        className="w-4 h-4 text-gold flex-shrink-0"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
+      <MagnifyingGlass size={18} className="text-gold flex-shrink-0" aria-hidden />
       <input
         ref={inputRef}
-        type="text"
+        type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
         placeholder={placeholder}
-        className="flex-1 bg-transparent text-anthracite text-sm font-sans outline-none placeholder-anthracite/40"
+        aria-label={placeholder}
+        className="flex-1 min-w-0 bg-transparent text-cream text-[15px] font-sans outline-none placeholder:text-cream/40 [&::-webkit-search-cancel-button]:hidden"
       />
       {value && (
         <button
+          type="button"
           onClick={() => { onChange(''); inputRef.current?.focus() }}
-          className="text-anthracite/40 hover:text-anthracite transition-colors"
+          aria-label={t('generic.clear_search')}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-cream/50 hover:text-cream hover:bg-white/10 transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <X size={16} weight="regular" aria-hidden />
         </button>
       )}
-    </div>
+    </label>
   )
 }

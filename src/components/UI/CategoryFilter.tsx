@@ -1,16 +1,26 @@
 'use client'
 
-import { useRef } from 'react'
+import { SquaresFour } from '@phosphor-icons/react'
 import type { Category } from '../../types'
-import { CATEGORIES, CATEGORY_ICONS, CATEGORY_LABELS } from '../../types'
+import { CATEGORIES } from '../../types'
+import { useLanguage } from '../../context/LanguageContext'
+import CategoryIcon from './CategoryIcon'
 
 interface CategoryFilterProps {
   selected: Category | null  // null = Tutti
   onChange: (cat: Category | null) => void
 }
 
+const chipBase = `
+  flex-shrink-0 flex items-center gap-1.5 h-8 pl-2.5 pr-3 rounded-full
+  font-sans text-[13px] font-medium whitespace-nowrap
+  transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.97]
+`
+const chipIdle   = 'glass text-cream/85 hover:text-cream hover:border-cream/25'
+const chipActive = 'bg-gold text-ink border border-gold shadow-[0_4px_14px_rgba(201,168,76,0.35)]'
+
 export default function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const { t } = useLanguage()
 
   const handleClick = (cat: Category) => {
     // Clicking the active category deselects → torna a Tutti
@@ -18,33 +28,22 @@ export default function CategoryFilter({ selected, onChange }: CategoryFilterPro
   }
 
   return (
-    <div className="relative">
-      {/* Gradient hint — indica che ci sono altri chip a destra */}
-      <div
-        className="absolute right-0 top-0 bottom-0 w-10 pointer-events-none z-10"
-        style={{ background: 'linear-gradient(to right, transparent, rgba(28,28,30,0.7))' }}
-        aria-hidden
-      />
-      <div
-        ref={scrollRef}
-        className="flex gap-2 overflow-x-auto scrollbar-hide pl-4 pr-4 py-2"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
-      {/* Chip "Tutti" */}
+    <div
+      className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 py-1"
+      style={{
+        WebkitOverflowScrolling: 'touch',
+        // Sfuma il bordo finale per indicare che ci sono altri chip
+        maskImage: 'linear-gradient(to right, #000 85%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to right, #000 85%, transparent)',
+      }}
+    >
       <button
         onClick={() => onChange(null)}
-        className={`
-          flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
-          text-sm font-sans font-medium whitespace-nowrap
-          transition-all duration-200 shadow-sm
-          ${selected === null
-            ? 'bg-gold text-cream border-2 border-gold-dark shadow-md'
-            : 'bg-white/90 text-anthracite border-2 border-transparent hover:border-gold hover:bg-cream'
-          }
-        `}
+        aria-pressed={selected === null}
+        className={`${chipBase} ${selected === null ? chipActive : chipIdle}`}
       >
-        <span>🗺️</span>
-        <span>Tutti</span>
+        <SquaresFour size={16} aria-hidden />
+        <span>{t('app.filter_all')}</span>
       </button>
 
       {CATEGORIES.map((cat) => {
@@ -53,24 +52,16 @@ export default function CategoryFilter({ selected, onChange }: CategoryFilterPro
           <button
             key={cat}
             onClick={() => handleClick(cat)}
-            className={`
-              flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
-              text-sm font-sans font-medium whitespace-nowrap
-              transition-all duration-200 shadow-sm
-              ${isActive
-                ? 'bg-gold text-cream border-2 border-gold-dark shadow-md'
-                : 'bg-white/90 text-anthracite border-2 border-transparent hover:border-gold hover:bg-cream'
-              }
-            `}
+            aria-pressed={isActive}
+            className={`${chipBase} ${isActive ? chipActive : chipIdle}`}
           >
-            <span>{CATEGORY_ICONS[cat]}</span>
-            <span>{CATEGORY_LABELS[cat]}</span>
+            <CategoryIcon category={cat} size={16} className={isActive ? '' : 'text-gold'} />
+            <span>{t(`cat.${cat}`)}</span>
           </button>
         )
       })}
       {/* Spacer per garantire padding destro nello scroll */}
-      <div className="flex-shrink-0 w-1" aria-hidden />
-    </div>
+      <div className="flex-shrink-0 w-4" aria-hidden />
     </div>
   )
 }

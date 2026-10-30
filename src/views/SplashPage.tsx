@@ -26,9 +26,9 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
         } catch (err: any) {
             console.error(err)
             if (err.message?.includes('API key') || err.message?.includes('authDomain') || err.code === 'auth/invalid-api-key') {
-                setError('⚠️ Configurazione Firebase mancante. Assicurati di aver configurato il file .env.local con le tue chiavi Firebase come descritto in .env.example')
+                setError(t('splash.err_config'))
             } else {
-                setError(err instanceof Error ? err.message : 'Errore con Google Login')
+                setError(t('splash.err_google'))
             }
             setLoading(false)
         }
@@ -42,10 +42,10 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
             await loginWithEmail(email, password)
         } catch (err: any) {
             const msg = err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password'
-                ? 'Email o password non corretti.'
+                ? t('splash.err_credentials')
                 : err.code === 'auth/too-many-requests'
-                ? 'Troppi tentativi. Riprova tra qualche minuto.'
-                : err instanceof Error ? err.message : 'Errore di accesso.'
+                ? t('splash.err_too_many')
+                : t('splash.err_generic')
             setError(msg)
             setLoading(false)
         }
@@ -65,11 +65,11 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
 
             <div className="relative z-10 h-full flex flex-col items-center justify-center px-6 text-center animate-fade-in">
                 {/* Logo & Intro */}
-                <div className="mb-12">
-                    <div className="flex justify-center mb-8 drop-shadow-[0_4px_24px_rgba(184,134,11,0.4)]">
+                <div className="mb-10">
+                    <div className="flex justify-center mb-8 drop-shadow-[0_6px_32px_rgba(201,168,76,0.35)]">
                         <Logo variant="full" size="xl" dark />
                     </div>
-                    <p className="font-sans text-lg md:text-xl text-cream/90 max-w-md mx-auto leading-relaxed border-l-4 border-gold pl-4 text-left shadow-sm">
+                    <p className="font-serif italic text-[17px] md:text-xl text-cream/75 max-w-xs md:max-w-md mx-auto leading-relaxed text-center text-balance">
                         {t('splash.tagline')}
                     </p>
                 </div>
@@ -87,7 +87,7 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
                     <button
                         onClick={handleGoogleLogin}
                         disabled={loading}
-                        className="w-full py-4 rounded-2xl bg-white/95 text-anthracite font-sans font-bold text-base flex items-center justify-center gap-3 hover:bg-white transition-all shadow-[0_8px_30px_rgba(0,0,0,0.3)] disabled:opacity-70 active:scale-95 group"
+                        className="w-full py-4 rounded-full bg-cream text-ink font-sans font-semibold text-base flex items-center justify-center gap-3 hover:bg-white transition-all shadow-[0_8px_30px_rgba(0,0,0,0.3)] disabled:opacity-70 active:scale-95 group"
                     >
                         {loading ? (
                             <div className="w-5 h-5 border-2 border-anthracite border-t-transparent rounded-full animate-spin" />
@@ -109,40 +109,44 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
                                 type="email"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
-                                placeholder="Email"
+                                placeholder={t('splash.email')}
+                                aria-label={t('splash.email')}
+                                autoComplete="email"
                                 required
-                                className="w-full px-4 py-3.5 rounded-2xl bg-white/10 border border-cream/20 text-cream placeholder-cream/40 font-sans text-sm focus:outline-none focus:border-gold/60 focus:bg-white/15 transition-all backdrop-blur-md"
+                                className="w-full px-4 py-3.5 rounded-full bg-white/10 border border-cream/20 text-cream placeholder-cream/40 font-sans text-sm focus:outline-none focus:border-gold/60 focus:bg-white/15 transition-all backdrop-blur-md"
                             />
                             <input
                                 type="password"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
-                                placeholder="Password"
+                                placeholder={t('splash.password')}
+                                aria-label={t('splash.password')}
+                                autoComplete="current-password"
                                 required
-                                className="w-full px-4 py-3.5 rounded-2xl bg-white/10 border border-cream/20 text-cream placeholder-cream/40 font-sans text-sm focus:outline-none focus:border-gold/60 focus:bg-white/15 transition-all backdrop-blur-md"
+                                className="w-full px-4 py-3.5 rounded-full bg-white/10 border border-cream/20 text-cream placeholder-cream/40 font-sans text-sm focus:outline-none focus:border-gold/60 focus:bg-white/15 transition-all backdrop-blur-md"
                             />
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 rounded-2xl bg-gold text-cream font-sans font-bold text-base hover:bg-gold-dark transition-all shadow-lg disabled:opacity-70 active:scale-95"
+                                className="w-full py-4 rounded-full bg-gold text-ink font-sans font-semibold text-base hover:bg-gold-light transition-all shadow-lg disabled:opacity-70 active:scale-95"
                             >
-                                {loading ? <div className="w-5 h-5 border-2 border-cream/50 border-t-cream rounded-full animate-spin mx-auto" /> : 'Accedi'}
+                                {loading ? <div className="w-5 h-5 border-2 border-cream/50 border-t-cream rounded-full animate-spin mx-auto" /> : t('splash.submit')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => { setShowEmailForm(false); setError('') }}
                                 className="w-full text-center font-sans text-xs text-cream/40 hover:text-cream/70 transition-colors py-1"
                             >
-                                ← Torna al login con Google
+                                {t('splash.back_google')}
                             </button>
                         </form>
                     ) : (
                         <button
                             onClick={() => { setShowEmailForm(true); setError('') }}
                             disabled={loading}
-                            className="w-full py-3 rounded-2xl border border-cream/15 bg-transparent text-cream/60 font-sans text-sm hover:text-cream/90 hover:border-cream/30 transition-all disabled:opacity-50"
+                            className="w-full py-3 rounded-full border border-cream/15 bg-transparent text-cream/60 font-sans text-sm hover:text-cream/90 hover:border-cream/30 transition-all disabled:opacity-50"
                         >
-                            Accedi con email e password
+                            {t('splash.login_email')}
                         </button>
                     )}
 
@@ -155,7 +159,7 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
                     <button
                         onClick={onEnterGuest}
                         disabled={loading}
-                        className="w-full py-4 rounded-2xl border border-cream/20 bg-anthracite/30 text-cream font-sans font-semibold text-base hover:bg-anthracite/50 hover:border-cream/40 backdrop-blur-md transition-all disabled:opacity-50 active:scale-95 shadow-lg"
+                        className="w-full py-4 rounded-full border border-cream/20 bg-ink/40 text-cream font-sans font-semibold text-base hover:bg-anthracite/50 hover:border-cream/40 backdrop-blur-md transition-all disabled:opacity-50 active:scale-95 shadow-lg"
                     >
                         {t('splash.continue_guest')}
                     </button>

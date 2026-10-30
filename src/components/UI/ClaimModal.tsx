@@ -10,8 +10,10 @@ import {
     getDocs,
 } from 'firebase/firestore'
 import { db } from '../../firebase/config'
-import type { User } from 'firebase/auth'
-import type { Locale } from '../../types'
+import { CheckCircle, ClipboardText, HouseLine, LockSimple, X } from '@phosphor-icons/react'
+import { useLanguage } from '../../context/LanguageContext'
+import type { TranslationKey } from '../../i18n/translations'
+import type { Locale, AppUser } from '../../types'
 
 export type ClaimStatus = 'pending' | 'approved' | 'rejected'
 
@@ -35,19 +37,27 @@ export interface Claim {
 
 interface ClaimModalProps {
     locale: Locale
-    user: User
+    user: AppUser
     onClose: () => void
 }
 
-const ROLES = ['Proprietario', 'Co-proprietario', 'Direttore', 'Manager', 'Responsabile comunicazione']
+// `id` è il valore salvato su Firestore (invariato), `label` la sua traduzione
+const ROLES: { id: string; label: TranslationKey }[] = [
+    { id: 'Proprietario',               label: 'claim.role_owner' },
+    { id: 'Co-proprietario',            label: 'claim.role_coowner' },
+    { id: 'Direttore',                  label: 'claim.role_director' },
+    { id: 'Manager',                    label: 'claim.role_manager' },
+    { id: 'Responsabile comunicazione', label: 'claim.role_comms' },
+]
 
 export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
+    const { t } = useLanguage()
     const [step, setStep] = useState<'form' | 'success' | 'already'>('form')
     const [checking, setChecking] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [form, setForm] = useState({
         businessName: locale.name,
-        role: ROLES[0],
+        role: ROLES[0].id,
         contactEmail: user.email ?? '',
         contactPhone: '',
         message: '',
@@ -56,9 +66,9 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
 
     const validate = () => {
         const e: Partial<typeof form> = {}
-        if (!form.businessName.trim()) e.businessName = 'Campo obbligatorio'
-        if (!form.contactEmail.includes('@')) e.contactEmail = 'Email non valida'
-        if (!form.message.trim() || form.message.length < 20) e.message = 'Descrivi brevemente il tuo ruolo (min 20 caratteri)'
+        if (!form.businessName.trim()) e.businessName = t('claim.err_required')
+        if (!form.contactEmail.includes('@')) e.contactEmail = t('claim.err_email')
+        if (!form.message.trim() || form.message.length < 20) e.message = t('claim.err_message')
         setErrors(e)
         return Object.keys(e).length === 0
     }
@@ -107,21 +117,19 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
 
     return (
         <div className="fixed inset-0 z-[4000] flex items-end sm:items-center justify-center p-4 bg-anthracite/60 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="bg-card rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar">
 
                 {/* Header */}
                 <div className="flex items-center gap-3 p-6 border-b border-anthracite/10">
-                    <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center text-xl flex-shrink-0">
-                        🏛️
+                    <div className="w-10 h-10 rounded-full bg-gold/15 text-gold-dark flex items-center justify-center flex-shrink-0">
+                        <HouseLine size={22} />
                     </div>
                     <div className="flex-1">
-                        <h2 className="font-serif text-lg font-bold text-anthracite">Reclama il tuo locale</h2>
+                        <h2 className="font-serif text-lg font-semibold text-anthracite">{t('claim.title')}</h2>
                         <p className="font-sans text-xs text-anthracite/50 truncate">{locale.name}</p>
                     </div>
-                    <button onClick={onClose} className="w-9 h-9 rounded-full bg-anthracite/5 hover:bg-anthracite/10 flex items-center justify-center transition-colors">
-                        <svg className="w-4 h-4 text-anthracite" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                    <button onClick={onClose} aria-label={t('generic.close')} className="w-9 h-9 rounded-full bg-anthracite/5 hover:bg-anthracite/10 flex items-center justify-center text-anthracite transition-colors">
+                        <X size={18} />
                     </button>
                 </div>
 
@@ -129,26 +137,26 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
                 <div className="p-6">
                     {step === 'success' && (
                         <div className="text-center py-6 space-y-4">
-                            <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto text-4xl">✅</div>
-                            <h3 className="font-serif text-xl font-bold text-anthracite">Richiesta inviata!</h3>
+                            <div className="w-16 h-16 rounded-full bg-gold/15 text-gold-dark flex items-center justify-center mx-auto"><CheckCircle size={36} /></div>
+                            <h3 className="font-serif text-xl font-semibold text-anthracite">{t('claim.sent_title')}</h3>
                             <p className="font-sans text-sm text-anthracite/60 leading-relaxed max-w-xs mx-auto">
-                                Il nostro team verificherà la tua identità entro 3–5 giorni lavorativi e ti contatterà all'indirizzo <strong>{form.contactEmail}</strong>.
+                                {t('claim.sent_body', { email: form.contactEmail })}
                             </p>
                             <button onClick={onClose} className="mt-4 px-6 py-3 rounded-2xl bg-anthracite text-cream font-sans font-bold text-sm hover:bg-anthracite/80 transition-colors">
-                                Chiudi
+                                {t('generic.close')}
                             </button>
                         </div>
                     )}
 
                     {step === 'already' && (
                         <div className="text-center py-6 space-y-4">
-                            <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto text-4xl">📋</div>
-                            <h3 className="font-serif text-xl font-bold text-anthracite">Richiesta già inviata</h3>
+                            <div className="w-16 h-16 rounded-full bg-gold/10 text-gold-dark flex items-center justify-center mx-auto"><ClipboardText size={36} /></div>
+                            <h3 className="font-serif text-xl font-semibold text-anthracite">{t('claim.already_title')}</h3>
                             <p className="font-sans text-sm text-anthracite/60 leading-relaxed max-w-xs mx-auto">
-                                Hai già inviato una richiesta per questo locale. Stiamo verificando le informazioni.
+                                {t('claim.already_body')}
                             </p>
                             <button onClick={onClose} className="mt-4 px-6 py-3 rounded-2xl bg-anthracite text-cream font-sans font-bold text-sm">
-                                OK
+                                {t('generic.ok')}
                             </button>
                         </div>
                     )}
@@ -156,43 +164,45 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
                     {step === 'form' && (
                         <div className="space-y-5">
                             <div className="bg-gold/8 rounded-2xl p-4 border border-gold/20">
-                                <p className="font-sans text-xs text-anthracite/70 leading-relaxed">
-                                    🔒 <strong>Come funziona:</strong> Compila il modulo → il nostro team verifica → ricevi badge "Gestore verificato" e puoi aggiornare orari, sito web e foto.
+                                <p className="font-sans text-xs text-anthracite/70 leading-relaxed flex gap-2">
+                                    <LockSimple size={16} className="text-gold-dark flex-shrink-0" />
+                                    <span>{t('claim.how')}</span>
                                 </p>
                             </div>
 
                             {/* Business name */}
-                            <Field label="Nome del locale" error={errors.businessName}>
+                            <Field label={t('claim.name')} error={errors.businessName}>
                                 <input
                                     type="text"
                                     value={form.businessName}
                                     onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))}
                                     className="input-base"
-                                    placeholder="Nome ufficiale del locale"
+                                    placeholder={t('claim.name_ph')}
                                 />
                             </Field>
 
                             {/* Role */}
                             <div>
-                                <label className="font-sans text-xs font-bold text-anthracite/60 uppercase tracking-wider mb-2 block">Il tuo ruolo</label>
+                                <label className="font-sans text-xs font-bold text-anthracite/60 uppercase tracking-wider mb-2 block">{t('claim.role')}</label>
                                 <div className="flex flex-wrap gap-2">
                                     {ROLES.map(r => (
                                         <button
-                                            key={r}
-                                            onClick={() => setForm(f => ({ ...f, role: r }))}
-                                            className={`px-3 py-1.5 rounded-full font-sans text-xs font-semibold transition-all border ${form.role === r
+                                            key={r.id}
+                                            aria-pressed={form.role === r.id}
+                                            onClick={() => setForm(f => ({ ...f, role: r.id }))}
+                                            className={`px-3 py-1.5 rounded-full font-sans text-xs font-semibold transition-all border ${form.role === r.id
                                                     ? 'bg-anthracite text-cream border-anthracite'
-                                                    : 'bg-white text-anthracite/70 border-anthracite/20 hover:border-anthracite/40'
+                                                    : 'bg-card text-anthracite/70 border-anthracite/20 hover:border-anthracite/40'
                                                 }`}
                                         >
-                                            {r}
+                                            {t(r.label)}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             {/* Contact email */}
-                            <Field label="Email di contatto" error={errors.contactEmail}>
+                            <Field label={t('claim.email')} error={errors.contactEmail}>
                                 <input
                                     type="email"
                                     value={form.contactEmail}
@@ -203,7 +213,7 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
                             </Field>
 
                             {/* Phone (optional) */}
-                            <Field label="Telefono (opzionale)">
+                            <Field label={t('claim.phone')}>
                                 <input
                                     type="tel"
                                     value={form.contactPhone}
@@ -214,29 +224,29 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
                             </Field>
 
                             {/* Message */}
-                            <Field label="Descrivi il tuo rapporto con il locale" error={errors.message}>
+                            <Field label={t('claim.message')} error={errors.message}>
                                 <textarea
                                     value={form.message}
                                     onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                                     rows={3}
                                     className="input-base resize-none"
-                                    placeholder="Sono il proprietario dal 2010, gestisco la pasticceria insieme a mia sorella…"
+                                    placeholder={t('claim.message_ph')}
                                 />
-                                <p className="font-sans text-[10px] text-anthracite/40 mt-1 text-right">{form.message.length}/200</p>
+                                <p className="font-sans text-[10px] text-anthracite/40 mt-1 text-end">{form.message.length}/200</p>
                             </Field>
 
                             {/* Submit */}
                             <button
                                 onClick={handleSubmit}
                                 disabled={submitting || checking}
-                                className="w-full py-4 rounded-2xl bg-anthracite text-cream font-sans font-bold text-sm hover:bg-anthracite/80 transition-all active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
+                                className="w-full py-4 rounded-full bg-ink text-cream font-sans font-semibold text-sm hover:bg-anthracite/80 transition-all active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
                             >
                                 {(submitting || checking) && <div className="w-4 h-4 border-2 border-cream/50 border-t-cream rounded-full animate-spin" />}
-                                {submitting ? 'Invio in corso…' : checking ? 'Verifica…' : 'Invia richiesta'}
+                                {submitting ? t('claim.submitting') : checking ? t('claim.checking') : t('claim.submit')}
                             </button>
 
                             <p className="font-sans text-[10px] text-anthracite/40 text-center leading-relaxed">
-                                Inviando la richiesta dichiari di essere il legittimo proprietario o responsabile del locale.
+                                {t('claim.disclaimer')}
                             </p>
                         </div>
                     )}

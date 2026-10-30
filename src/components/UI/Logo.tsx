@@ -17,9 +17,9 @@ const SIZES = {
 
 export default function Logo({ size = 'md', variant = 'full', dark = false }: LogoProps) {
     const s = SIZES[size]
-    const gold = '#B8860B'
+    const gold = '#C9A84C'
     const terracotta = '#C4722A'
-    const anthracite = dark ? '#F5F5DC' : '#333333'
+    const anthracite = dark ? '#F4EDE1' : '#1F1F23'
     const goldLight = '#D4AF37'
 
     // Symbol-only: just the medallion
@@ -156,10 +156,10 @@ function MedallionPaths({ gold, terracotta, anthracite, goldLight }: { gold: str
                 x="50"
                 y="55"
                 textAnchor="middle"
-                fontFamily="Georgia, 'Times New Roman', serif"
+                fontFamily="Fraunces, Georgia, serif"
                 fontWeight="bold"
                 fontSize="14"
-                fill="#F5F5DC"
+                fill="#F4EDE1"
                 letterSpacing="-0.5"
             >
                 E
@@ -183,7 +183,7 @@ function WordmarkPaths({ anthracite, gold, fontSize1, fontSize2, cx, cy }: {
                 x={cx}
                 y={cy}
                 textAnchor="middle"
-                fontFamily="Georgia, 'Playfair Display', serif"
+                fontFamily="Fraunces, Georgia, serif"
                 fontWeight="700"
                 fontSize={fontSize1}
                 fill={anthracite}
@@ -207,7 +207,7 @@ function WordmarkPaths({ anthracite, gold, fontSize1, fontSize2, cx, cy }: {
                 x={cx}
                 y={lineY + fontSize2 * 1.6}
                 textAnchor="middle"
-                fontFamily="Georgia, 'Playfair Display', serif"
+                fontFamily="Fraunces, Georgia, serif"
                 fontStyle="italic"
                 fontWeight="400"
                 fontSize={fontSize2}

@@ -5,6 +5,9 @@ import { RUTAS, type Ruta } from '../data/rutas'
 import { SAMPLE_LOCALES } from '../data/sampleData'
 import type { Locale } from '../types'
 import { useLanguage } from '../context/LanguageContext'
+import type { TranslationKey } from '../i18n/translations'
+import { ArrowRight, Footprints, Lightbulb, MapPin, MapTrifold, Bank, Timer, type Icon } from '@phosphor-icons/react'
+import ViewHeader from '../components/UI/ViewHeader'
 
 interface RutasViewProps {
     onClose: () => void
@@ -23,39 +26,17 @@ export default function RutasView({ onClose, onStartRuta }: RutasViewProps) {
 
     return (
         <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center gap-4 px-6 py-5 border-b border-anthracite/10 bg-white shadow-sm flex-shrink-0">
-                {selected ? (
-                    <button
-                        onClick={() => setSelected(null)}
-                        className="w-9 h-9 rounded-full bg-anthracite/5 hover:bg-anthracite/10 flex items-center justify-center transition-colors"
-                    >
-                        <svg className="w-5 h-5 text-anthracite" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                ) : (
-                    <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
-                        <span className="text-xl">🧭</span>
-                    </div>
-                )}
-                <div className="flex-1">
-                    <h1 className="font-serif text-xl font-bold text-anthracite">
-                        {selected ? selected.title : t('rutas.title')}
-                    </h1>
-                    {!selected && <p className="font-sans text-xs text-anthracite/50">{t('rutas.subtitle')}</p>}
-                    {selected && <p className="font-sans text-xs text-anthracite/50">{selected.subtitle}</p>}
-                </div>
-                <button onClick={onClose} className="w-10 h-10 rounded-full bg-anthracite/5 hover:bg-anthracite/10 flex items-center justify-center transition-colors">
-                    <svg className="w-5 h-5 text-anthracite" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+            <ViewHeader
+                icon={MapTrifold}
+                title={selected ? selected.title : t('rutas.title')}
+                subtitle={selected ? selected.subtitle : t('rutas.subtitle')}
+                onClose={onClose}
+                onBack={selected ? () => setSelected(null) : undefined}
+            />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {selected ? (
-                    <RutaDetail ruta={selected} onStartRuta={onStartRuta} onClose={onClose} t={t} />
+                    <RutaDetail ruta={selected} onStartRuta={onStartRuta} onClose={onClose} difficultyLabel={DIFFICULTY_LABEL} t={t} />
                 ) : (
                     <RutaList onSelect={setSelected} difficultyLabel={DIFFICULTY_LABEL} t={t} />
                 )}
@@ -68,18 +49,18 @@ export default function RutasView({ onClose, onStartRuta }: RutasViewProps) {
 function RutaList({ onSelect, difficultyLabel, t }: {
     onSelect: (r: Ruta) => void
     difficultyLabel: Record<string, string>
-    t: (k: any) => string
+    t: (k: TranslationKey) => string
 }) {
     return (
         <div className="p-6 max-w-2xl mx-auto space-y-5">
             {/* Intro */}
             <div
                 className="rounded-3xl p-7 relative overflow-hidden mb-2"
-                style={{ background: 'linear-gradient(135deg, #333333 0%, #1a1a1a 100%)' }}
+                style={{ background: 'linear-gradient(135deg, #26262B 0%, #141416 100%)' }}
             >
-                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(ellipse at 80% 50%, #B8860B 0%, transparent 60%)' }} />
-                <p className="font-sans text-xs font-bold text-gold/70 uppercase tracking-[0.3em] mb-2 relative">{t('rutas.curated_label')}</p>
-                <h2 className="font-serif text-2xl text-cream font-bold leading-snug relative">
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(ellipse at 80% 50%, #C9A84C 0%, transparent 60%)' }} />
+                <p className="eyebrow text-gold/80 mb-2 relative">{t('rutas.curated_label')}</p>
+                <h2 className="font-serif text-2xl text-cream font-semibold leading-snug relative">
                     {RUTAS.length} {t('rutas.intro_title')}
                 </h2>
                 <p className="font-sans text-sm text-cream/60 mt-3 leading-relaxed relative">
@@ -92,17 +73,17 @@ function RutaList({ onSelect, difficultyLabel, t }: {
                 <button
                     key={ruta.id}
                     onClick={() => onSelect(ruta)}
-                    className="w-full text-left bg-white rounded-3xl border border-anthracite/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all overflow-hidden group"
+                    className="w-full text-left bg-card rounded-3xl border border-anthracite/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all overflow-hidden group"
                 >
                     {/* Color bar */}
                     <div className="h-1.5 w-full" style={{ backgroundColor: ruta.colorHex }} />
                     <div className="p-5">
                         <div className="flex items-start gap-4">
-                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ backgroundColor: ruta.colorHex + '18' }}>
-                                {ruta.emoji}
+                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: ruta.colorHex + '18', color: ruta.colorHex }}>
+                                <ruta.icon size={28} />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h3 className="font-serif text-lg font-bold text-anthracite group-hover:text-gold transition-colors">{ruta.title}</h3>
+                                <h3 className="font-serif text-lg font-semibold text-anthracite group-hover:text-gold-dark transition-colors">{ruta.title}</h3>
                                 <p className="font-sans text-xs text-anthracite/50 mb-2">{ruta.subtitle}</p>
                                 <p className="font-sans text-sm text-anthracite/70 leading-relaxed line-clamp-2">{ruta.description}</p>
                             </div>
@@ -110,11 +91,11 @@ function RutaList({ onSelect, difficultyLabel, t }: {
 
                         {/* Stats row */}
                         <div className="flex items-center gap-4 mt-4 pt-3 border-t border-anthracite/5">
-                            <Stat icon="⏱" label={ruta.duration} />
-                            <Stat icon="📍" label={ruta.distance} />
-                            <Stat icon="🏃" label={difficultyLabel[ruta.difficulty] ?? ruta.difficulty} small />
-                            <div className="ml-auto">
-                                <span className="font-sans text-xs font-bold text-gold">{ruta.localeIds.length} {t('rutas.stops')} →</span>
+                            <Stat icon={Timer} label={ruta.duration} />
+                            <Stat icon={MapPin} label={ruta.distance} />
+                            <Stat icon={Footprints} label={difficultyLabel[ruta.difficulty] ?? ruta.difficulty} />
+                            <div className="ms-auto">
+                                <span className="font-sans text-xs font-semibold text-gold-dark inline-flex items-center gap-1">{ruta.localeIds.length} {t('rutas.stops')} <ArrowRight size={14} className="rtl:rotate-180" /></span>
                             </div>
                         </div>
                     </div>
@@ -125,11 +106,12 @@ function RutaList({ onSelect, difficultyLabel, t }: {
 }
 
 // ─── Detail view ─────────────────────────────────────────────────────────────
-function RutaDetail({ ruta, onStartRuta, onClose, t }: {
+function RutaDetail({ ruta, onStartRuta, onClose, difficultyLabel, t }: {
     ruta: Ruta
+    difficultyLabel: Record<string, string>
     onStartRuta: (ids: string[]) => void
     onClose: () => void
-    t: (k: any) => string
+    t: (k: TranslationKey) => string
 }) {
     // Resolve locale objects referenced by this ruta
     const stops: Locale[] = ruta.localeIds
@@ -145,21 +127,21 @@ function RutaDetail({ ruta, onStartRuta, onClose, t }: {
         <div className="max-w-2xl mx-auto px-6 py-8 space-y-8">
             {/* Hero */}
             <div className="rounded-3xl p-8 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${ruta.colorHex} 0%, ${ruta.colorHex}99 100%)` }}>
-                <div className="text-5xl mb-4">{ruta.emoji}</div>
-                <h2 className="font-serif text-3xl font-bold text-white mb-1">{ruta.title}</h2>
+                <ruta.icon size={44} className="text-white mb-4" />
+                <h2 className="font-display text-3xl font-semibold text-white mb-1">{ruta.title}</h2>
                 <p className="font-sans text-white/80 text-sm">{ruta.subtitle}</p>
 
                 {/* Stats */}
                 <div className="flex gap-4 mt-6 flex-wrap">
                     {[
-                        { icon: '⏱', val: ruta.duration, label: t('rutas.duration') },
-                        { icon: '📍', val: ruta.distance, label: t('rutas.distance') },
-                        { icon: '🏃', val: ruta.difficulty, label: t('rutas.difficulty') },
-                        { icon: '🏛️', val: `${ruta.localeIds.length} ${t('rutas.stops')}`, label: t('rutas.fermate') },
+                        { icon: Timer,      val: ruta.duration, label: t('rutas.duration') },
+                        { icon: MapPin,     val: ruta.distance, label: t('rutas.distance') },
+                        { icon: Footprints, val: difficultyLabel[ruta.difficulty] ?? ruta.difficulty, label: t('rutas.difficulty') },
+                        { icon: Bank,       val: `${ruta.localeIds.length} ${t('rutas.stops')}`, label: t('rutas.fermate') },
                     ].map(s => (
                         <div key={s.label} className="bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2 text-center">
-                            <p className="font-sans text-lg leading-none">{s.icon}</p>
-                            <p className="font-serif text-sm font-bold text-white mt-1">{s.val}</p>
+                            <s.icon size={18} className="text-white mx-auto" />
+                            <p className="font-serif text-sm font-semibold text-white mt-1">{s.val}</p>
                             <p className="font-sans text-[10px] text-white/70 uppercase tracking-wider">{s.label}</p>
                         </div>
                     ))}
@@ -168,13 +150,13 @@ function RutaDetail({ ruta, onStartRuta, onClose, t }: {
 
             {/* Description */}
             <div>
-                <h3 className="font-serif text-lg font-bold text-anthracite mb-3">{t('rutas.on_route')}</h3>
+                <h3 className="font-serif text-lg font-semibold text-anthracite mb-3">{t('rutas.on_route')}</h3>
                 <p className="font-sans text-sm text-anthracite/70 leading-relaxed">{ruta.description}</p>
             </div>
 
             {/* Highlights */}
             <div>
-                <h3 className="font-serif text-lg font-bold text-anthracite mb-3">{t('rutas.highlights')}</h3>
+                <h3 className="font-serif text-lg font-semibold text-anthracite mb-3">{t('rutas.highlights')}</h3>
                 <div className="space-y-3">
                     {ruta.highlights.map((h, i) => (
                         <div key={i} className="flex gap-3 items-start">
@@ -189,18 +171,18 @@ function RutaDetail({ ruta, onStartRuta, onClose, t }: {
 
             {/* Stops */}
             <div>
-                <h3 className="font-serif text-lg font-bold text-anthracite mb-3">{t('rutas.stops_label')}</h3>
+                <h3 className="font-serif text-lg font-semibold text-anthracite mb-3">{t('rutas.stops_label')}</h3>
                 <div className="relative">
-                    <div className="absolute left-5 top-0 bottom-0 w-px" style={{ backgroundColor: ruta.colorHex + '40' }} />
+                    <div className="absolute start-5 top-0 bottom-0 w-px" style={{ backgroundColor: ruta.colorHex + '40' }} />
                     <div className="space-y-4">
                         {stops.map((locale, i) => (
                             <div key={locale.id} className="flex gap-4 items-start">
                                 {/* Step number */}
-                                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-[0_0_0_3px_#F5F5DC] text-white text-sm font-bold" style={{ backgroundColor: ruta.colorHex }}>
+                                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-[0_0_0_3px_var(--color-cream)] text-white text-sm font-bold" style={{ backgroundColor: ruta.colorHex }}>
                                     {i + 1}
                                 </div>
                                 {/* Info */}
-                                <div className="flex-1 bg-white rounded-2xl p-4 border border-anthracite/5 shadow-sm flex gap-3">
+                                <div className="flex-1 bg-card rounded-2xl p-4 border border-anthracite/5 shadow-sm flex gap-3">
                                     <img
                                         src={locale.image_url}
                                         alt={locale.name}
@@ -208,7 +190,7 @@ function RutaDetail({ ruta, onStartRuta, onClose, t }: {
                                         onError={e => ((e.target as HTMLImageElement).style.display = 'none')}
                                     />
                                     <div>
-                                        <p className="font-serif text-sm font-bold text-anthracite">{locale.name}</p>
+                                        <p className="font-serif text-sm font-semibold text-anthracite">{locale.name}</p>
                                         <p className="font-sans text-xs text-anthracite/50 mt-0.5">{locale.address}</p>
                                         <p className="font-sans text-xs text-anthracite/70 mt-1 leading-relaxed line-clamp-2">{locale.description}</p>
                                     </div>
@@ -222,9 +204,9 @@ function RutaDetail({ ruta, onStartRuta, onClose, t }: {
             {/* Tip */}
             {ruta.tip && (
                 <div className="flex gap-3 bg-gold/10 rounded-2xl p-4 border border-gold/20">
-                    <span className="text-2xl flex-shrink-0">💡</span>
+                    <Lightbulb size={24} className="text-gold-dark flex-shrink-0" />
                     <div>
-                        <p className="font-sans text-xs font-bold text-gold uppercase tracking-wide mb-1">{t('rutas.tip')}</p>
+                        <p className="eyebrow text-gold-dark mb-1">{t('rutas.tip')}</p>
                         <p className="font-sans text-sm text-anthracite/80 leading-relaxed">{ruta.tip}</p>
                     </div>
                 </div>
@@ -236,7 +218,7 @@ function RutaDetail({ ruta, onStartRuta, onClose, t }: {
                 className="w-full py-5 rounded-3xl text-white font-sans font-bold text-base shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                 style={{ backgroundColor: ruta.colorHex }}
             >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                <MapTrifold size={22} />
                 {t('rutas.open_map')}
             </button>
 
@@ -246,11 +228,11 @@ function RutaDetail({ ruta, onStartRuta, onClose, t }: {
 }
 
 // ─── Helper ─────────────────────────────────────────────────────────────────
-function Stat({ icon, label, small }: { icon: string; label: string; small?: boolean }) {
+function Stat({ icon: Glyph, label }: { icon: Icon; label: string }) {
     return (
         <div className="flex items-center gap-1.5">
-            <span className={small ? 'text-xs' : 'text-sm'}>{icon}</span>
-            <span className={`font-sans font-semibold text-anthracite/70 ${small ? 'text-[11px]' : 'text-xs'}`}>{label}</span>
+            <Glyph size={16} className="text-gold-dark" />
+            <span className="font-sans font-medium text-anthracite/70 text-xs">{label}</span>
         </div>
     )
 }

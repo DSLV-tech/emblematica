@@ -11,7 +11,8 @@ interface LanguageContextValue {
     allLanguages: LangMeta[]
     isRtl: boolean
     setLang: (code: LangCode) => void
-    t: (key: TranslationKey) => string
+    /** Traduce una chiave; `vars` sostituisce i segnaposto `{nome}` */
+    t: (key: TranslationKey, vars?: Record<string, string | number>) => string
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
@@ -51,16 +52,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     const setLang = useCallback((code: LangCode) => {
         setLangState(code)
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(STORAGE_KEY, code)
-            const meta = LANGUAGES.find(l => l.code === code)
-            document.documentElement.lang = code
-            document.documentElement.dir = meta?.rtl ? 'rtl' : 'ltr'
-        }
+        if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, code)
     }, [])
 
-    const t = useCallback((key: TranslationKey): string => {
-        return translations[lang]?.[key] ?? translations['it'][key] ?? key
+    // Allinea <html lang/dir> anche alla lingua ripristinata all'avvio, non solo al cambio manuale
+    useEffect(() => {
+        const meta = LANGUAGES.find(l => l.code === lang)
+        document.documentElement.lang = lang
+        document.documentElement.dir = meta?.rtl ? 'rtl' : 'ltr'
+    }, [lang])
+
+    const t = useCallback((key: TranslationKey, vars?: Record<string, string | number>): string => {
+        const text = translations[lang]?.[key] ?? translations['it'][key] ?? key
+        return vars ? text.replace(/\{(\w+)\}/g, (m, name) => (name in vars ? String(vars[name]) : m)) : text
     }, [lang])
 
     const langMeta = LANGUAGES.find(l => l.code === lang) ?? LANGUAGES[0]

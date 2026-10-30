@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import type { Locale } from '../types'
-import { CATEGORIES, CATEGORY_ICONS } from '../types'
+import { CATEGORIES } from '../types'
+import { MapPin, PencilSimpleLine, SealCheck, ShieldCheck } from '@phosphor-icons/react'
+import CategoryIcon from '../components/UI/CategoryIcon'
 import { useAdminLocales, useAdminBlog } from '../hooks/useAdmin'
 import ImageUpload from '../components/UI/ImageUpload'
 import { SAMPLE_LOCALES } from '../data/sampleData'
@@ -93,12 +95,12 @@ export default function AdminView({ onClose }: AdminViewProps) {
     return (
         <div className="fixed inset-0 z-[4000] bg-cream overflow-hidden flex flex-col animate-fade-in">
             {/* Header */}
-            <div className="flex items-center gap-4 px-6 py-4 border-b border-anthracite/10 bg-white shadow-sm flex-shrink-0">
+            <div className="flex items-center gap-4 px-6 py-4 border-b border-anthracite/10 bg-cream/90 backdrop-blur-md flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
-                    <span className="text-xl">🛡️</span>
+                    <ShieldCheck size={22} className="text-gold-dark" />
                 </div>
                 <div className="flex-1">
-                    <h1 className="font-serif text-xl font-bold text-anthracite">Admin Dashboard</h1>
+                    <h1 className="font-display text-xl font-semibold text-anthracite">Admin Dashboard</h1>
                     <p className="font-sans text-xs text-anthracite/50">Gestione contenuti Emblematica</p>
                 </div>
                 <button
@@ -112,10 +114,10 @@ export default function AdminView({ onClose }: AdminViewProps) {
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-anthracite/10 bg-white flex-shrink-0">
+            <div className="flex border-b border-anthracite/10 bg-card flex-shrink-0">
                 {[
-                    { key: 'locali', label: 'Locali', icon: '📍' },
-                    { key: 'blog', label: 'Blog', icon: '✍️' },
+                    { key: 'locali', label: 'Locali', icon: MapPin },
+                    { key: 'blog', label: 'Blog', icon: PencilSimpleLine },
                 ].map(t => (
                     <button
                         key={t.key}
@@ -125,7 +127,7 @@ export default function AdminView({ onClose }: AdminViewProps) {
                             : 'border-transparent text-anthracite/50 hover:text-anthracite'
                             }`}
                     >
-                        <span>{t.icon}</span> {t.label}
+                        <t.icon size={16} /> {t.label}
                     </button>
                 ))}
             </div>
@@ -167,7 +169,7 @@ export default function AdminView({ onClose }: AdminViewProps) {
             {/* Delete Confirm */}
             {deleteConfirm && (
                 <div className="fixed inset-0 z-[4100] flex items-center justify-center bg-anthracite/50 backdrop-blur-sm p-6" onClick={() => setDeleteConfirm(null)}>
-                    <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center" onClick={e => e.stopPropagation()}>
+                    <div className="bg-card rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center" onClick={e => e.stopPropagation()}>
                         <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
                             <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </div>
@@ -203,7 +205,7 @@ function LocaliTab({ locales, loading, onNew, onEdit, onDelete }: {
                 </div>
                 <button
                     onClick={onNew}
-                    className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-2xl bg-gold text-cream font-sans font-bold text-sm shadow-lg hover:bg-gold-dark transition-colors"
+                    className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-2xl bg-gold text-ink font-sans font-bold text-sm shadow-lg hover:bg-gold-dark transition-colors"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                     <span className="hidden sm:inline">Aggiungi Locale</span>
@@ -215,7 +217,7 @@ function LocaliTab({ locales, loading, onNew, onEdit, onDelete }: {
                     <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
                 </div>
             ) : (
-                <div className="bg-white rounded-3xl shadow-sm border border-anthracite/5 overflow-hidden">
+                <div className="bg-card rounded-3xl shadow-sm border border-anthracite/5 overflow-hidden">
                     {locales.map((locale, i) => (
                         <div key={locale.id} className={`flex items-center gap-4 px-6 py-4 ${i < locales.length - 1 ? 'border-b border-anthracite/5' : ''} hover:bg-anthracite/2 transition-colors group`}>
                             {/* Image */}
@@ -225,7 +227,7 @@ function LocaliTab({ locales, loading, onNew, onEdit, onDelete }: {
                             {/* Info */}
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
-                                    <span className="font-sans text-sm">{CATEGORY_ICONS[locale.category] ?? '📍'}</span>
+                                    <CategoryIcon category={locale.category} size={16} className="text-gold-dark" />
                                     <p className="font-serif text-base font-bold text-anthracite truncate">{locale.name}</p>
                                     {locale.protected && <span className="text-xs bg-gold/15 text-gold-dark px-2 py-0.5 rounded-full font-sans font-semibold hidden sm:inline">Protetto</span>}
                                 </div>
@@ -269,7 +271,7 @@ function BlogTab({ title, setTitle, content, setContent, image, setImage, publis
                 <p className="font-sans text-sm text-anthracite/50 mt-0.5">Scrivi e pubblica un articolo sulla piattaforma</p>
             </div>
 
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-anthracite/5 space-y-5">
+            <div className="bg-card rounded-3xl p-6 border border-anthracite/[0.07] space-y-5">
                 <Field label="Titolo dell'articolo">
                     <input
                         value={title}
@@ -303,7 +305,7 @@ function BlogTab({ title, setTitle, content, setContent, image, setImage, publis
                             onClick={() => setPublished(!published)}
                             className={`w-12 h-6 rounded-full transition-colors relative ${published ? 'bg-gold' : 'bg-anthracite/20'}`}
                         >
-                            <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${published ? 'translate-x-7' : 'translate-x-1'}`} />
+                            <div className={`absolute top-1 w-4 h-4 rounded-full bg-card shadow transition-transform ${published ? 'translate-x-7' : 'translate-x-1'}`} />
                         </div>
                         <span className="font-sans text-sm font-semibold text-anthracite">
                             {published ? 'Pubblica subito' : 'Salva come bozza'}
@@ -374,7 +376,7 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
                         <Field label="Categoria">
                             <select value={form.category} onChange={e => set('category', e.target.value as any)} className={inputCx}>
                                 {CATEGORIES.map(c => (
-                                    <option key={c} value={c}>{CATEGORY_ICONS[c]} {c}</option>
+                                    <option key={c} value={c}>{c}</option>
                                 ))}
                             </select>
                         </Field>
@@ -433,7 +435,7 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
                             onChange={e => set('protected', e.target.checked)}
                             className="w-5 h-5 rounded accent-gold"
                         />
-                        <span className="font-sans text-sm font-semibold text-anthracite">Patrimonio Protetto 🏛️</span>
+                        <span className="font-sans text-sm font-semibold text-anthracite">Patrimonio protetto</span><SealCheck size={16} className="text-gold-dark" />
                     </label>
 
                     <div className="flex gap-3 pt-4 border-t border-anthracite/10">
@@ -443,7 +445,7 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="flex-1 py-4 rounded-2xl bg-gold hover:bg-gold-dark text-cream font-sans font-bold text-sm shadow-lg transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                            className="flex-1 py-4 rounded-2xl bg-gold hover:bg-gold-dark text-ink font-sans font-bold text-sm shadow-lg transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
                         >
                             {saving && <div className="w-4 h-4 border-2 border-cream/50 border-t-cream rounded-full animate-spin" />}
                             {saving ? 'Salvataggio…' : initial ? 'Salva Modifiche' : 'Aggiungi Locale'}
@@ -456,7 +458,7 @@ function LocaleFormModal({ initial, onSave, onClose, saving }: {
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
-const inputCx = 'w-full px-4 py-3 rounded-xl border border-anthracite/15 font-sans text-sm text-anthracite bg-white focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all'
+const inputCx = 'w-full px-4 py-3 rounded-xl border border-anthracite/15 font-sans text-sm text-anthracite bg-card focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all'
 
 function Field({ label, children, required }: { label: string; children: React.ReactNode; required?: boolean }) {
     return (

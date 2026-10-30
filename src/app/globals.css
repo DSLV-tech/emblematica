@@ -2,20 +2,34 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #F5F5DC;
-  --color-gold: #B8860B;
-  --color-gold-light: #D4A017;
-  --color-gold-dark: #8B6508;
-  --color-anthracite: #333333;
-  --color-anthracite-light: #555555;
+  /* ── Palette "Notte e carta" ───────────────────────────────
+     ink   = chrome che galleggia sopra la mappa (notte)
+     cream = superfici di lettura (carta d'archivio)
+     gold  = unico accento; gold-dark per testo su carta (AA) */
+  --color-ink: #141416;
+  --color-ink-2: #1C1C20;
+  --color-ink-3: #26262B;
+  --color-cream: #F4EDE1;
+  --color-paper-2: #EAE1D0;
+  --color-card: #FBF8F2;
+  --color-gold: #C9A84C;
+  --color-gold-light: #E3CB82;
+  --color-gold-dark: #85651C;
+  --color-terracotta: #B5532C;
+  --color-anthracite: #1F1F23;
+  --color-anthracite-light: #46464D;
 
-  --font-serif: "Literata", Georgia, serif;
-  --font-sans: "PT Sans", system-ui, sans-serif;
+  /* Fraunces: titoli e accenti editoriali · Inter: interfaccia e testo */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
 
-  --animate-slide-up: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  --animate-fade-in: fadeIn 0.25s ease-in-out;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-slide-up: slideUp 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-in: fadeIn 0.28s ease-out;
   --animate-spin: spin 1s linear infinite;
-  --animate-bounce-in: bounceIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-bounce-in: bounceIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
   @keyframes slideUp {
     from {
@@ -50,7 +64,7 @@
   @keyframes bounceIn {
     from {
       opacity: 0;
-      transform: scale(0.85);
+      transform: scale(0.94);
     }
 
     to {
@@ -76,11 +90,35 @@
     overflow: hidden;
   }
 
+  :root {
+    /* alias usato dagli stili inline dei componenti */
+    --font-body: var(--font-sans);
+    color-scheme: light;
+  }
+
   body {
-    font-family: "PT Sans", system-ui, sans-serif;
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    color: var(--color-anthracite);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #F5F5DC;
+    background-color: var(--color-ink);
+  }
+
+  ::selection {
+    background: rgba(201, 168, 76, 0.35);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
@@ -93,68 +131,100 @@
   }
 }
 
+/* ── Componenti condivisi ──────────────────────────────── */
+@utility glass {
+  background: rgba(20, 20, 22, 0.78);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(244, 237, 225, 0.09);
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@utility hairline {
+  border-color: rgba(31, 31, 35, 0.09);
+}
+
 /* Leaflet overrides */
 .leaflet-container {
-  font-family: "PT Sans", sans-serif;
-  background: #e8e4d9;
+  font-family: var(--font-sans);
+  background: #E9E2D4;
+}
+
+.leaflet-control-attribution {
+  font-size: 10px !important;
+  background: rgba(244, 237, 225, 0.8) !important;
+  color: rgba(31, 31, 35, 0.6) !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--color-gold-dark) !important;
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 12px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
-  border: 1px solid rgba(184, 134, 11, 0.2) !important;
+  border-radius: 14px !important;
+  background: var(--color-ink) !important;
+  color: var(--color-cream) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(201, 168, 76, 0.25) !important;
 }
 
 .leaflet-popup-tip {
-  background: white !important;
+  background: var(--color-ink) !important;
 }
 
 .leaflet-control-zoom {
   border: none !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
 .leaflet-control-zoom a {
-  color: #333333 !important;
-  font-family: "PT Sans", sans-serif !important;
+  color: var(--color-anthracite) !important;
+  font-family: var(--font-sans) !important;
 }
 
 .leaflet-control-zoom a:hover {
-  background-color: #F5F5DC !important;
+  background-color: var(--color-cream) !important;
 }
 
 /* AI fact overlay animation */
 .ai-card-enter {
-  animation: bounceIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: bounceIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Form input base */
 .input-base {
   width: 100%;
   padding: 0.75rem 1rem;
-  border-radius: 1rem;
-  border: 1px solid rgba(51, 51, 51, 0.15);
-  background: #fff;
-  font-family: "PT Sans", system-ui, sans-serif;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(31, 31, 35, 0.14);
+  background: var(--color-card);
+  font-family: var(--font-sans);
   font-size: 0.875rem;
-  color: #333;
+  color: var(--color-anthracite);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input-base:focus {
   outline: none;
-  border-color: #B8860B;
-  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.1);
+  border-color: var(--color-gold-dark);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.18);
 }
 
 .input-base::placeholder {
-  color: rgba(51, 51, 51, 0.35);
+  color: rgba(31, 31, 35, 0.38);
 }
 
 /* Custom scrollbar for overlays */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(184, 134, 11, 0.2) transparent;
+  scrollbar-color: rgba(133, 101, 28, 0.3) transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -166,6 +236,6 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(184, 134, 11, 0.2);
+  background-color: rgba(133, 101, 28, 0.3);
   border-radius: 9999px;
 }
