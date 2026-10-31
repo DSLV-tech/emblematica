@@ -12,3 +12,13 @@ public/workbox-*.js.map
 
 # Firebase service account — non committare mai
 service-account.json
+.vercel
+.env*
+!.env.example
+dist
+.DS_Store
+*.tsbuildinfo
+
+# Strumenti locali
+.claude/
+graphify-out/
