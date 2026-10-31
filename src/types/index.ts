@@ -40,7 +40,7 @@ export interface Locale {
   address:      string;
   description:  string;       // breve, per la card
   full_story:   string;       // lunga, per DetailView + Audio
-  founded_year: number;       // es. 1929
+  founded_year?: number;      // es. 1929, assente se le fonti non lo documentano
   image_url:    string;       // hero image
   gallery:      string[];     // array di URL
   social:       SocialLinks;

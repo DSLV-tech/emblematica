@@ -1,17 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, type UserProfile } from '@/hooks/useAuth'
 import { useLocales } from '@/hooks/useLocales'
 import { usePassport } from '@/hooks/usePassport'
 import { useRouting } from '@/hooks/useRouting'
 import { useFavorites } from '@/hooks/useFavorites'
-import { useAiContext } from '@/hooks/useAiContext'
 import { useCity } from '@/context/CityContext'
 import { CityProvider } from '@/context/CityContext'
 import { LanguageProvider } from '@/context/LanguageContext'
 import { IconContext } from '@phosphor-icons/react'
-import { signOut } from 'firebase/auth'
+import { signOut, type User } from 'firebase/auth'
 import { auth } from '@/firebase/config'
 import AppShell from '@/AppShell'
 import SplashPage from '@/views/SplashPage'
@@ -19,30 +18,13 @@ import type { Locale } from '@/types'
 import type { Ruta } from '@/types'
 
 function AppContent() {
-const { user, profile, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const [enteredAsGuest, setEnteredAsGuest] = useState(false)
-  const { city } = useCity()
-
-  const { locales, loading: localesLoading } = useLocales('', 'Tutti', city?.collection)
-  const { checkIn, hasStamp, stamps } = usePassport(user)
-  const { routeInfo, routeGeoJson, userPosition, isNavigating, startNavigation, stopNavigation } = useRouting()
-  const { toggleFavorite, isFavorite } = useFavorites(user)
-  const { fact: aiCuriosity, loading: aiLoading } = useAiContext()
-
-  const rutas: Ruta[] = []
 
   const handleLogout = async () => {
     await signOut(auth)
     setEnteredAsGuest(false)
   }
-
-  const handleStartRoute = async (locale: Locale) => {
-    await startNavigation(locale.coordinates.lat, locale.coordinates.lng)
-  }
-
-  const passport = stamps.length > 0
-    ? { uid: user?.uid ?? '', stamps, totalVisits: stamps.length, createdAt: null, lastVisitAt: null }
-    : null
 
   if (authLoading) {
     return (
@@ -56,6 +38,30 @@ const { user, profile, loading: authLoading } = useAuth()
     return <SplashPage onEnterGuest={() => setEnteredAsGuest(true)} />
   }
 
+  return <AppData user={user} profile={profile} onLogout={handleLogout} />
+}
+
+// Montato solo dopo lo splash: chi non entra non consuma letture Firestore e la
+// città salvata è già stata ripristinata, quindi non si legge quella di default.
+function AppData({ user, profile, onLogout }: { user: User | null; profile: UserProfile | null; onLogout: () => void }) {
+  const { city } = useCity()
+
+  const { locales } = useLocales('', 'Tutti', city?.collection)
+  const { checkIn, hasStamp, stamps } = usePassport(user)
+  const { routeInfo, routeGeoJson, userPosition, isNavigating, startNavigation, stopNavigation } = useRouting()
+  const { toggleFavorite, isFavorite } = useFavorites(user)
+
+  const rutas: Ruta[] = []
+
+  const handleStartRoute = async (locale: Locale) => {
+    // L'errore resta nello stato di useRouting
+    await startNavigation(locale.coordinates.lat, locale.coordinates.lng).catch(() => {})
+  }
+
+  const passport = stamps.length > 0
+    ? { uid: user?.uid ?? '', stamps, totalVisits: stamps.length, createdAt: null, lastVisitAt: null }
+    : null
+
   return (
     <AppShell
       user={profile}
@@ -64,7 +70,7 @@ const { user, profile, loading: authLoading } = useAuth()
       city={city?.name}
       cityCenter={city?.center}
       cityZoom={city?.zoom}
-      onLogout={handleLogout}
+      onLogout={onLogout}
       onCheckIn={checkIn}
       onToggleFavorite={toggleFavorite}
       isFavorite={isFavorite}
@@ -74,8 +80,6 @@ const { user, profile, loading: authLoading } = useAuth()
       isLoadingRoute={isNavigating}
       onStopRoute={stopNavigation}
       passport={passport}
-      aiCuriosity={aiCuriosity ?? undefined}
-      isLoadingAI={aiLoading}
       totalLocali={locales.length}
       routeGeoJson={routeGeoJson}
       userPosition={userPosition}

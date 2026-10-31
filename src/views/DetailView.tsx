@@ -2,13 +2,12 @@
 
 import { useState } from 'react'
 import type { Locale, AppUser } from '../types'
-import { useAiContext } from '../hooks/useAiContext'
 import { useLanguage } from '../context/LanguageContext'
 import AudioPlayer from '../components/UI/AudioPlayer'
 import ClaimModal from '../components/UI/ClaimModal'
 import CategoryIcon from '../components/UI/CategoryIcon'
 import {
-  CaretLeft, CheckCircle, Clock, FacebookLogo, Globe, Heart, HouseLine, InstagramLogo, MapPin, MapTrifold, SealCheck, Sparkle, Stamp, X,
+  CaretLeft, CheckCircle, Clock, FacebookLogo, Globe, Heart, HouseLine, InstagramLogo, MapPin, MapTrifold, SealCheck, Stamp, X,
 } from '@phosphor-icons/react'
 
 interface DetailViewProps {
@@ -25,11 +24,9 @@ interface DetailViewProps {
 
 export default function DetailView({ locale, isFavorite, onBack, onToggleFavorite, onNavigate, onCheckIn, hasStamp, checkingIn, user }: DetailViewProps) {
   const [imgError, setImgError] = useState(false)
-  const [showAiFact, setShowAiFact] = useState(false)
   const [navigating, setNavigating] = useState(false)
   const [showClaim, setShowClaim] = useState(false)
-  const { fetchFact, fact, loading: aiLoading, error: aiError } = useAiContext()
-  const { t, lang } = useLanguage()
+  const { t } = useLanguage()
 
   const openMaps = () => {
     const { lat, lng } = locale.coordinates
@@ -45,13 +42,6 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
     } else {
       openMaps()
     }
-  }
-
-  const handleAiClick = async () => {
-    if (!fact) {
-      await fetchFact(locale.full_story, locale.name, lang)
-    }
-    setShowAiFact(true)
   }
 
   const paragraphs = locale.full_story.split('\n\n').filter(Boolean)
@@ -187,28 +177,6 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
             <div className="pt-6 border-t border-anthracite/10">
               <AudioPlayer text={locale.full_story} localeName={locale.name} />
             </div>
-
-            {/* AI Curiosità Button */}
-            <div className="pt-6 border-t border-anthracite/10">
-              <button
-                onClick={handleAiClick}
-                disabled={aiLoading}
-                className="w-full py-5 rounded-2xl border border-gold/30 bg-gradient-to-r from-gold/10 via-white to-gold/5 text-anthracite font-sans font-semibold text-base flex items-center justify-center gap-3 hover:border-gold hover:shadow-lg transition-all duration-300 active:scale-95 disabled:opacity-60 group relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gold/10 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                {aiLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin relative z-10" />
-                    <span className="relative z-10">{t('detail.ai_loading')}</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkle size={22} className="text-gold-dark relative z-10" />
-                    <span className="relative z-10">{t('detail.ai_fact')}</span>
-                  </>
-                )}
-              </button>
-            </div>
           </div>
 
           {/* Sidebar (Gallery & Meta) */}
@@ -228,50 +196,6 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
         </div>
       </div>
 
-      {/* AI Fact Overlay Modal */}
-      {showAiFact && (
-        <div
-          className="fixed inset-0 z-[3100] flex items-center justify-center p-6"
-          style={{ background: 'rgba(20,20,20,0.6)', backdropFilter: 'blur(12px)' }}
-          onClick={() => setShowAiFact(false)}
-        >
-          <div
-            className="w-full max-w-lg bg-cream rounded-3xl p-8 shadow-2xl relative animate-fade-in border border-gold/20"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-gold text-ink flex items-center justify-center shadow-lg border-4 border-cream">
-              <Sparkle size={22} weight="fill" />
-            </div>
-
-            <button
-              onClick={() => setShowAiFact(false)}
-              aria-label={t('generic.close')}
-              className="absolute top-4 end-4 w-8 h-8 rounded-full bg-anthracite/5 flex items-center justify-center text-anthracite/60 hover:bg-anthracite/10 transition-colors"
-            >
-              <X size={16} />
-            </button>
-
-            <div className="text-center mt-6 mb-6">
-              <h4 className="font-serif text-2xl font-semibold text-anthracite mb-2">{t('detail.ai_reveal_title')}</h4>
-              <p className="font-sans text-xs text-anthracite/50 uppercase tracking-widest">{t('detail.ai_anecdote_subtitle')}</p>
-            </div>
-
-            {aiError ? (
-              <p className="font-sans text-sm text-red-600 bg-red-50 px-4 py-3 rounded-xl text-center">
-                {t(aiError === 'busy' ? 'detail.ai_err_busy' : 'detail.ai_err_unavailable')}
-              </p>
-            ) : (
-              <p className="font-serif text-lg text-anthracite/80 leading-relaxed text-center italic">
-                “{fact}”
-              </p>
-            )}
-
-            <div className="mt-8 pt-6 border-t border-anthracite/10 flex items-center justify-center gap-2">
-              <span className="font-sans text-[10px] text-anthracite/40 uppercase tracking-widest font-bold">{t('detail.ai_powered_by')}</span>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Claim this venue section */}
       {user && (

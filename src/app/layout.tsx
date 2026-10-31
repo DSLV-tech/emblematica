@@ -44,20 +44,6 @@ export default function RootLayout({
       </head>
       <body>
         {children}
-        {/* Service Worker registration — runs only in production */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then(function(reg) { console.log('[SW] registered', reg.scope); })
-                    .catch(function(err) { console.warn('[SW] registration failed', err); });
-                });
-              }
-            `,
-          }}
-        />
       </body>
     </html>
   )

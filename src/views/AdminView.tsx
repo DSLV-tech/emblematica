@@ -72,7 +72,7 @@ export default function AdminView({ onClose }: AdminViewProps) {
             setLoadingLocales(false)
         })
         return unsub
-    }, [])
+    }, [collectionName])
 
     const handleSaveLocale = async (data: Omit<Locale, 'id'>, id?: string) => {
         await saveLocale(data, id)
@@ -335,7 +335,7 @@ function BlogTab({ title, setTitle, content, setContent, image, setImage, publis
 
 // ─── Locale Form Modal ─────────────────────────────────────────────────────
 function LocaleFormModal({ initial, onSave, onClose, saving }: {
-    initial?: Locale
+    initial: Locale
     onSave: (data: Omit<Locale, 'id'>, id?: string) => Promise<void>
     onClose: () => void
     saving: boolean

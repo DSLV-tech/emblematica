@@ -55,8 +55,6 @@ export type TranslationKey =
     // Detail view
     | 'detail.story'
     | 'detail.audio'
-    | 'detail.ai_fact'
-    | 'detail.ai_loading'
     | 'detail.navigate'
     | 'detail.open_maps'
     | 'detail.stamp_passport'
@@ -144,9 +142,6 @@ export type TranslationKey =
     | 'detail.protected_heritage'
     | 'detail.founded_since'
     | 'detail.address_label'
-    | 'detail.ai_reveal_title'
-    | 'detail.ai_anecdote_subtitle'
-    | 'detail.ai_powered_by'
     | 'detail.claim_venue'
     | 'detail.calculating_route'
     // Locale preview (BottomSheet / card)
@@ -160,6 +155,8 @@ export type TranslationKey =
     | 'rutas.intro_title'
     | 'rutas.intro_body'
     | 'rutas.fermate'
+    | 'rutas.empty'
+    | 'rutas.exit'
     // Passport — extra
     | 'passport.by_city'
     | 'passport.city_complete'
@@ -194,8 +191,6 @@ export type TranslationKey =
     | 'splash.err_credentials'
     | 'splash.err_too_many'
     | 'splash.err_generic'
-    | 'detail.ai_err_busy'
-    | 'detail.ai_err_unavailable'
     | 'audio.unsupported'
     | 'audio.completed'
     | 'passport.visited'
@@ -239,8 +234,6 @@ export type TranslationKey =
     | 'about.f_nav_desc'
     | 'about.f_fav'
     | 'about.f_fav_desc'
-    | 'about.f_ai'
-    | 'about.f_ai_desc'
     | 'about.contact_title'
     | 'about.contact_body'
     | 'about.rights'
@@ -337,8 +330,6 @@ export const translations: TranslationDictionary = {
         'map.no_results': 'Nessun risultato trovato',
         'detail.story': 'La storia',
         'detail.audio': 'Audio Story',
-        'detail.ai_fact': 'Rivela una Curiosità Storica',
-        'detail.ai_loading': "L'AI sta cercando…",
         'detail.navigate': "Naviga nell'app",
         'detail.open_maps': 'Apri in Google Maps',
         'detail.stamp_passport': 'Timbra Passaporto',
@@ -413,9 +404,6 @@ export const translations: TranslationDictionary = {
         'detail.protected_heritage': 'Patrimonio Protetto',
         'detail.founded_since': 'Dal',
         'detail.address_label': 'Indirizzo',
-        'detail.ai_reveal_title': 'Lo Sapevi?',
-        'detail.ai_anecdote_subtitle': 'Un aneddoto dimenticato',
-        'detail.ai_powered_by': 'Generato da Google Gemini',
         'detail.claim_venue': 'Sei il gestore? Reclama questo locale',
         'detail.calculating_route': 'Calcolo percorso…',
         'locale.view_details': 'Vedi dettagli',
@@ -427,6 +415,8 @@ export const translations: TranslationDictionary = {
         'rutas.intro_title': 'percorsi per scoprire la città vera',
         'rutas.intro_body': 'Ogni ruta è progettata per essere percorsa a piedi, collegando locali storici con un filo narrativo comune.',
         'rutas.fermate': 'fermate',
+        'rutas.empty': 'Presto nuovi percorsi per questa città.',
+        'rutas.exit': 'Esci dal percorso',
         'passport.by_city': 'Per città',
         'passport.city_complete': 'Completa!',
         'passport.worldwide': 'del mondo Emblematica',
@@ -459,8 +449,6 @@ export const translations: TranslationDictionary = {
         'splash.err_credentials': 'Email o password non corretti.',
         'splash.err_too_many': 'Troppi tentativi. Riprova tra qualche minuto.',
         'splash.err_generic': 'Accesso non riuscito.',
-        'detail.ai_err_busy': 'Troppe richieste: riprova tra qualche secondo.',
-        'detail.ai_err_unavailable': 'Curiosità non disponibile al momento.',
         'audio.unsupported': 'L’audio non è supportato da questo browser',
         'audio.completed': 'Storia completata · premi play per riascoltare',
         'passport.visited': 'Locali visitati',
@@ -504,8 +492,6 @@ export const translations: TranslationDictionary = {
         'about.f_nav_desc': 'Indicazioni a piedi direttamente nell’app, senza uscire.',
         'about.f_fav': 'Preferiti',
         'about.f_fav_desc': 'Salva i luoghi che ti hanno colpito per ritrovarli facilmente.',
-        'about.f_ai': 'Curiosità con l’AI',
-        'about.f_ai_desc': 'Aneddoti storici generati dall’intelligenza artificiale per ogni locale.',
         'about.contact_title': 'Collabora con noi',
         'about.contact_body': 'Hai informazioni su un locale storico, un errore da segnalare o un posto da suggerire? Scrivici.',
         'about.rights': 'Tutti i diritti riservati.',
@@ -599,8 +585,6 @@ export const translations: TranslationDictionary = {
         'map.no_results': 'No results found',
         'detail.story': 'The story',
         'detail.audio': 'Audio Story',
-        'detail.ai_fact': 'Reveal a Historical Fact',
-        'detail.ai_loading': 'AI is searching…',
         'detail.navigate': 'Navigate in app',
         'detail.open_maps': 'Open in Google Maps',
         'detail.stamp_passport': 'Stamp Passport',
@@ -675,9 +659,6 @@ export const translations: TranslationDictionary = {
         'detail.protected_heritage': 'Protected Heritage',
         'detail.founded_since': 'Since',
         'detail.address_label': 'Address',
-        'detail.ai_reveal_title': 'Did You Know?',
-        'detail.ai_anecdote_subtitle': 'A forgotten anecdote',
-        'detail.ai_powered_by': 'Generated by Google Gemini',
         'detail.claim_venue': 'Are you the owner? Claim this venue',
         'detail.calculating_route': 'Calculating route…',
         'locale.view_details': 'View details',
@@ -689,6 +670,8 @@ export const translations: TranslationDictionary = {
         'rutas.intro_title': 'routes to discover the real city',
         'rutas.intro_body': 'Each route is designed to be walked, linking historic venues with a shared narrative thread.',
         'rutas.fermate': 'stops',
+        'rutas.empty': 'New routes for this city are coming soon.',
+        'rutas.exit': 'Leave route',
         'passport.by_city': 'By city',
         'passport.city_complete': 'Complete!',
         'passport.worldwide': 'of the Emblematica world',
@@ -721,8 +704,6 @@ export const translations: TranslationDictionary = {
         'splash.err_credentials': 'Incorrect email or password.',
         'splash.err_too_many': 'Too many attempts. Try again in a few minutes.',
         'splash.err_generic': 'Sign-in failed.',
-        'detail.ai_err_busy': 'Too many requests: try again in a few seconds.',
-        'detail.ai_err_unavailable': 'This fact isn’t available right now.',
         'audio.unsupported': 'Audio isn’t supported in this browser',
         'audio.completed': 'Story finished · press play to listen again',
         'passport.visited': 'Places visited',
@@ -766,8 +747,6 @@ export const translations: TranslationDictionary = {
         'about.f_nav_desc': 'Walking directions right inside the app.',
         'about.f_fav': 'Favourites',
         'about.f_fav_desc': 'Save the places that struck you so you can find them again.',
-        'about.f_ai': 'AI anecdotes',
-        'about.f_ai_desc': 'Historical anecdotes generated by AI for every place.',
         'about.contact_title': 'Work with us',
         'about.contact_body': 'Know something about a historic place, spotted a mistake or have a suggestion? Write to us.',
         'about.rights': 'All rights reserved.',
@@ -861,8 +840,6 @@ export const translations: TranslationDictionary = {
         'map.no_results': 'Sin resultados',
         'detail.story': 'La historia',
         'detail.audio': 'Historia en audio',
-        'detail.ai_fact': 'Revelar una curiosidad histórica',
-        'detail.ai_loading': 'La IA está buscando…',
         'detail.navigate': 'Navegar en la app',
         'detail.open_maps': 'Abrir en Google Maps',
         'detail.stamp_passport': 'Sellar Pasaporte',
@@ -937,9 +914,6 @@ export const translations: TranslationDictionary = {
         'detail.protected_heritage': 'Patrimonio Protegido',
         'detail.founded_since': 'Desde',
         'detail.address_label': 'Dirección',
-        'detail.ai_reveal_title': '¿Sabías que…?',
-        'detail.ai_anecdote_subtitle': 'Una anécdota olvidada',
-        'detail.ai_powered_by': 'Generado por Google Gemini',
         'detail.claim_venue': '¿Eres el gestor? Reclama este local',
         'detail.calculating_route': 'Calculando ruta…',
         'locale.view_details': 'Ver detalles',
@@ -951,6 +925,8 @@ export const translations: TranslationDictionary = {
         'rutas.intro_title': 'rutas para descubrir la ciudad real',
         'rutas.intro_body': 'Cada ruta está diseñada para recorrerse a pie, conectando locales históricos con un hilo narrativo común.',
         'rutas.fermate': 'paradas',
+        'rutas.empty': 'Pronto habrá rutas para esta ciudad.',
+        'rutas.exit': 'Salir de la ruta',
         'passport.by_city': 'Por ciudad',
         'passport.city_complete': '¡Completa!',
         'passport.worldwide': 'del mundo Emblematica',
@@ -983,8 +959,6 @@ export const translations: TranslationDictionary = {
         'splash.err_credentials': 'Email o contraseña incorrectos.',
         'splash.err_too_many': 'Demasiados intentos. Inténtalo en unos minutos.',
         'splash.err_generic': 'No se pudo iniciar sesión.',
-        'detail.ai_err_busy': 'Demasiadas solicitudes: inténtalo en unos segundos.',
-        'detail.ai_err_unavailable': 'La curiosidad no está disponible ahora.',
         'audio.unsupported': 'Este navegador no admite audio',
         'audio.completed': 'Historia terminada · pulsa play para volver a escuchar',
         'passport.visited': 'Locales visitados',
@@ -1028,8 +1002,6 @@ export const translations: TranslationDictionary = {
         'about.f_nav_desc': 'Indicaciones a pie directamente en la app.',
         'about.f_fav': 'Favoritos',
         'about.f_fav_desc': 'Guarda los lugares que te han gustado para encontrarlos fácilmente.',
-        'about.f_ai': 'Curiosidades con IA',
-        'about.f_ai_desc': 'Anécdotas históricas generadas por IA para cada local.',
         'about.contact_title': 'Colabora con nosotros',
         'about.contact_body': '¿Tienes información sobre un local histórico, un error que señalar o un sitio que sugerir? Escríbenos.',
         'about.rights': 'Todos los derechos reservados.',
@@ -1123,8 +1095,6 @@ export const translations: TranslationDictionary = {
         'map.no_results': 'Cap resultat trobat',
         'detail.story': 'La història',
         'detail.audio': 'Història en àudio',
-        'detail.ai_fact': 'Revela una curiositat històrica',
-        'detail.ai_loading': 'La IA està cercant…',
         'detail.navigate': 'Navega a l\'app',
         'detail.open_maps': 'Obre a Google Maps',
         'detail.stamp_passport': 'Segella el Passaport',
@@ -1199,9 +1169,6 @@ export const translations: TranslationDictionary = {
         'detail.protected_heritage': 'Patrimoni Protegit',
         'detail.founded_since': 'Des de',
         'detail.address_label': 'Adreça',
-        'detail.ai_reveal_title': 'Ho sabies?',
-        'detail.ai_anecdote_subtitle': 'Una anècdota oblidada',
-        'detail.ai_powered_by': 'Generat per Google Gemini',
         'detail.claim_venue': 'Ets el gestor? Reclama aquest local',
         'detail.calculating_route': 'Calculant ruta…',
         'locale.view_details': 'Veure detalls',
@@ -1213,6 +1180,8 @@ export const translations: TranslationDictionary = {
         'rutas.intro_title': 'rutes per descobrir la ciutat de veritat',
         'rutas.intro_body': 'Cada ruta està dissenyada per ser recorreguda a peu, connectant locals històrics amb un fil narratiu comú.',
         'rutas.fermate': 'parades',
+        'rutas.empty': 'Aviat hi haurà rutes per a aquesta ciutat.',
+        'rutas.exit': 'Surt de la ruta',
         'passport.by_city': 'Per ciutat',
         'passport.city_complete': 'Completa!',
         'passport.worldwide': 'del món Emblematica',
@@ -1245,8 +1214,6 @@ export const translations: TranslationDictionary = {
         'splash.err_credentials': 'Correu o contrasenya incorrectes.',
         'splash.err_too_many': 'Massa intents. Torna-ho a provar d’aquí a uns minuts.',
         'splash.err_generic': 'No s’ha pogut iniciar la sessió.',
-        'detail.ai_err_busy': 'Massa sol·licituds: torna-ho a provar d’aquí a uns segons.',
-        'detail.ai_err_unavailable': 'La curiositat no està disponible ara mateix.',
         'audio.unsupported': 'Aquest navegador no admet àudio',
         'audio.completed': 'Història acabada · prem play per tornar-la a escoltar',
         'passport.visited': 'Locals visitats',
@@ -1290,8 +1257,6 @@ export const translations: TranslationDictionary = {
         'about.f_nav_desc': 'Indicacions a peu directament a l’app.',
         'about.f_fav': 'Preferits',
         'about.f_fav_desc': 'Desa els llocs que t’han agradat per trobar-los fàcilment.',
-        'about.f_ai': 'Curiositats amb IA',
-        'about.f_ai_desc': 'Anècdotes històriques generades per IA per a cada local.',
         'about.contact_title': 'Col·labora amb nosaltres',
         'about.contact_body': 'Tens informació sobre un local històric, un error per comunicar o un lloc per suggerir? Escriu-nos.',
         'about.rights': 'Tots els drets reservats.',
@@ -1385,8 +1350,6 @@ export const translations: TranslationDictionary = {
         'map.no_results': 'Sem resultados',
         'detail.story': 'A história',
         'detail.audio': 'História em áudio',
-        'detail.ai_fact': 'Revelar uma curiosidade histórica',
-        'detail.ai_loading': 'A IA está a pesquisar…',
         'detail.navigate': 'Navegar na app',
         'detail.open_maps': 'Abrir no Google Maps',
         'detail.stamp_passport': 'Carimbar Passaporte',
@@ -1461,9 +1424,6 @@ export const translations: TranslationDictionary = {
         'detail.protected_heritage': 'Património Protegido',
         'detail.founded_since': 'Desde',
         'detail.address_label': 'Endereço',
-        'detail.ai_reveal_title': 'Sabias que…?',
-        'detail.ai_anecdote_subtitle': 'Uma anedota esquecida',
-        'detail.ai_powered_by': 'Gerado pelo Google Gemini',
         'detail.claim_venue': 'És o gestor? Reivindica este local',
         'detail.calculating_route': 'A calcular rota…',
         'locale.view_details': 'Ver detalhes',
@@ -1475,6 +1435,8 @@ export const translations: TranslationDictionary = {
         'rutas.intro_title': 'rotas para descobrir a cidade real',
         'rutas.intro_body': 'Cada rota é pensada para ser percorrida a pé, ligando locais históricos com um fio narrativo comum.',
         'rutas.fermate': 'paragens',
+        'rutas.empty': 'Em breve haverá percursos para esta cidade.',
+        'rutas.exit': 'Sair do percurso',
         'passport.by_city': 'Por cidade',
         'passport.city_complete': 'Completa!',
         'passport.worldwide': 'do mundo Emblematica',
@@ -1507,8 +1469,6 @@ export const translations: TranslationDictionary = {
         'splash.err_credentials': 'Email ou palavra-passe incorretos.',
         'splash.err_too_many': 'Demasiadas tentativas. Tente novamente dentro de alguns minutos.',
         'splash.err_generic': 'Não foi possível iniciar sessão.',
-        'detail.ai_err_busy': 'Demasiados pedidos: tente novamente dentro de segundos.',
-        'detail.ai_err_unavailable': 'A curiosidade não está disponível agora.',
         'audio.unsupported': 'Este navegador não suporta áudio',
         'audio.completed': 'História concluída · carregue em play para ouvir de novo',
         'passport.visited': 'Locais visitados',
@@ -1552,8 +1512,6 @@ export const translations: TranslationDictionary = {
         'about.f_nav_desc': 'Indicações a pé diretamente na app.',
         'about.f_fav': 'Favoritos',
         'about.f_fav_desc': 'Guarde os lugares que o marcaram para os encontrar facilmente.',
-        'about.f_ai': 'Curiosidades com IA',
-        'about.f_ai_desc': 'Episódios históricos gerados por IA para cada local.',
         'about.contact_title': 'Colabore connosco',
         'about.contact_body': 'Tem informações sobre um local histórico, um erro a assinalar ou um sítio a sugerir? Escreva-nos.',
         'about.rights': 'Todos os direitos reservados.',
@@ -1647,8 +1605,6 @@ export const translations: TranslationDictionary = {
         'map.no_results': 'لا توجد نتائج',
         'detail.story': 'القصة',
         'detail.audio': 'القصة الصوتية',
-        'detail.ai_fact': 'اكشف حقيقة تاريخية',
-        'detail.ai_loading': 'الذكاء الاصطناعي يبحث…',
         'detail.navigate': 'التنقل في التطبيق',
         'detail.open_maps': 'فتح في خرائط Google',
         'detail.stamp_passport': 'ختم الجواز',
@@ -1723,9 +1679,6 @@ export const translations: TranslationDictionary = {
         'detail.protected_heritage': 'تراث محمي',
         'detail.founded_since': 'منذ',
         'detail.address_label': 'العنوان',
-        'detail.ai_reveal_title': 'هل تعلم؟',
-        'detail.ai_anecdote_subtitle': 'قصة منسية',
-        'detail.ai_powered_by': 'مُنشأ بواسطة Google Gemini',
         'detail.claim_venue': 'هل أنت المدير؟ طالب بهذا المكان',
         'detail.calculating_route': 'جارٍ حساب المسار…',
         'locale.view_details': 'عرض التفاصيل',
@@ -1737,6 +1690,8 @@ export const translations: TranslationDictionary = {
         'rutas.intro_title': 'مسارات لاكتشاف المدينة الحقيقية',
         'rutas.intro_body': 'كل مسار مصمم للسير على الأقدام، يربط الأماكن التاريخية بخيط سردي مشترك.',
         'rutas.fermate': 'محطات',
+        'rutas.empty': 'ستتوفر مسارات لهذه المدينة قريبًا.',
+        'rutas.exit': 'الخروج من المسار',
         'passport.by_city': 'حسب المدينة',
         'passport.city_complete': 'مكتمل!',
         'passport.worldwide': 'من عالم Emblematica',
@@ -1769,8 +1724,6 @@ export const translations: TranslationDictionary = {
         'splash.err_credentials': 'البريد أو كلمة المرور غير صحيحة.',
         'splash.err_too_many': 'محاولات كثيرة. حاول بعد بضع دقائق.',
         'splash.err_generic': 'تعذّر تسجيل الدخول.',
-        'detail.ai_err_busy': 'طلبات كثيرة: حاول بعد ثوانٍ.',
-        'detail.ai_err_unavailable': 'المعلومة غير متاحة حاليًا.',
         'audio.unsupported': 'هذا المتصفح لا يدعم الصوت',
         'audio.completed': 'انتهت القصة · اضغط تشغيل للاستماع مجددًا',
         'passport.visited': 'أماكن زرتها',
@@ -1814,8 +1767,6 @@ export const translations: TranslationDictionary = {
         'about.f_nav_desc': 'إرشادات المشي مباشرة داخل التطبيق.',
         'about.f_fav': 'المفضلة',
         'about.f_fav_desc': 'احفظ الأماكن التي أعجبتك لتجدها بسهولة.',
-        'about.f_ai': 'طرائف بالذكاء الاصطناعي',
-        'about.f_ai_desc': 'طرائف تاريخية يولّدها الذكاء الاصطناعي لكل مكان.',
         'about.contact_title': 'تعاون معنا',
         'about.contact_body': 'لديك معلومات عن مكان تاريخي أو خطأ أو اقتراح؟ راسلنا.',
         'about.rights': 'جميع الحقوق محفوظة.',
@@ -1909,8 +1860,6 @@ export const translations: TranslationDictionary = {
         'map.no_results': '未找到结果',
         'detail.story': '历史故事',
         'detail.audio': '语音故事',
-        'detail.ai_fact': '揭示历史趣事',
-        'detail.ai_loading': 'AI 正在搜索…',
         'detail.navigate': '在应用内导航',
         'detail.open_maps': '在 Google 地图中打开',
         'detail.stamp_passport': '盖护照章',
@@ -1985,9 +1934,6 @@ export const translations: TranslationDictionary = {
         'detail.protected_heritage': '受保护遗产',
         'detail.founded_since': '创立于',
         'detail.address_label': '地址',
-        'detail.ai_reveal_title': '你知道吗？',
-        'detail.ai_anecdote_subtitle': '一段被遗忘的趣事',
-        'detail.ai_powered_by': '由 Google Gemini 生成',
         'detail.claim_venue': '您是负责人吗？认领此场所',
         'detail.calculating_route': '正在计算路线…',
         'locale.view_details': '查看详情',
@@ -1999,6 +1945,8 @@ export const translations: TranslationDictionary = {
         'rutas.intro_title': '条路线，发现真实的城市',
         'rutas.intro_body': '每条路线专为步行设计，将历史场所串联成一个共同的叙事脉络。',
         'rutas.fermate': '站',
+        'rutas.empty': '这座城市的路线即将推出。',
+        'rutas.exit': '退出路线',
         'passport.by_city': '按城市',
         'passport.city_complete': '完成！',
         'passport.worldwide': '的 Emblematica 世界',
@@ -2031,8 +1979,6 @@ export const translations: TranslationDictionary = {
         'splash.err_credentials': '邮箱或密码不正确。',
         'splash.err_too_many': '尝试次数过多，请几分钟后再试。',
         'splash.err_generic': '登录失败。',
-        'detail.ai_err_busy': '请求过多，请稍后再试。',
-        'detail.ai_err_unavailable': '暂时无法获取趣闻。',
         'audio.unsupported': '此浏览器不支持音频',
         'audio.completed': '故事已结束 · 点击播放重新收听',
         'passport.visited': '已到访',
@@ -2076,8 +2022,6 @@ export const translations: TranslationDictionary = {
         'about.f_nav_desc': '直接在应用内提供步行路线。',
         'about.f_fav': '收藏',
         'about.f_fav_desc': '收藏打动你的地方，方便再次找到。',
-        'about.f_ai': 'AI 趣闻',
-        'about.f_ai_desc': '由 AI 为每处地点生成的历史趣闻。',
         'about.contact_title': '与我们合作',
         'about.contact_body': '了解某处老店、发现错误或有推荐？欢迎来信。',
         'about.rights': '保留所有权利。',

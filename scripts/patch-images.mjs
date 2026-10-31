@@ -10,7 +10,8 @@
  *   node scripts/patch-images.mjs --dry-run
  */
 
-import admin from 'firebase-admin'
+import { initializeApp, cert } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
@@ -25,8 +26,8 @@ try {
     process.exit(1)
 }
 
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) })
-const db = admin.firestore()
+initializeApp({ credential: cert(serviceAccount) })
+const db = getFirestore()
 
 // Mappa id → image_url
 const IMAGE_PATCHES = {

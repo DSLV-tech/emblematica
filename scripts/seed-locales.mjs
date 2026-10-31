@@ -19,7 +19,8 @@
  *   --force       Sovrascrive documenti esistenti (default: salta se già presenti)
  */
 
-import admin from 'firebase-admin'
+import { initializeApp, cert } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
@@ -37,8 +38,8 @@ try {
     process.exit(1)
 }
 
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) })
-const db = admin.firestore()
+initializeApp({ credential: cert(serviceAccount) })
+const db = getFirestore()
 
 // ── Locali di Barcellona ──────────────────────────────────────────────────────
 const LOCALES = [
@@ -53,7 +54,7 @@ const LOCALES = [
 L'edificio, progettato dall'architetto Josep Puig i Cadafalch in puro stile gotico catalano, ospitò la prima mostra del giovane Pablo Picasso nel 1900. Tra quelle mura si respira ancora l'eco delle conversazioni tra Picasso, Gaudí, Utrillo e Rusiñol, che qui tracciarono le linee del Modernisme catalano.
 
 Il nome "Quattro Gatti" è un'espressione catalana che significa "quattro persone in tutto" – un'ironica allusione alla cerchia ristretta ma influente dei suoi frequentatori. Chiuso nel 1903, riaperto nel 1978, oggi il locale conserva arredi d'epoca e una collezione di stampe originali che raccontano la sua storia gloriosa.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Els_Quatre_Gats_%28Barcelona%29.jpg/800px-Els_Quatre_Gats_%28Barcelona%29.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/15-10-27-Els_Quatre_Gats-RalfR-WMA_2729.jpg/960px-15-10-27-Els_Quatre_Gats-RalfR-WMA_2729.jpg',
         gallery: [],
         social: {},
         address: 'Carrer de Montsió, 3 bis, 08002 Barcelona',
@@ -72,7 +73,7 @@ Il nome "Quattro Gatti" è un'espressione catalana che significa "quattro person
 Le bottiglie impolverate sugli scaffali – alcune risalenti al XIX secolo – e i vecchi specchi ossidati raccontano storie di marinai, artisti e rivoluzionari. Ernest Hemingway, Pablo Picasso e Joan Miró frequentarono questo locale, attirati dalla sua celebre assenzio e dall'atmosfera senza tempo.
 
 La famiglia Lamiel gestisce il bar da generazioni, custodendo gelosamente l'autenticità di uno spazio che sembra fermo nel tempo. Le pareti ingiallite, i lampadari di cristallo e l'aroma acre dell'assenzio creano un'atmosfera unica e irripetibile nel panorama dei locali barcellonesi.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bar_Marsella_Barcelona.jpg/800px-Bar_Marsella_Barcelona.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/067_Bar_Marsella%2C_c._Sant_Pau_65_-_c._Sant_Ramon_1_%28Barcelona%29.jpg/960px-067_Bar_Marsella%2C_c._Sant_Pau_65_-_c._Sant_Ramon_1_%28Barcelona%29.jpg',
         gallery: [],
         social: {},
         address: 'Carrer de Sant Pau, 65, 08001 Barcelona',
@@ -91,7 +92,7 @@ La famiglia Lamiel gestisce il bar da generazioni, custodendo gelosamente l'aute
 Antoni Escribà, "il mago del cioccolato", portò la pasticceria catalana alla ribalta internazionale. Le sue sculture in cioccolato – automobiliste, animali, cattedrali – sono diventate opere d'arte. La boutique conserva le vetrine originali in legno intagliato, i mosaici floreali e gli stucchi dorati che la rendono uno dei negozi storici più belli d'Europa.
 
 Oggi Christian Escribà, quarta generazione, continua la tradizione con creazioni d'avanguardia che rispettano le ricette originali tramandate in famiglia.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Pastisseria_Escriba_Barcelona.jpg/800px-Pastisseria_Escriba_Barcelona.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Antiga_casa_Figueras_%28I%29.jpg/960px-Antiga_casa_Figueras_%28I%29.jpg',
         gallery: [],
         social: { website: 'https://www.escriba.es' },
         address: 'La Rambla, 83, 08002 Barcelona',
@@ -110,7 +111,7 @@ Oggi Christian Escribà, quarta generazione, continua la tradizione con creazion
 La farmacia è rimasta nella stessa famiglia per quattro generazioni. Il fondatore Miquel Bolós, appassionato di botanica, creò una serie di preparazioni erboristiche che ancora oggi vengono vendute con le ricette originali.
 
 Nel 2003 il Comune di Barcellona ha dichiarato la farmacia "Element d'Interès Local", riconoscendo il suo valore storico e architettonico.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Farmacia_Antiga_de_la_Boqueria.jpg/800px-Farmacia_Antiga_de_la_Boqueria.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Farm%C3%A0cia_Bol%C3%B3s.jpg/960px-Farm%C3%A0cia_Bol%C3%B3s.jpg',
         gallery: [],
         social: {},
         address: 'Carrer de Canuda, 6, 08002 Barcelona',
@@ -129,7 +130,7 @@ Nel 2003 il Comune di Barcellona ha dichiarato la farmacia "Element d'Interès L
 Per barcellonesi e catalani, la Boqueria non è solo un mercato ma un'istituzione culturale. Le bancarelle di frutta tropicale con i loro mosaici di colori, i banconi di pesce fresco, i salumieri con le salsicce appese al soffitto: ogni angolo racconta secoli di tradizione gastronomica catalana.
 
 Oggi, nonostante la pressione del turismo, i vecchi bancarellai resistono accanto alle nuove attività, mantenendo vivo il DNA originale del mercato.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/La_Boqueria_in_Barcelona.jpg/800px-La_Boqueria_in_Barcelona.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/La_boqueria_a_contraluz.JPG/960px-La_boqueria_a_contraluz.JPG',
         gallery: [],
         social: { website: 'https://www.boqueria.barcelona' },
         address: 'La Rambla, 91, 08001 Barcelona',
@@ -148,7 +149,7 @@ Oggi, nonostante la pressione del turismo, i vecchi bancarellai resistono accant
 L'interno conserva il bancone in marmo originale, le specchiere che moltiplicano lo spazio, i lampadari di cristallo e i tavolini in ghisa. Il soffitto affrescato con scene mitologiche fu restaurato negli anni '90 riportando alla luce colori vivaci coperti da decenni di fumo e polvere.
 
 Il caffè è famoso per il suo cortado servito nel bicchierino di vetro secondo la tradizione catalana, e per le terrazze che si affacciano sull'animata piazza.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Cafe_de_la_Academia_Barcelona.jpg/800px-Cafe_de_la_Academia_Barcelona.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/El_Gran_Caf%C3%A8%2C_c._Aviny%C3%B3.jpg/960px-El_Gran_Caf%C3%A8%2C_c._Aviny%C3%B3.jpg',
         gallery: [],
         social: {},
         address: "Carrer dels Escudellers, 5, 08002 Barcelona",
@@ -167,7 +168,7 @@ Il caffè è famoso per il suo cortado servito nel bicchierino di vetro secondo 
 La specialità del negozio sono i libri catalani delle prime edizioni del Novecento, le cartoline d'epoca di Barcellona e le stampe della Renaixença. Il catalogo manoscritto, tenuto aggiornato dal fondatore e poi dai suoi eredi, è considerato un documento storico in sé.
 
 Josep Farré, nipote del fondatore, racconta di aver visto passare tra quelle pareti personalità come Jorge Luis Borges e quasi tutti i grandi narratori catalani del Novecento.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Carrer_de_la_Palla_Barcelona.jpg/800px-Carrer_de_la_Palla_Barcelona.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Carrer_de_la_Palla_-_20240616_193341.jpg/960px-Carrer_de_la_Palla_-_20240616_193341.jpg',
         gallery: [],
         social: {},
         address: 'Carrer de la Palla, 23, 08002 Barcelona',
@@ -186,7 +187,7 @@ Josep Farré, nipote del fondatore, racconta di aver visto passare tra quelle pa
 La storia del Liceu è segnata da due tragedie: nel 1861 fu devastato da un incendio e ricostruito in appena un anno; nel 1994 un altro incendio distrusse la sala principale. La ricostruzione, completata nel 1999, è stata una prova di identità per la Catalogna: il teatro rinato è ancora più bello dell'originale, con la sala da 2.292 posti rifatta in seta dorata.
 
 La Fundació del Gran Teatre del Liceu gestisce oggi il teatro con una programmazione di livello mondiale.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Gran_Teatre_del_Liceu_Barcelona.jpg/800px-Gran_Teatre_del_Liceu_Barcelona.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Gran_Teatre_del_Liceu%2C_fa%C3%A7ana_Rambla.jpg/960px-Gran_Teatre_del_Liceu%2C_fa%C3%A7ana_Rambla.jpg',
         gallery: [],
         social: { website: 'https://www.liceubarcelona.cat' },
         address: 'La Rambla, 51-59, 08002 Barcelona',
@@ -205,7 +206,7 @@ La Fundació del Gran Teatre del Liceu gestisce oggi il teatro con una programma
 Le pareti tappezzate di fotografie d'epoca, le botti di vino in legno, i tavoli ricoperti di carta bianca: Can Solé è rimasto fedele a se stesso mentre il quartiere cambiava intorno a lui. La zarzuela de mariscos, la paella con aragosta e il bacallà al pil-pil sono preparati con le ricette originali del fondatore, tramandate di padre in figlio.
 
 Il ristorante è stato frequentato da Miró, Dalí, Hemingway e da tutti i presidenti della Generalitat di Catalogna.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Barceloneta_beach_Barcelona.jpg/800px-Barceloneta_beach_Barcelona.jpg',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Barcelona_%28La_Barceloneta%29._Restaurant_%E2%80%9CCan_Sol%C3%A9%E2%80%9D._Wall_painting-_fisherwomen_and_fishermen._1949._Alexandre_Cirici%2C_painter_%2830250710881%29.jpg/960px-Barcelona_%28La_Barceloneta%29._Restaurant_%E2%80%9CCan_Sol%C3%A9%E2%80%9D._Wall_painting-_fisherwomen_and_fishermen._1949._Alexandre_Cirici%2C_painter_%2830250710881%29.jpg',
         gallery: [],
         social: {},
         address: 'Carrer de Sant Carles, 4, 08003 Barcelona',

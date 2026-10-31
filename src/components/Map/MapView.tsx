@@ -8,6 +8,7 @@ import { SealCheck } from '@phosphor-icons/react'
 import { categoryIconMarkup, iconMarkup } from '../UI/CategoryIcon'
 import type { UserPosition } from '../../hooks/useRouting'
 import RouteLayer from './RouteLayer'
+import RutaLayer from './RutaLayer'
 import BaseMap from './BaseMap'
 import { useLanguage } from '../../context/LanguageContext'
 
@@ -115,9 +116,10 @@ interface MapViewProps {
   destLng?: number
   center?: { lat: number; lng: number }
   zoom?: number
+  ruta?: { stops: Locale[]; color: string } | null
 }
 
-export default function MapView({ locales, selectedLocale, onMarkerClick, routeGeoJson, userPosition, destLat, destLng, center, zoom }: MapViewProps) {
+export default function MapView({ locales, selectedLocale, onMarkerClick, routeGeoJson, userPosition, destLat, destLng, center, zoom, ruta }: MapViewProps) {
   const mapCenter: [number, number] = center ? [center.lat, center.lng] : [41.3851, 2.1734]
   const mapZoom = zoom ?? 14
   const { lang, t } = useLanguage()
@@ -141,6 +143,8 @@ export default function MapView({ locales, selectedLocale, onMarkerClick, routeG
           destLng={destLng}
         />
       )}
+
+      {ruta && <RutaLayer stops={ruta.stops} color={ruta.color} />}
 
       {locales.map((locale) => (
         <Marker

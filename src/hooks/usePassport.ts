@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-    collection,
+    arrayUnion,
     doc,
-    getDoc,
+    increment,
     setDoc,
     serverTimestamp,
     onSnapshot,
-    query,
-    where,
+    Timestamp,
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import type { User } from 'firebase/auth'
@@ -71,7 +70,14 @@ export function usePassport(user: User | null) {
         setCheckInResult(null)
 
         try {
-            // 1. Get current position
+            // 1. Check for existing stamp at this locale
+            if (stamps.some(s => s.localeId === locale.id)) {
+                setCheckInResult('already')
+                setTimeout(() => setCheckInResult(null), 4000)
+                return
+            }
+
+            // 2. Get current position
             const position = await new Promise<GeolocationPosition>((resolve, reject) =>
                 navigator.geolocation.getCurrentPosition(resolve, reject, {
                     enableHighAccuracy: true,
@@ -87,21 +93,13 @@ export function usePassport(user: User | null) {
 
             if (dist > CHECKIN_RADIUS_M) {
                 setCheckInResult('too_far')
-                setCheckingIn(false)
                 setTimeout(() => setCheckInResult(null), 4000)
                 return
             }
 
-            // 2. Check for existing stamp at this locale
-            const alreadyStamped = stamps.some(s => s.localeId === locale.id)
-            if (alreadyStamped) {
-                setCheckInResult('already')
-                setCheckingIn(false)
-                setTimeout(() => setCheckInResult(null), 4000)
-                return
-            }
-
-            // 3. Add the new stamp
+            // 3. Add the new stamp — atomic, so concurrent tabs can't overwrite each other.
+            // serverTimestamp() is not allowed inside arrays, and only the locale's
+            // position is stored: the user's GPS fix never leaves the device.
             const newStamp: Stamp = {
                 localeId: locale.id,
                 localeName: locale.name,
@@ -109,30 +107,17 @@ export function usePassport(user: User | null) {
                 localeImage: locale.image_url,
                 localeAddress: locale.address,
                 localeCity: locale.city,
-                visitedAt: serverTimestamp(),
-                coordinates: { lat: latitude, lng: longitude },
+                visitedAt: Timestamp.now(),
+                coordinates: locale.coordinates,
             }
 
-            const passportRef = doc(db, 'passports', user.uid)
-            const snap = await getDoc(passportRef)
-
-            if (snap.exists()) {
-                const existing = snap.data() as Passport
-                await setDoc(passportRef, {
-                    ...existing,
-                    stamps: [...(existing.stamps ?? []), newStamp],
-                    totalVisits: (existing.totalVisits ?? 0) + 1,
-                    lastVisitAt: serverTimestamp(),
-                })
-            } else {
-                await setDoc(passportRef, {
-                    uid: user.uid,
-                    stamps: [newStamp],
-                    totalVisits: 1,
-                    createdAt: serverTimestamp(),
-                    lastVisitAt: serverTimestamp(),
-                })
-            }
+            await setDoc(doc(db, 'passports', user.uid), {
+                uid: user.uid,
+                stamps: arrayUnion(newStamp),
+                totalVisits: increment(1),
+                lastVisitAt: serverTimestamp(),
+                ...(stamps.length === 0 && { createdAt: serverTimestamp() }),
+            }, { merge: true })
 
             setCheckInResult('success')
             setTimeout(() => setCheckInResult(null), 5000)

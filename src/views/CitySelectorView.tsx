@@ -5,7 +5,7 @@ import { CITIES, type CityConfig } from '../data/cities'
 import { useCity } from '../context/CityContext'
 
 // Città "nuove" che mostrano il badge NUOVO
-const NEW_CITY_IDS = ['rimini', 'bologna']
+const NEW_CITY_IDS = ['rimini', 'bologna', 'roma']
 
 interface CitySelectorViewProps {
     onClose: () => void

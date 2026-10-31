@@ -5,7 +5,10 @@ import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 import '@maplibre/maplibre-gl-leaflet'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import type { Map as LibreMap } from 'maplibre-gl'
+import { setWorkerUrl, type Map as LibreMap } from 'maplibre-gl'
+
+// maplibre 6 distribuisce il worker come file separato: va indicato al bundler
+setWorkerUrl(new URL('maplibre-gl/dist/maplibre-gl-worker.mjs', import.meta.url).toString())
 
 // OpenFreeMap: tile vettoriali gratuiti, senza API key né limiti di utilizzo.
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron'
@@ -35,7 +38,7 @@ const PAPER: Record<string, [string, string]> = {
 
 function applyPaper(map: LibreMap, lang: string) {
   for (const [id, [prop, value]] of Object.entries(PAPER)) {
-    if (map.getLayer(id)) map.setPaintProperty(id, prop as never, value)
+    if (map.getLayer(id)) map.setPaintProperty(id, prop as never, value as never)
   }
   for (const layer of map.getStyle().layers) {
     if (layer.type !== 'symbol') continue

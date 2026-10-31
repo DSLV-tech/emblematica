@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { RUTAS, type Ruta } from '../data/rutas'
-import { SAMPLE_LOCALES } from '../data/sampleData'
 import type { Locale } from '../types'
 import { useLanguage } from '../context/LanguageContext'
 import type { TranslationKey } from '../i18n/translations'
@@ -10,14 +9,26 @@ import { ArrowRight, Footprints, Lightbulb, MapPin, MapTrifold, Bank, Timer, typ
 import ViewHeader from '../components/UI/ViewHeader'
 
 interface RutasViewProps {
+    cityId?: string
+    locales: Locale[]
     onClose: () => void
-    /** Called when user taps "Apri sulla mappa" — highlights the ruta's locales */
-    onStartRuta: (localeIds: string[]) => void
+    /** Called when user taps "Apri sulla mappa" — shows the ruta on the map */
+    onStartRuta: (ruta: Ruta, stops: Locale[]) => void
 }
 
-export default function RutasView({ onClose, onStartRuta }: RutasViewProps) {
+/** Tappe in ordine di percorso, solo se esistono tutte nei dati della città */
+function resolveStops(ruta: Ruta, locales: Locale[]): Locale[] | null {
+    const stops = ruta.localeIds.flatMap(id => locales.filter(l => l.id === id))
+    return stops.length === ruta.localeIds.length ? stops : null
+}
+
+export default function RutasView({ cityId, locales, onClose, onStartRuta }: RutasViewProps) {
     const [selected, setSelected] = useState<Ruta | null>(null)
     const { t } = useLanguage()
+    const rutas = useMemo(
+        () => RUTAS.filter(r => r.cityId === cityId && resolveStops(r, locales)),
+        [cityId, locales]
+    )
     const DIFFICULTY_LABEL = {
         facile: t('rutas.easy'),
         media: t('rutas.medium'),
@@ -36,9 +47,9 @@ export default function RutasView({ onClose, onStartRuta }: RutasViewProps) {
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {selected ? (
-                    <RutaDetail ruta={selected} onStartRuta={onStartRuta} onClose={onClose} difficultyLabel={DIFFICULTY_LABEL} t={t} />
+                    <RutaDetail ruta={selected} stops={resolveStops(selected, locales) ?? []} onStartRuta={onStartRuta} onClose={onClose} difficultyLabel={DIFFICULTY_LABEL} t={t} />
                 ) : (
-                    <RutaList onSelect={setSelected} difficultyLabel={DIFFICULTY_LABEL} t={t} />
+                    <RutaList rutas={rutas} onSelect={setSelected} difficultyLabel={DIFFICULTY_LABEL} t={t} />
                 )}
             </div>
         </div>
@@ -46,11 +57,16 @@ export default function RutasView({ onClose, onStartRuta }: RutasViewProps) {
 }
 
 // ─── List view ──────────────────────────────────────────────────────────────
-function RutaList({ onSelect, difficultyLabel, t }: {
+function RutaList({ rutas, onSelect, difficultyLabel, t }: {
+    rutas: Ruta[]
     onSelect: (r: Ruta) => void
     difficultyLabel: Record<string, string>
     t: (k: TranslationKey) => string
 }) {
+    if (rutas.length === 0) {
+        return <p className="font-sans text-sm text-anthracite/60 text-center py-20 px-6">{t('rutas.empty')}</p>
+    }
+
     return (
         <div className="p-6 max-w-2xl mx-auto space-y-5">
             {/* Intro */}
@@ -61,7 +77,7 @@ function RutaList({ onSelect, difficultyLabel, t }: {
                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(ellipse at 80% 50%, #C9A84C 0%, transparent 60%)' }} />
                 <p className="eyebrow text-gold/80 mb-2 relative">{t('rutas.curated_label')}</p>
                 <h2 className="font-serif text-2xl text-cream font-semibold leading-snug relative">
-                    {RUTAS.length} {t('rutas.intro_title')}
+                    {rutas.length} {t('rutas.intro_title')}
                 </h2>
                 <p className="font-sans text-sm text-cream/60 mt-3 leading-relaxed relative">
                     {t('rutas.intro_body')}
@@ -69,7 +85,7 @@ function RutaList({ onSelect, difficultyLabel, t }: {
             </div>
 
             {/* Ruta cards */}
-            {RUTAS.map(ruta => (
+            {rutas.map(ruta => (
                 <button
                     key={ruta.id}
                     onClick={() => onSelect(ruta)}
@@ -106,20 +122,16 @@ function RutaList({ onSelect, difficultyLabel, t }: {
 }
 
 // ─── Detail view ─────────────────────────────────────────────────────────────
-function RutaDetail({ ruta, onStartRuta, onClose, difficultyLabel, t }: {
+function RutaDetail({ ruta, stops, onStartRuta, onClose, difficultyLabel, t }: {
     ruta: Ruta
+    stops: Locale[]
     difficultyLabel: Record<string, string>
-    onStartRuta: (ids: string[]) => void
+    onStartRuta: (ruta: Ruta, stops: Locale[]) => void
     onClose: () => void
     t: (k: TranslationKey) => string
 }) {
-    // Resolve locale objects referenced by this ruta
-    const stops: Locale[] = ruta.localeIds
-        .map(id => SAMPLE_LOCALES.find(l => l.id === id))
-        .filter(Boolean) as Locale[]
-
     const handleStart = () => {
-        onStartRuta(ruta.localeIds)
+        onStartRuta(ruta, stops)
         onClose()
     }
 

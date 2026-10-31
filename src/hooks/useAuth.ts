@@ -25,6 +25,20 @@ export interface UserProfile {
   lastLoginAt?: any
 }
 
+const LAST_LOGIN_WRITE_INTERVAL_MS = 60 * 60 * 1000
+
+// Azioni senza stato: chi deve solo fare login le importa direttamente, senza
+// aprire un secondo listener di useAuth (e ripetere le letture del profilo).
+export const loginWithEmail = (email: string, password: string) =>
+  signInWithEmailAndPassword(auth, email, password)
+
+export const registerWithEmail = (email: string, password: string) =>
+  createUserWithEmailAndPassword(auth, email, password)
+
+export const loginWithGoogle = () => signInWithPopup(auth, new GoogleAuthProvider())
+// The onAuthStateChanged listener in useAuth will automatically
+// create or load the Firestore user document after login
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
@@ -42,7 +56,11 @@ export function useAuth() {
             // User document exists — load it and update last login
             const data = snap.data() as UserProfile
             setProfile(data)
-            await setDoc(userRef, { lastLoginAt: serverTimestamp() }, { merge: true })
+            // Al massimo una scrittura l'ora; se fallisce il profilo caricato resta valido
+            if (Date.now() - (data.lastLoginAt?.toMillis?.() ?? 0) > LAST_LOGIN_WRITE_INTERVAL_MS) {
+              setDoc(userRef, { lastLoginAt: serverTimestamp() }, { merge: true })
+                .catch((err) => console.warn('[useAuth] lastLoginAt not updated:', err))
+            }
           } else {
             // First login — create user document with default 'user' role
             const newProfile: UserProfile = {
@@ -75,19 +93,6 @@ export function useAuth() {
     })
     return unsubscribe
   }, [])
-
-  const loginWithEmail = (email: string, password: string) =>
-    signInWithEmailAndPassword(auth, email, password)
-
-  const registerWithEmail = (email: string, password: string) =>
-    createUserWithEmailAndPassword(auth, email, password)
-
-  const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider()
-    return signInWithPopup(auth, provider)
-    // The onAuthStateChanged listener above will automatically
-    // create or load the Firestore user document after login
-  }
 
   const logout = () => {
     setProfile(null)

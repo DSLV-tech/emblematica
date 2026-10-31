@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { ArrowRight, Newspaper, PencilSimpleLine } from '@phosphor-icons/react'
 import ViewHeader from '../components/UI/ViewHeader'
@@ -27,12 +27,10 @@ export default function BlogView({ onClose }: BlogViewProps) {
     const { t } = useLanguage()
 
     useEffect(() => {
-        const q = query(collection(db, 'blog'), orderBy('createdAt', 'desc'))
+        // Le regole Firestore rifiutano una lista senza il filtro su `published`
+        const q = query(collection(db, 'blog'), where('published', '==', true), orderBy('createdAt', 'desc'))
         const unsub = onSnapshot(q, (snap) => {
-            const data = snap.docs
-                .map(d => ({ id: d.id, ...d.data() } as BlogPost))
-                .filter(p => p.published)
-            setPosts(data)
+            setPosts(snap.docs.map(d => ({ id: d.id, ...d.data() } as BlogPost)))
             setLoading(false)
         }, () => {
             setLoading(false)

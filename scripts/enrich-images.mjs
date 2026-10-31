@@ -12,7 +12,8 @@
  *   node scripts/enrich-images.mjs --collection locales_rimini  # solo una collezione
  */
 
-import admin from 'firebase-admin'
+import { initializeApp, cert } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
@@ -42,8 +43,8 @@ try {
   process.exit(1)
 }
 
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) })
-const db = admin.firestore()
+initializeApp({ credential: cert(serviceAccount) })
+const db = getFirestore()
 
 // ── Wikipedia image lookup ────────────────────────────────────────────────────
 async function fetchWikipediaImage(name) {

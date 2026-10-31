@@ -1,7 +1,7 @@
 'use client'
 
 import {
-    Bank, BookOpenText, Envelope, Heart, Info, Leaf, MapTrifold, NavigationArrow, Sparkle, UsersThree, type Icon,
+    Bank, BookOpenText, Envelope, Heart, Info, Leaf, MapTrifold, NavigationArrow, UsersThree, type Icon,
 } from '@phosphor-icons/react'
 import Logo from '../components/UI/Logo'
 import ViewHeader from '../components/UI/ViewHeader'
@@ -33,7 +33,6 @@ const FEATURES: Item[] = [
     { icon: BookOpenText,    title: 'about.f_stories', desc: 'about.f_stories_desc' },
     { icon: NavigationArrow, title: 'about.f_nav',     desc: 'about.f_nav_desc' },
     { icon: Heart,           title: 'about.f_fav',     desc: 'about.f_fav_desc' },
-    { icon: Sparkle,         title: 'about.f_ai',      desc: 'about.f_ai_desc' },
 ]
 
 export default function AboutView({ onClose }: AboutViewProps) {

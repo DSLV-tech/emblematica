@@ -13,6 +13,9 @@ export function useLocales(searchQuery: string, selectedCategory: Category | 'Tu
 
   useEffect(() => {
     setLoading(true)
+    setLocales([])
+    // I campioni sono di Barcellona: nessun ripiego per le altre città
+    const fallback = cityCollection === 'locales' ? SAMPLE_LOCALES : []
     // Live Firestore listener — falls back to sample data if Firestore is unreachable
     const q = query(collection(db, cityCollection), orderBy('name'))
     const unsubscribe = onSnapshot(
@@ -20,7 +23,7 @@ export function useLocales(searchQuery: string, selectedCategory: Category | 'Tu
       (snapshot) => {
         if (snapshot.empty) {
           // No data in Firestore yet — use bundled samples
-          setLocales(SAMPLE_LOCALES)
+          setLocales(fallback)
         } else {
           const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Locale))
           setLocales(data)
@@ -29,7 +32,7 @@ export function useLocales(searchQuery: string, selectedCategory: Category | 'Tu
       },
       (err) => {
         console.warn('[useLocales] Firestore unavailable, using sample data:', err.message)
-        setLocales(SAMPLE_LOCALES)
+        setLocales(fallback)
         setLoading(false)
       }
     )

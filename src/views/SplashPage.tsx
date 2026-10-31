@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '../hooks/useAuth'
+import { loginWithEmail, loginWithGoogle } from '../hooks/useAuth'
 import { useLanguage } from '../context/LanguageContext'
 import Logo from '../components/UI/Logo'
 
@@ -10,7 +10,6 @@ interface SplashPageProps {
 }
 
 export default function SplashPage({ onEnterGuest }: SplashPageProps) {
-    const { loginWithGoogle, loginWithEmail } = useAuth()
     const { t } = useLanguage()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')

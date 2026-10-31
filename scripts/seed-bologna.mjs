@@ -10,7 +10,8 @@
  *   node scripts/seed-bologna.mjs --force
  */
 
-import admin from 'firebase-admin'
+import { initializeApp, cert } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
@@ -27,64 +28,47 @@ try {
     process.exit(1)
 }
 
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) })
-const db = admin.firestore()
+initializeApp({ credential: cert(serviceAccount) })
+const db = getFirestore()
 
+// Fatti verificati su Bologna Welcome, Gambero Rosso, Il Resto del Carlino, Dissapore;
+// coordinate da OpenStreetMap. Dove le fonti non danno un anno, founded_year è omesso.
 const LOCALES = [
     {
         id: 'osteria-del-sole',
         name: 'Osteria del Sole',
         category: 'bar',
-        coordinates: { lat: 44.49420, lng: 11.34060 },
+        coordinates: { lat: 44.49379, lng: 11.34435 },
         address: 'Vicolo Ranocchi, 1/d, 40124 Bologna',
-        description: 'La più antica osteria d\'Italia: dal 1465 si viene qui solo con il proprio cibo — il vino lo porta lei.',
-        full_story: `L'Osteria del Sole è sopravvissuta a cinque secoli e mezzo di storia senza cambiare una sola regola: niente cucina, niente menu, niente camerieri. Da quando aprì nel 1465 in un vicolo del Quadrilatero — il mercato medievale di Bologna — il contratto con il cliente è rimasto invariato: tu porti il cibo, noi portiamo il vino. Siediti dove trovi posto.
+        description: 'Dal 1465 nel Quadrilatero: qui si serve solo vino, e il cibo si porta da fuori. Una regola rimasta intatta per secoli.',
+        full_story: `L'Osteria del Sole viene fatta risalire al 1465 ed è considerata una delle osterie più antiche d'Italia. Si nasconde in Vicolo Ranocchi, un passaggio stretto del Quadrilatero, il mercato medievale di Bologna.
 
-Il locale è nascosto in un vicolo cieco che il turista distratto non vede mai. Ma i bolognesi lo conoscono tutti: generazioni di macellai, studenti universitari, professori di diritto, partigiani e operai si sono seduti sugli stessi sgabelli di legno davanti agli stessi boccali di Pignoletto dei Colli Bolognesi. Durante la Resistenza il vicolo fu usato come punto di raccolta informazioni: il rumore del mercato copriva le conversazioni.
+Nei secoli ha dato da bere ai pellegrini e ai familiari dei malati ricoverati nei vicini ospedali della Vita e della Morte, due istituzioni che segnavano la vita di questa parte della città.
 
-Le pareti gialle macchiate dal fumo delle candele, le botti di legno che fungono da tavoli e i boccali di terracotta appesi ai chiodi sono gli stessi da generazioni. Non c'è un orologio, non c'è una televisione, non c'è Wi-Fi. C'è solo vino, compagnia e la certezza che Bologna, in fondo, non è mai cambiata davvero.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Bologna_-_Piazza_Maggiore.jpg/800px-Bologna_-_Piazza_Maggiore.jpg',
+La regola è la stessa di allora: l'osteria versa soltanto vino, e ognuno porta il proprio cibo. Per questo chi entra passa spesso prima dai banchi di salumi e formaggi delle strade intorno, poi si siede ai tavoli comuni con il suo cartoccio.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Osteria_del_Sole.jpg/960px-Osteria_del_Sole.jpg',
         gallery: [],
         social: {},
         founded_year: 1465,
-        protected: true,
+        protected: false,
         city: 'Bologna',
     },
     {
-        id: 'pasticceria-majani',
-        name: 'Pasticceria Majani',
-        category: 'bar',
-        coordinates: { lat: 44.49240, lng: 11.34260 },
-        address: 'Via Carbonesi, 5, 40125 Bologna',
-        description: 'La fabbrica di cioccolato più antica d\'Italia: dal 1796 produce le Fiat e i cremini che hanno fatto la storia della confetteria italiana.',
-        full_story: `Majani aprì la propria bottega a Bologna nel 1796, quando la città era ancora sotto l'influenza napoleonica e il cioccolato era ancora un lusso riservato alle classi agiate. Il fondatore Majani — il cui nome di battesimo è andato perduto nei registri comunali — aveva imparato l'arte della cioccolateria a Torino e decise di portarla nella Bologna dei portici e dei dotti.
+        id: 'majani',
+        name: 'Majani',
+        category: 'shop',
+        coordinates: { lat: 44.49136, lng: 11.34096 },
+        address: 'Via de\' Carbonesi, 5, 40123 Bologna',
+        description: 'La cioccolateria nata nel 1796 nella Bologna napoleonica, patria della Scorza e del Cremino Fiat.',
+        full_story: `La storia di Majani comincia nel 1796, quando Francesco Majani avvia un piccolo laboratorio di cose dolci nel centro di Bologna, vicino alla Basilica di San Petronio, negli anni dell'arrivo delle truppe napoleoniche.
 
-La storia della pasticceria si intreccia con quella industriale italiana in un modo inaspettato: nel 1911, la neonata Fabbrica Italiana Automobili Torino commissionò a Majani un cioccolatino celebrativo per il lancio della nuova vettura. Nacque così il "Fiat" — un cremino a strati di pasta gianduia, fondente e cioccolato al latte — che divenne il prodotto simbolo della casa e viene prodotto con la stessa ricetta ancora oggi.
+Il negozio di Via de' Carbonesi è legato alla famiglia dall'Ottocento ed è ancora oggi l'indirizzo storico del marchio. Da qui sono passate le due specialità che lo hanno reso noto: la Scorza, cioccolato lavorato in sottili sfoglie, e il Cremino Fiat, a strati.
 
-Le vetrine in legno laccato bianco con i bordi dorati, i vassoi d'argento con le praline disposte in geometrie precise e il profumo inconfondibile di cioccolato temperato accolgono ancora oggi chi entra. Il laboratorio sul retro, visibile attraverso un vetro, mostra i macchinari degli anni '30 accanto alle conche di rame originali: la produzione artigianale non è mai stata abbandonata.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Bologna_centro_storico_-_Via_Carbonesi.jpg/800px-Bologna_centro_storico_-_Via_Carbonesi.jpg',
+L'azienda è rimasta nelle mani della stessa famiglia, un caso raro per una cioccolateria con oltre due secoli di attività.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Bologna%2C_Via_de%27_Carbonesi.jpg/960px-Bologna%2C_Via_de%27_Carbonesi.jpg',
         gallery: [],
         social: { website: 'https://www.majani.it' },
         founded_year: 1796,
-        protected: true,
-        city: 'Bologna',
-    },
-    {
-        id: 'trattoria-anna-maria',
-        name: 'Trattoria Anna Maria',
-        category: 'restaurant',
-        coordinates: { lat: 44.49750, lng: 11.34930 },
-        address: 'Via Belle Arti, 17/a, 40126 Bologna',
-        description: 'Il tempio della cucina bolognese autentica: Anna Maria Monari fondò questa trattoria nel 1929 e i tortellini sono ancora fatti a mano ogni mattina.',
-        full_story: `Anna Maria Monari aprì la sua trattoria nel 1929 in Via Belle Arti, a pochi passi dall'Accademia di Belle Arti e dall'Università. La scelta del luogo non fu casuale: Anna Maria aveva capito che artisti, professori e studenti mangiavano spesso fuori casa e cercavano la cucina della madre — non ristoranti formali.
-
-La trattoria divenne rapidamente il punto di riferimento della zona universitaria per la cucina romagnola e bolognese tradizionale. Tortellini in brodo di cappone, tagliatelle al ragù preparate con la ricetta depositata nel 1972 alla Camera di Commercio di Bologna (la larghezza deve essere 1/12.270 dell'altezza della Torre degli Asinelli), lasagne verdi al forno con besciamella e ragù al vino bianco.
-
-Pasolini, Moravia e Calvino frequentarono la trattoria nei decenni successivi. Nelle fotografie sbiadite alle pareti si riconoscono attori, registi e pittori seduti ai tavoli di legno con le tovaglie bianche. Oggi la gestione è passata alla nipote di Anna Maria, che ogni mattina alle sei inizia a stendere la sfoglia fresca — la stessa regola dalla fondazione: niente pasta secca, niente scorciatoie.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Bologna_-_Via_Belle_Arti.jpg/800px-Bologna_-_Via_Belle_Arti.jpg',
-        gallery: [],
-        social: {},
-        founded_year: 1929,
         protected: false,
         city: 'Bologna',
     },
@@ -92,37 +76,54 @@ Pasolini, Moravia e Calvino frequentarono la trattoria nei decenni successivi. N
         id: 'ristorante-diana',
         name: 'Ristorante Diana',
         category: 'restaurant',
-        coordinates: { lat: 44.49620, lng: 11.34280 },
+        coordinates: { lat: 44.49771, lng: 11.34302 },
         address: 'Via dell\'Indipendenza, 24, 40121 Bologna',
-        description: 'Il ristorante dell\'alta borghesia bolognese: dal 1909 la cucina emiliana nei suoi massimi splendori, tra lampadari di cristallo e tortellini in brodo dorato.',
-        full_story: `Il Ristorante Diana aprì nel 1909 in Via dell'Indipendenza, il boulevard ottocentesco che collega la stazione ferroviaria al cuore medievale di Bologna. Fondato dalla famiglia Acquaroli con l'ambizione dichiarata di creare il primo ristorante di rappresentanza della città, divenne rapidamente il luogo dove si celebravano matrimoni, contratti commerciali e ricevimenti diplomatici.
+        description: 'Dal 1909 un riferimento della cucina bolognese sotto i portici di Via dell\'Indipendenza, celebre per il carrello dei bolliti.',
+        full_story: `Il Diana è un punto fermo della cucina bolognese dal 1909. Si trova in Via dell'Indipendenza, la grande strada porticata che collega la stazione al centro della città.
 
-L'interno è rimasto sostanzialmente invariato: le volte affrescate con motivi floreali Liberty, i lampadari di cristallo boemo, le sedie in stile Biedermeier rivestite di velluto verde e le tovaglie inamidate in lino bianco creano un'atmosfera di sobria eleganza borghese. Il servizio in guanti bianchi — abbandonato quasi ovunque negli anni '70 — è rimasto una prerogativa del Diana fino agli anni '90.
+La sua sala è associata alla ristorazione classica, con un servizio in giacca bianca: tortellini in brodo, lasagne e, a pranzo la domenica, il carrello dei bolliti. A renderlo celebre furono il Cavalier Ivo Galletti e il suo socio Eros Palmirani, direttore di sala fino al 2020.
 
-Re Vittorio Emanuele III, i reali di Svezia, Arturo Toscanini, Maria Callas e tre presidenti della Repubblica italiana hanno occupato i tavoli del Diana. Durante le grandi fiere bolognesi — il Salone del Libro, il Motor Show, il Cosmoprofit — il ristorante era prenotato con mesi di anticipo. Il brodo di cappone nel quale galleggiano i tortellini — rigorosamente fatti a mano con ricotta, mortadella, parmigiano e noce moscata — rimane, a giudizio dei critici, il migliore della città.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Via_dell_Indipendenza_Bologna.jpg/800px-Via_dell_Indipendenza_Bologna.jpg',
+In oltre un secolo ha accolto ospiti molto noti: le cronache ricordano tra gli altri Sandro Pertini, Federico Fellini e Gianni Morandi.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Via_dell%27Indipendenza.jpg/960px-Via_dell%27Indipendenza.jpg',
         gallery: [],
         social: {},
         founded_year: 1909,
-        protected: true,
+        protected: false,
         city: 'Bologna',
     },
     {
-        id: 'drogheria-della-rosa',
-        name: 'Drogheria della Rosa',
-        category: 'restaurant',
-        coordinates: { lat: 44.49340, lng: 11.34610 },
-        address: 'Via Cartoleria, 10, 40124 Bologna',
-        description: 'L\'ex drogheria diventata ristorante: scaffali pieni di spezie, erbe e barattoli d\'epoca fanno da scenografia alla cucina emiliana più autentica.',
-        full_story: `La Drogheria della Rosa aprì come autentica drogheria nel 1946 in Via Cartoleria, a due passi dall'Università. Per oltre vent'anni fu il negozio di spezie, erbe aromatiche e prodotti esotici del quartiere universitario: cannella di Ceylon, pepe nero del Kerala, zafferano iraniano, tea cinese e la celebre "mistura per arrosto" della famiglia Assirelli, il cui ricettario segreto si tramandava di padre in figlio.
+        id: 'tamburini',
+        name: 'Tamburini',
+        category: 'shop',
+        coordinates: { lat: 44.49381, lng: 11.34531 },
+        address: 'Via Caprarie, 1/a, 40124 Bologna',
+        description: 'Antica salsamenteria del Quadrilatero: un\'attività già presente nel 1860, rilevata dalla famiglia Tamburini nel 1932.',
+        full_story: `In Via Caprarie si vende da mangiare da molto tempo: un'attività era già presente nel 1860 nello stesso punto. Nel 1932 la rileva la famiglia Tamburini, che le dà il nome ancora oggi sull'insegna.
 
-Negli anni '70 Emilio Assirelli, figlio del fondatore, decise di non rinnovare la licenza commerciale di drogheria e trasformò il locale in ristorante — mantenendo però scaffali, barattoli, bilancine e spezie come arredo immutabile. Le erbe aromatiche sugli scaffali sono ancora quelle originali (mummificate e decorative), ma quelle in cucina vengono selezionate freschissime ogni mattina al mercato di Mezzo.
+È una salsamenteria classica del Quadrilatero, con salumi tradizionali, tortellini e altre specialità bolognesi, a cui si è aggiunto uno spazio per la degustazione.
 
-Il menu è scritto a mano su una lavagna cambiata quotidianamente in base alla disponibilità stagionale: crescione con squacquerone, tagliolini all'uovo con tartufo nero di Savigno, anatra al balsamico di Modena. Tonino Guerra — il poeta e sceneggiatore di Amarcord e di decine di film di Tarkovskij — era di casa, e la sua firma compare ancora su un foglio incorniciato vicino al bancone.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Bologna_Quadrilatero.jpg/800px-Bologna_Quadrilatero.jpg',
+All'angolo con Via Drapperie una lapide ricorda Padre Marella, il religioso che in quel punto raccoglieva le offerte per i poveri e che molti bolognesi ricordano ancora.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/20090804_bologna34.jpg/960px-20090804_bologna34.jpg',
         gallery: [],
         social: {},
-        founded_year: 1946,
+        founded_year: 1860,
+        protected: false,
+        city: 'Bologna',
+    },
+    {
+        id: 'salumeria-simoni',
+        name: 'Salumeria Simoni',
+        category: 'shop',
+        coordinates: { lat: 44.49346, lng: 11.34509 },
+        address: 'Via Drapperie, 5/2a, 40124 Bologna',
+        description: 'Dal 1960 tra i banchi del Quadrilatero: una bottega storica di salumi nel cuore del mercato bolognese.',
+        full_story: `La Salumeria Simoni apre nel 1960 in Via Drapperie, una delle strade del Quadrilatero, l'area in cui le corporazioni medievali avevano le loro botteghe e dove il mercato continua ancora oggi.
+
+Bologna Welcome la inserisce tra le botteghe storiche della città. È una tappa naturale per chi vuole assaggiare mortadella e altri salumi locali nel luogo in cui si sono sempre comprati.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Bologna_%2841843697930%29.jpg/960px-Bologna_%2841843697930%29.jpg',
+        gallery: [],
+        social: {},
+        founded_year: 1960,
         protected: false,
         city: 'Bologna',
     },
@@ -130,56 +131,124 @@ Il menu è scritto a mano su una lavagna cambiata quotidianamente in base alla d
         id: 'libreria-nanni',
         name: 'Libreria Nanni',
         category: 'bookshop',
-        coordinates: { lat: 44.49290, lng: 11.34510 },
-        address: 'Piazza Galvani, 1/h, 40124 Bologna',
-        description: 'La libreria dello studente bolognese: aperta nel 1932 sotto i portici di Piazza Galvani, a un passo dall\'Archiginnasio e dalla prima università del mondo.',
-        full_story: `La Libreria Nanni aprì nel 1932 a Piazza Galvani, nel cuore della Bologna universitaria, a due passi dall'Archiginnasio — la sede storica dell'Università di Bologna, fondata nel 1088 e considerata la più antica del mondo occidentale. Il fondatore Giovanni Nanni aveva lavorato per dieci anni in librerie fiorentine e veneziane prima di tornare a Bologna con il progetto di una libreria universitaria seria, con un catalogo che andasse oltre i manuali di studio.
+        coordinates: { lat: 44.49304, lng: 11.34412 },
+        address: 'Via de\' Musei, 8, 40124 Bologna',
+        description: 'Fondata nel 1825 e considerata la più antica libreria di Bologna, con i suoi banchi all\'aperto sotto il Portico della Morte.',
+        full_story: `La Libreria Nanni è considerata la più antica di Bologna. La sua fondazione è indicata nel 1825 per opera della famiglia Marchesi, e nel 2025 la libreria ha festeggiato i due secoli di vita; il titolare ne fa risalire le origini ancora più indietro, a una stamperia di fine Settecento.
 
-Fin dall'inizio la Nanni si distinse per la sua sezione di scienze umane — filosofia, storia, filologia — che divenne punto di riferimento per i professori e i dottorandi dell'ateneo. Umberto Eco, che insegnò semiologia a Bologna dal 1971 e vi rimase fino alla morte, era un cliente abituale: si racconta che trascorresse le mattine del sabato a sfogliare le novità sui cavalletti, spesso portando via pacchi di libri sui quali aveva attaccato foglietti con appunti.
+Nel Novecento l'attività passa alla famiglia Nanni, e negli anni Venti arrivano i banchi di libri in stile parigino che la rendono riconoscibile a colpo d'occhio.
 
-Le scaffalature originali in mogano lucidato, alte fino al soffitto e raggiungibili con le scale su rotaie, conservano ancora migliaia di volumi. La sezione di storia bolognese ed emiliana — con prime edizioni, mappe storiche e cataloghi d'archivio — è considerata la più completa della regione. Un libro firmato "U. Eco, 14 marzo 1984" è esposto in una teca vicino alla cassa.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bologna_-_Archiginnasio.jpg/800px-Bologna_-_Archiginnasio.jpg',
+I banchi si allineano sotto il Portico della Morte, in Via de' Musei, a pochi passi dall'Archiginnasio. I portici di Bologna sono patrimonio UNESCO, e questo è uno dei punti in cui si capisce meglio quanto vivano ancora: si passa, ci si ferma, si sfoglia.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Libreria_Nanni%2C_Bologna.jpg/960px-Libreria_Nanni%2C_Bologna.jpg',
         gallery: [],
         social: {},
-        founded_year: 1932,
+        founded_year: 1825,
         protected: false,
         city: 'Bologna',
     },
     {
-        id: 'farmacia-dell-archiginnasio',
-        name: 'Antica Farmacia dell\'Archiginnasio',
-        category: 'pharmacy',
-        coordinates: { lat: 44.49230, lng: 11.34480 },
-        address: 'Via dell\'Archiginnasio, 4, 40124 Bologna',
-        description: 'La farmacia dei professori: aperta nel 1841 a servizio dell\'Università, conserva la collezione di vasi galenici ottocenteschi più grande della regione.',
-        full_story: `L'Antica Farmacia dell'Archiginnasio aprì nel 1841 su iniziativa del dott. Cesare Brighenti, professore di chimica farmaceutica all'Università di Bologna. L'idea era ambiziosa: creare una farmacia che fosse al tempo stesso un laboratorio di ricerca, una scuola pratica per gli studenti di medicina e un esercizio aperto al pubblico. Per quasi un secolo l'università e la farmacia condivisero ricercatori, strumenti e preparati.
+        id: 'caffe-zanarini',
+        name: 'Caffè Zanarini',
+        category: 'bar',
+        coordinates: { lat: 44.49145, lng: 11.34326 },
+        address: 'Piazza Galvani, 1, 40124 Bologna',
+        description: 'Il caffè storico dentro il palazzo dell\'Archiginnasio, antica sede dell\'Università, ritrovo dei bolognesi in Piazza Galvani.',
+        full_story: `Il Caffè Zanarini si trova in Piazza Galvani, nel palazzo dell'Archiginnasio. L'edificio fu voluto da papa Pio IV e ospitò l'Università di Bologna dal 1563 al 1803; oggi conserva una delle grandi biblioteche pubbliche della città.
 
-L'interno è rimasto straordinariamente integro: 280 vasi in maiolica bianca decorata con motivi botanici — prodotti dalla manifattura Ginori tra il 1841 e il 1860 — contengono ancora le erbe dei preparati galeniche originali. Le bilancine di precisione in ottone degli anni 1880, il mortaio di marmo bianco e gli alambicchi di vetro soffiato sono esposti come pezzi da museo dietro il bancone in noce intagliato.
-
-La farmacia ha mantenuto fino agli anni '90 la preparazione artigianale di alcuni rimedi — unguenti, tinture e sciroppi — secondo ricette ottocentesche ancora valide. Un pannello in ottone all'ingresso elenca i cinquantasette professori universitari che si sono serviti del laboratorio dal 1841 al 1960, tra i quali Luigi Galvani Figlio — nipote del celebre scopritore dell'elettricità galvanica.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bologna_Archiginnasio_interno.jpg/800px-Bologna_Archiginnasio_interno.jpg',
+Da sempre punto d'incontro per i bolognesi, il caffè ha avuto una prima sede in Via D'Azeglio prima di legarsi a questa piazza, dove si affaccia a pochi passi dalla statua di Luigi Galvani e dalla Basilica di San Petronio. Nel 2026 la gestione è stata assegnata al marchio La Vecchia Malga.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Bologna_-_Piazza_Galvani.jpg/960px-Bologna_-_Piazza_Galvani.jpg',
         gallery: [],
         social: {},
-        founded_year: 1841,
-        protected: true,
+        protected: false,
         city: 'Bologna',
     },
     {
-        id: 'bar-zamboni',
-        name: 'Bar Zamboni',
-        category: 'bar',
-        coordinates: { lat: 44.49680, lng: 11.35340 },
-        address: 'Via Zamboni, 18/b, 40126 Bologna',
-        description: 'Il bar dell\'università: aperto nel 1912 sulla strada degli studenti, ha servito espresso a generazioni di dottorandi, professori e premi Nobel.',
-        full_story: `Il Bar Zamboni aprì nel 1912 in Via Zamboni — la strada che conduce dai Due Torri al polo universitario delle facoltà umanistiche — in un momento in cui l'Università di Bologna stava attraversando una stagione di grande fermento intellettuale. Il fondatore, Luigi Cavallini, aveva intuito che studenti e professori avevano bisogno di un luogo neutro dove discutere tra una lezione e l'altra: né l'aula formale, né il ristorante costoso.
+        id: 'drogheria-della-rosa',
+        name: 'Drogheria della Rosa',
+        category: 'restaurant',
+        coordinates: { lat: 44.48984, lng: 11.34951 },
+        address: 'Via Cartoleria, 10, 40124 Bologna',
+        description: 'Una trattoria di cucina bolognese negli spazi di un\'antica farmacia dell\'Ottocento, in Via Cartoleria.',
+        full_story: `La Drogheria della Rosa occupa gli spazi di una farmacia dell'Ottocento in Via Cartoleria, a pochi passi da Strada Maggiore. 
 
-Il bancone del 1912, in noce e ottone con le macchine da caffè Pavoni originali, è ancora al suo posto. Le pareti sono tappezzate di fotografie d'epoca: professori in toga e tocco, studenti con il pennacchio delle lauree, comitive del Dopoguerra con le sigarette in mano. Un'intera parete è dedicata alle fotografie degli studenti stranieri — americani, inglesi, tedeschi — che dall'Erasmus in poi hanno reso via Zamboni una delle strade più internazionali d'Italia.
-
-Umberto Eco veniva a colazione ogni mattina quando era in città. Giorgio Morandi — il pittore delle bottiglie, professore all'Accademia di Belle Arti a pochi passi — era cliente fisso del martedì pomeriggio. Il caffè del Bar Zamboni è ancora preparato con la miscela Illycaffè che Cavallini scelse nel 1935 e che non è mai stata cambiata.`,
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Via_Zamboni_Bologna.jpg/800px-Via_Zamboni_Bologna.jpg',
+Oggi è una trattoria di cucina bolognese, e il fascino di mangiare in un'antica spezieria è parte del suo richiamo.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Bologna%2C_Teatro_Duse_%281%29.jpg/960px-Bologna%2C_Teatro_Duse_%281%29.jpg',
         gallery: [],
         social: {},
-        founded_year: 1912,
+        protected: false,
+        city: 'Bologna',
+    },
+    {
+        id: 'farmacia-del-pavaglione',
+        name: 'Farmacia del Pavaglione',
+        category: 'pharmacy',
+        coordinates: { lat: 44.49309, lng: 11.34374 },
+        address: 'Via dell\'Archiginnasio, 2/a, 40124 Bologna',
+        description: 'Erede dell\'antica Spezieria della Morte, conserva le insegne originali e gli arredi in legno con motivi ripresi da San Petronio.',
+        full_story: `All'angolo tra Via de' Musei e Via dell'Archiginnasio c'era la Spezieria della Morte, la farmacia dell'omonimo Ospedale, fondato nel Trecento. È da quella spezieria che discende la Farmacia del Pavaglione.
+
+Entrando si vedono ancora le insegne originali e gli arredi in legno, decorati con motivi ripresi dalla Basilica di San Petronio, che si trova a pochi passi.
+
+Fuori corre il Portico del Pavaglione, una delle passeggiate più eleganti di Bologna.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Bologna_%2C_portico_del_Pavaglione.jpg/960px-Bologna_%2C_portico_del_Pavaglione.jpg',
+        gallery: [],
+        social: {},
+        protected: false,
+        city: 'Bologna',
+    },
+    {
+        id: 'caffe-gamberini',
+        name: 'Caffè Pasticceria Gamberini',
+        category: 'bar',
+        coordinates: { lat: 44.4955, lng: 11.33783 },
+        address: 'Via Ugo Bassi, 12, 40121 Bologna',
+        description: 'Dal 1907 in Via Ugo Bassi: è considerata la pasticceria più antica di Bologna, con un secondo banco alla stazione centrale.',
+        full_story: `La Pasticceria Gamberini nasce nel 1907 in Via Ugo Bassi, una delle grandi strade del centro di Bologna. Le guide la indicano come il caffè e la pasticceria più antichi della città.
+
+Dal 2006 l'insegna è riconosciuta tra i Locali Storici d'Italia. Oltre alla sede storica c'è anche un punto al binario 1 della Stazione Centrale.
+
+Nel maggio 2026 il locale di Via Ugo Bassi ha riaperto dopo una breve chiusura, con la clientela tornata al banco a pochi giorni dalla sospensione.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Bologna%2C_Via_Ugo_Bassi%2C_people.jpg/960px-Bologna%2C_Via_Ugo_Bassi%2C_people.jpg',
+        gallery: [],
+        social: {},
+        founded_year: 1907,
+        protected: false,
+        city: 'Bologna',
+    },
+    {
+        id: 'paolo-atti',
+        name: 'Paolo Atti & Figli',
+        category: 'shop',
+        coordinates: { lat: 44.49363, lng: 11.34526 },
+        address: 'Via Drapperie, 6, 40124 Bologna',
+        description: 'L\'antico forno di Via Drapperie, con gli arredi del 1907 ancora al loro posto e il Certosino fatto con la stessa ricetta da oltre un secolo.',
+        full_story: `In Via Drapperie c'era l'Antico Forno Piemontese, che Paolo Atti (1849-1910), figlio di agricoltori arrivato a Bologna come apprendista panettiere, rilevò in affitto andando a vivere con la famiglia nell'appartamento sopra il negozio. Le fonti datano l'inizio della sua attività tra il 1868 e il 1880.
+
+Nel 1898 si unì a Enrico Zambelli per produrre paste e tortellini, e nel 1903 ne acquisì l'intera proprietà, trasferendo il pastificio in Via Caprarie, in un edificio collegato al forno. Alla sua morte l'attività passò ai figli Armando e Margherita.
+
+Le botteghe conservano gli arredi del 1907: banco, scaffali, vetrine, soffitti affrescati, lampade e pavimenti. Il Certosino di Bologna si prepara qui da oltre un secolo secondo la ricetta originale, e l'impresa è ancora nelle mani dei discendenti.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Bologna_da_mangiare_antico_forno_piemontese_in_via_drapperie.jpg/960px-Bologna_da_mangiare_antico_forno_piemontese_in_via_drapperie.jpg',
+        gallery: [],
+        social: {},
+        protected: false,
+        city: 'Bologna',
+    },
+    {
+        id: 'drogheria-gilberto',
+        name: 'Drogheria Gilberto',
+        category: 'shop',
+        coordinates: { lat: 44.49352, lng: 11.34516 },
+        address: 'Via Drapperie, 5/A, 40124 Bologna',
+        description: 'Una drogheria avviata nel 1905 e passata di generazione in generazione, con un\'enoteca al piano di sotto.',
+        full_story: `L'attività comincia nel 1905 con Pietro Montosi, in una prima sede in Via Andrea Costa, e prosegue con i nipoti e i loro figli.
+
+Con l'arrivo dei supermercati la famiglia ha scelto di specializzarsi invece di competere sui grandi numeri. Oggi la drogheria è in Via Drapperie, nel Quadrilatero, con un secondo punto vendita non alimentare all'angolo con Via Pescherie Vecchie.
+
+Al piano inferiore c'è un'enoteca con i vini ordinati per regione.`,
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Bologna_%2843650907961%29.jpg/960px-Bologna_%2843650907961%29.jpg',
+        gallery: [],
+        social: {},
+        founded_year: 1905,
         protected: false,
         city: 'Bologna',
     },

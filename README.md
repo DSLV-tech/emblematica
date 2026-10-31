@@ -12,7 +12,6 @@
 |---|---|
 | 🗺️ **Mappa interattiva** | Esplora i locali storici su mappa con filtri per categoria e ricerca |
 | 📖 **Storie narrate** | Ogni locale ha scheda dettagliata, galleria fotografica e audio story con evidenziazione parola per parola |
-| ✨ **Curiosità AI** | Aneddoti storici generati da Google Gemini |
 | 📒 **Passaporto Digitale** | Visita i locali e timbra il passaporto via GPS (entro 100m). Colleziona badge |
 | 🧭 **Percorsi tematici** | 5 itinerari a piedi curati con tappe, distanze e consigli |
 | 📡 **Notifiche di prossimità** | Avvisi automatici quando passi vicino a un locale non ancora visitato |
@@ -29,7 +28,6 @@
 - **Styling:** Tailwind CSS v4
 - **Backend:** Firebase (Firestore, Auth, Security Rules)
 - **Mappa:** Leaflet.js
-- **AI:** Google Gemini API
 - **Audio:** Web Speech API
 - **PWA:** Service Worker manuale + Web App Manifest
 
@@ -42,7 +40,6 @@
 - **Node.js** ≥ 18
 - **npm** ≥ 9
 - Un progetto **Firebase** con Firestore e Authentication (Google provider) abilitati
-- Una **Google Gemini API key** (opzionale, per le curiosità AI)
 
 ### 1. Clona il repository
 
@@ -74,7 +71,6 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=il-tuo-progetto
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=il-tuo-progetto.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
 NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef
-GEMINI_API_KEY=la-tua-gemini-api-key
 ```
 
 ### 4. Avvia in sviluppo

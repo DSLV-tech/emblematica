@@ -2,7 +2,7 @@ import type { Locale } from '../types'
 
 export const SAMPLE_LOCALES: Locale[] = [
   {
-    id: '1',
+    id: 'els-quatre-gats',
     name: 'Els Quatre Gats',
     category: 'bar',
     coordinates: { lat: 41.38417, lng: 2.17097 },
@@ -21,7 +21,7 @@ Il nome "Quattro Gatti" è un'espressione catalana che significa "quattro person
     city: 'Barcelona',
   },
   {
-    id: '2',
+    id: 'bar-marsella',
     name: 'Bar Marsella',
     category: 'bar',
     coordinates: { lat: 41.38073, lng: 2.17311 },
@@ -40,7 +40,7 @@ La famiglia Lamiel gestisce il bar da generazioni, custodendo gelosamente l'aute
     city: 'Barcelona',
   },
   {
-    id: '3',
+    id: 'escriba-pastisseria',
     name: 'Escribà Pastisseria',
     category: 'shop',
     coordinates: { lat: 41.38224, lng: 2.17189 },
@@ -59,7 +59,7 @@ Oggi Christian Escribà, quarta generazione, continua la tradizione con creazion
     city: 'Barcelona',
   },
   {
-    id: '4',
+    id: 'farmacia-bolos',
     name: 'Farmàcia Bolós',
     category: 'pharmacy',
     coordinates: { lat: 41.38561, lng: 2.16802 },
@@ -78,7 +78,7 @@ Nel 2003 il Comune di Barcellona ha dichiarato la farmacia "Element d'Interès L
     city: 'Barcelona',
   },
   {
-    id: '5',
+    id: 'mercat-boqueria',
     name: 'Mercat de la Boqueria',
     category: 'shop',
     coordinates: { lat: 41.38174, lng: 2.17171 },
@@ -97,7 +97,7 @@ Oggi, nonostante la pressione del turismo, i vecchi bancarellai resistono accant
     city: 'Barcelona',
   },
   {
-    id: '6',
+    id: 'gran-cafe',
     name: 'Gran Café',
     category: 'bar',
     coordinates: { lat: 41.38326, lng: 2.17468 },
@@ -116,7 +116,7 @@ Il caffè è famoso per il suo cortado servito nel bicchierino di vetro secondo 
     city: 'Barcelona',
   },
   {
-    id: '7',
+    id: 'llibreria-farre',
     name: 'Llibreria Antiquaria Farré',
     category: 'bookshop',
     coordinates: { lat: 41.38692, lng: 2.17234 },
@@ -135,7 +135,7 @@ Josep Farré, nipote del fondatore, racconta di aver visto passare tra quelle pa
     city: 'Barcelona',
   },
   {
-    id: '8',
+    id: 'hotel-arts',
     name: 'Hotel Arts Barcelona',
     category: 'shop',
     coordinates: { lat: 41.38867, lng: 2.19647 },
@@ -154,7 +154,7 @@ Oggi l'hotel ospita alcune delle esperienze gastronomiche più celebri della cit
     city: 'Barcelona',
   },
   {
-    id: '9',
+    id: 'gran-teatre-liceu',
     name: 'Gran Teatre del Liceu',
     category: 'shop',
     coordinates: { lat: 41.38087, lng: 2.17383 },
@@ -173,7 +173,7 @@ La Fundació del Gran Teatre del Liceu gestisce oggi il teatro con una programma
     city: 'Barcelona',
   },
   {
-    id: '10',
+    id: 'can-sole',
     name: 'Can Solé',
     category: 'restaurant',
     coordinates: { lat: 41.37899, lng: 2.18563 },

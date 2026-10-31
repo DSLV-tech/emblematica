@@ -77,42 +77,48 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
         if (!validate()) return
         setChecking(true)
 
-        // Check if user already claimed this locale
-        const existing = await getDocs(
-            query(
-                collection(db, 'claims'),
-                where('localeId', '==', locale.id),
-                where('userId', '==', user.uid)
+        try {
+            // Check if user already claimed this locale
+            const existing = await getDocs(
+                query(
+                    collection(db, 'claims'),
+                    where('localeId', '==', locale.id),
+                    where('userId', '==', user.uid)
+                )
             )
-        )
 
-        if (!existing.empty) {
-            setStep('already')
+            if (!existing.empty) {
+                setStep('already')
+                return
+            }
+
             setChecking(false)
-            return
+            setSubmitting(true)
+
+            const claim: Omit<Claim, 'id'> = {
+                localeId: locale.id,
+                localeName: locale.name,
+                userId: user.uid,
+                userEmail: user.email ?? '',
+                userName: user.displayName ?? user.email ?? '',
+                businessName: form.businessName,
+                role: form.role,
+                contactEmail: form.contactEmail,
+                contactPhone: form.contactPhone,
+                message: form.message,
+                status: 'pending',
+                createdAt: serverTimestamp(),
+            }
+
+            await addDoc(collection(db, 'claims'), claim)
+            setStep('success')
+        } catch (err) {
+            console.error('[ClaimModal] submit error:', err)
+            setErrors({ message: t('splash.err_generic') })
+        } finally {
+            setChecking(false)
+            setSubmitting(false)
         }
-
-        setChecking(false)
-        setSubmitting(true)
-
-        const claim: Omit<Claim, 'id'> = {
-            localeId: locale.id,
-            localeName: locale.name,
-            userId: user.uid,
-            userEmail: user.email ?? '',
-            userName: user.displayName ?? user.email ?? '',
-            businessName: form.businessName,
-            role: form.role,
-            contactEmail: form.contactEmail,
-            contactPhone: form.contactPhone,
-            message: form.message,
-            status: 'pending',
-            createdAt: serverTimestamp(),
-        }
-
-        await addDoc(collection(db, 'claims'), claim)
-        setSubmitting(false)
-        setStep('success')
     }
 
     return (
@@ -175,6 +181,7 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
                                 <input
                                     type="text"
                                     value={form.businessName}
+                                    maxLength={200}
                                     onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))}
                                     className="input-base"
                                     placeholder={t('claim.name_ph')}
@@ -206,6 +213,7 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
                                 <input
                                     type="email"
                                     value={form.contactEmail}
+                                    maxLength={254}
                                     onChange={e => setForm(f => ({ ...f, contactEmail: e.target.value }))}
                                     className="input-base"
                                     placeholder="nome@locale.com"
@@ -217,6 +225,7 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
                                 <input
                                     type="tel"
                                     value={form.contactPhone}
+                                    maxLength={40}
                                     onChange={e => setForm(f => ({ ...f, contactPhone: e.target.value }))}
                                     className="input-base"
                                     placeholder="+34 / +39…"
@@ -227,6 +236,7 @@ export default function ClaimModal({ locale, user, onClose }: ClaimModalProps) {
                             <Field label={t('claim.message')} error={errors.message}>
                                 <textarea
                                     value={form.message}
+                                    maxLength={200}
                                     onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                                     rows={3}
                                     className="input-base resize-none"

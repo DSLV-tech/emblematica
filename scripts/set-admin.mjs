@@ -15,10 +15,12 @@
  *   node scripts/set-admin.mjs <userEmail>
  * 
  * Example:
- *   node scripts/set-admin.mjs cristian.disalvo@gmail.com
+ *   node scripts/set-admin.mjs utente@example.com
  */
 
-import admin from 'firebase-admin'
+import { initializeApp, cert } from 'firebase-admin/app'
+import { getFirestore, FieldValue } from 'firebase-admin/firestore'
+import { getAuth } from 'firebase-admin/auth'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
@@ -38,12 +40,12 @@ try {
     process.exit(1)
 }
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+initializeApp({
+    credential: cert(serviceAccount),
 })
 
-const db = admin.firestore()
-const auth = admin.auth()
+const db = getFirestore()
+const auth = getAuth()
 
 async function promoteToAdmin(targetEmail) {
     console.log(`🔍  Looking up user: ${targetEmail}`)
@@ -63,7 +65,7 @@ async function promoteToAdmin(targetEmail) {
     await userRef.set(
         {
             role: 'admin',
-            promotedAt: admin.firestore.FieldValue.serverTimestamp(),
+            promotedAt: FieldValue.serverTimestamp(),
         },
         { merge: true }
     )

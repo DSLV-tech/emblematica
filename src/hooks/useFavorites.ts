@@ -17,9 +17,10 @@ export function useFavorites(user: User | null) {
   useEffect(() => {
     if (!user) {
       // Load from localStorage when not authenticated
-      const stored = localStorage.getItem('barna_favorites')
-      if (stored) {
-        setFavorites(new Set(JSON.parse(stored)))
+      try {
+        setFavorites(new Set(JSON.parse(localStorage.getItem('barna_favorites') ?? '[]')))
+      } catch {
+        setFavorites(new Set())
       }
       return
     }
@@ -29,7 +30,7 @@ export function useFavorites(user: User | null) {
     const unsubscribe = onSnapshot(favRef, (snapshot) => {
       const ids = new Set(snapshot.docs.map((d) => d.id))
       setFavorites(ids)
-    })
+    }, (err) => console.warn('[useFavorites] Firestore unavailable:', err.message))
     return unsubscribe
   }, [user])
 

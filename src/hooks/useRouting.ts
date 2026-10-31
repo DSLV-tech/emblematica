@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import type { TranslationKey } from '../i18n/translations'
+
+const ROUTE_TIMEOUT_MS = 10_000
 
 export interface RouteInfo {
     totalDistance: number // metres
@@ -30,6 +32,7 @@ export function useRouting() {
     const [isNavigating, setIsNavigating] = useState(false)
     const [locatingUser, setLocatingUser] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const requestRef = useRef<AbortController | null>(null)
 
     const locateUser = useCallback((): Promise<UserPosition> => {
         return new Promise((resolve, reject) => {
@@ -56,12 +59,18 @@ export function useRouting() {
 
     const startNavigation = useCallback(async (destLat: number, destLng: number) => {
         setError(null)
+        // Una nuova richiesta sostituisce quella ancora in corso
+        requestRef.current?.abort()
+        const request = new AbortController()
+        requestRef.current = request
         try {
-            const pos = userPosition ?? await locateUser()
+            // Sempre una posizione fresca: chi cammina si sposta (la cache del browser dura 30s)
+            const pos = await locateUser()
             setIsNavigating(true)
-            // Fetch route from OSRM (free, no API key needed)
-            const url = `https://router.project-osrm.org/route/v1/foot/${pos.lng},${pos.lat};${destLng},${destLat}?steps=true&geometries=geojson&overview=full`
-            const res = await fetch(url)
+            // OSRM FOSSGIS con profilo pedonale (il server demo di OSRM calcola solo percorsi in auto)
+            const url = `https://routing.openstreetmap.de/routed-foot/route/v1/foot/${pos.lng},${pos.lat};${destLng},${destLat}?steps=true&geometries=geojson&overview=full`
+            const res = await fetch(url, { signal: AbortSignal.any([request.signal, AbortSignal.timeout(ROUTE_TIMEOUT_MS)]) })
+            if (!res.ok) throw new Error('Nessun percorso trovato.')
             const data = await res.json()
             if (data.code !== 'Ok' || !data.routes?.length) {
                 throw new Error('Nessun percorso trovato.')
@@ -80,14 +89,16 @@ export function useRouting() {
             setRouteGeoJson(route.geometry)
             return { route, userPosition: pos }
         } catch (err) {
+            if (request.signal.aborted) return
             const msg = err instanceof Error ? err.message : 'Errore nel calcolo del percorso.'
             setError(msg)
             setIsNavigating(false)
             throw err
         }
-    }, [userPosition, locateUser])
+    }, [locateUser])
 
     const stopNavigation = useCallback(() => {
+        requestRef.current?.abort()
         setIsNavigating(false)
         setRouteInfo(null)
         setRouteGeoJson(null)

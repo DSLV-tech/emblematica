@@ -2,16 +2,29 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // Immagini locali — lettura pubblica, scrittura solo admin autenticati
-    match /locales/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
+    function isAdmin() {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Immagini blog — lettura pubblica, scrittura solo admin autenticati
+    // Stessi limiti di useImageUpload: niente SVG (eseguono script) e max 5MB
+    function isValidImage() {
+      return request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp|avif)');
+    }
+
+    // Immagini locali — lettura pubblica, scrittura solo admin
+    match /locales/{allPaths=**} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidImage();
+      allow delete: if isAdmin();
+    }
+
+    // Immagini blog — lettura pubblica, scrittura solo admin
     match /blog/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create, update: if isAdmin() && isValidImage();
+      allow delete: if isAdmin();
     }
 
     // Blocca tutto il resto

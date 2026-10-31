@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useCallback, useMemo, Suspense, lazy } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import dynamic from 'next/dynamic';
 import type { Locale, AppUser, Category } from '@/types';
 import type { Ruta } from '@/types';
+import type { Ruta as RutaData } from '@/data/rutas';
+import { useCity } from '@/context/CityContext';
 import type { RouteInfo, UserPosition } from '@/hooks/useRouting';
 import Logo from '@/components/UI/Logo';
 import SearchBar from '@/components/UI/SearchBar';
@@ -49,8 +51,6 @@ interface AppShellProps {
   isLoadingRoute: boolean;
   onStopRoute:    () => void;
   passport:       import('@/types').Passport | null;
-  aiCuriosity?:   string;
-  isLoadingAI:    boolean;
   totalLocali:    number;
   routeGeoJson?:  any | null;
   userPosition?:  UserPosition | null;
@@ -223,8 +223,6 @@ const AppShell: React.FC<AppShellProps> = ({
   isLoadingRoute,
   onStopRoute,
   passport,
-  aiCuriosity,
-  isLoadingAI,
   totalLocali,
   routeGeoJson,
   userPosition,
@@ -238,6 +236,11 @@ const AppShell: React.FC<AppShellProps> = ({
   const [activeCategory,  setActiveCategory]  = useState<Category | null>(null); // null = Tutti
   const [navDestination,  setNavDestination]  = useState<Locale | null>(null);
   const [searchQuery,     setSearchQuery]     = useState('');
+  const [activeRuta,      setActiveRuta]      = useState<{ ruta: RutaData; stops: Locale[] } | null>(null);
+  const { city: currentCity } = useCity();
+
+  // Un percorso appartiene a una sola città
+  useEffect(() => { setActiveRuta(null); }, [currentCity.id]);
 
   const handleMarkerClick = useCallback((locale: Locale) => {
     setSelectedLocale(locale);
@@ -252,6 +255,7 @@ const AppShell: React.FC<AppShellProps> = ({
 
   const handleNavigate = useCallback((locale: Locale) => {
     setNavDestination(locale);
+    setActiveRuta(null);
     onStartRoute(locale);
     setActiveView('none');
     setSheetOpen(false);
@@ -268,14 +272,19 @@ const AppShell: React.FC<AppShellProps> = ({
   }, []);
 
   const filteredLocales = useMemo(() =>
-    locales.filter(l => {
+    activeRuta ? activeRuta.stops : locales.filter(l => {
       const matchesCategory = !activeCategory || l.category === activeCategory;
       const matchesSearch   = !searchQuery.trim() ||
         l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         l.address.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     }),
-    [locales, activeCategory, searchQuery]
+    [locales, activeCategory, searchQuery, activeRuta]
+  );
+
+  const rutaOnMap = useMemo(
+    () => activeRuta && { stops: activeRuta.stops, color: activeRuta.ruta.colorHex },
+    [activeRuta]
   );
 
   return (
@@ -294,6 +303,7 @@ const AppShell: React.FC<AppShellProps> = ({
           destLng={navDestination?.coordinates.lng}
           center={cityCenter}
           zoom={cityZoom}
+          ruta={rutaOnMap}
         />
       </div>
 
@@ -344,6 +354,26 @@ const AppShell: React.FC<AppShellProps> = ({
         </div>
       )}
 
+      {/* ── Percorso tematico attivo ────────────────────────── */}
+      {activeRuta && !selectedLocale && (
+        <div
+          className="absolute left-4 right-4 z-[25] flex items-center gap-3 bg-card rounded-2xl p-4 shadow-xl"
+          style={{ bottom: 'max(16px, env(safe-area-inset-bottom))' }}
+        >
+          <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: activeRuta.ruta.colorHex }} />
+          <div className="flex-1 min-w-0">
+            <p className="font-serif text-sm font-semibold text-anthracite truncate">{activeRuta.ruta.title}</p>
+            <p className="font-sans text-xs text-anthracite/60">{activeRuta.stops.length} {t('rutas.stops')} · {activeRuta.ruta.distance}</p>
+          </div>
+          <button
+            onClick={() => setActiveRuta(null)}
+            className="flex-shrink-0 px-4 py-2 rounded-full bg-anthracite/5 hover:bg-anthracite/10 font-sans text-xs font-semibold text-anthracite transition-colors"
+          >
+            {t('rutas.exit')}
+          </button>
+        </div>
+      )}
+
       {/* ── Bottom Sheet (locale preview) ───────────────────── */}
       <BottomSheet
         locale={selectedLocale && !navDestination ? selectedLocale : null}
@@ -378,11 +408,10 @@ const AppShell: React.FC<AppShellProps> = ({
 
         {activeView === 'rutas' && (
           <RutasView
+            cityId={currentCity.id}
+            locales={locales}
             onClose={handleCloseView}
-            onStartRuta={localeIds => {
-              onStartRoute(locales.find(l => localeIds.includes(l.id)) ?? locales[0]);
-              handleCloseView();
-            }}
+            onStartRuta={(ruta, stops) => setActiveRuta({ ruta, stops })}
           />
         )}
 

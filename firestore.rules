@@ -24,12 +24,20 @@ service cloud.firestore {
 
       // Allow creating own document (first login auto-create)
       allow create: if isOwner(uid)
-        && request.resource.data.role == 'user'; // cannot self-assign admin
+        && request.resource.data.uid == uid
+        && request.resource.data.role == 'user' // cannot self-assign admin
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'role', 'createdAt', 'lastLoginAt']);
 
-      // Allow updating own document — but cannot change the 'role' field
+      // Allow updating own profile fields — never 'role'
       allow update: if isOwner(uid)
-        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['email', 'displayName', 'photoURL', 'lastLoginAt'])
         || isAdmin(); // admins can update any field including role
+
+      match /favorites/{localeId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['addedAt']);
+      }
     }
 
     // ─── locales collection ───────────────────────────────────────────
@@ -50,13 +58,38 @@ service cloud.firestore {
     // ─── passports collection ────────────────────────────────────────
     // Users can read/write ONLY their own passport.
     match /passports/{uid} {
-      allow read, write: if isOwner(uid);
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.stamps is list
+        && request.resource.data.stamps.size() <= 1000;
     }
 
     // ─── claims collection ───────────────────────────────────────────
-    // Signed-in users can create. Admins can read/update all claims.
+    // Signed-in users can create their own pending claim. Admins can read/update all claims.
+    function isBoundedString(value, max) {
+      return value is string && value.size() <= max;
+    }
+
+    function isValidClaim(data) {
+      return data.keys().hasOnly(['localeId', 'localeName', 'userId', 'userEmail', 'userName', 'businessName',
+          'role', 'contactEmail', 'contactPhone', 'message', 'status', 'createdAt'])
+        && data.userId == request.auth.uid
+        && data.userEmail == request.auth.token.get('email', '')
+        && data.status == 'pending'
+        && data.createdAt == request.time
+        && isBoundedString(data.localeId, 128)
+        && isBoundedString(data.localeName, 200)
+        && isBoundedString(data.userName, 200)
+        && isBoundedString(data.businessName, 200)
+        && isBoundedString(data.role, 64)
+        && isBoundedString(data.contactEmail, 254)
+        && isBoundedString(data.contactPhone, 40)
+        && isBoundedString(data.message, 2000);
+    }
+
     match /claims/{claimId} {
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && isValidClaim(request.resource.data);
       allow read: if isAdmin()
         || (isSignedIn() && resource.data.userId == request.auth.uid);
       allow update: if isAdmin();
@@ -93,6 +126,10 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     match /locales_forli/{localeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /locales_roma/{localeId} {
       allow read: if true;
       allow write: if isAdmin();
     }
