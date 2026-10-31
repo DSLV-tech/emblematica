@@ -6,6 +6,7 @@ import { useLocales } from '@/hooks/useLocales'
 import { usePassport } from '@/hooks/usePassport'
 import { useRouting } from '@/hooks/useRouting'
 import { useFavorites } from '@/hooks/useFavorites'
+import { useServiceWorker } from '@/hooks/useServiceWorker'
 import { useCity } from '@/context/CityContext'
 import { CityProvider } from '@/context/CityContext'
 import { LanguageProvider } from '@/context/LanguageContext'
@@ -26,6 +27,9 @@ function AppContent() {
     setEnteredAsGuest(false)
   }
 
+  // Lo splash è anche la schermata di accesso: da lì l'ospite può sempre tornare indietro
+  const handleSignIn = () => setEnteredAsGuest(false)
+
   if (authLoading) {
     return (
       <div className="fixed inset-0 bg-anthracite flex items-center justify-center">
@@ -38,12 +42,12 @@ function AppContent() {
     return <SplashPage onEnterGuest={() => setEnteredAsGuest(true)} />
   }
 
-  return <AppData user={user} profile={profile} onLogout={handleLogout} />
+  return <AppData user={user} profile={profile} onLogout={handleLogout} onSignIn={handleSignIn} />
 }
 
 // Montato solo dopo lo splash: chi non entra non consuma letture Firestore e la
 // città salvata è già stata ripristinata, quindi non si legge quella di default.
-function AppData({ user, profile, onLogout }: { user: User | null; profile: UserProfile | null; onLogout: () => void }) {
+function AppData({ user, profile, onLogout, onSignIn }: { user: User | null; profile: UserProfile | null; onLogout: () => void; onSignIn: () => void }) {
   const { city } = useCity()
 
   const { locales } = useLocales('', 'Tutti', city?.collection)
@@ -71,7 +75,9 @@ function AppData({ user, profile, onLogout }: { user: User | null; profile: User
       cityCenter={city?.center}
       cityZoom={city?.zoom}
       onLogout={onLogout}
-      onCheckIn={checkIn}
+      onSignIn={onSignIn}
+      // Il timbro richiede un account: all'ospite il check-in propone l'accesso
+      onCheckIn={user ? checkIn : async () => onSignIn()}
       onToggleFavorite={toggleFavorite}
       isFavorite={isFavorite}
       hasStamp={hasStamp}
@@ -88,6 +94,8 @@ function AppData({ user, profile, onLogout }: { user: User | null; profile: User
 }
 
 export default function Home() {
+  useServiceWorker()
+
   return (
     <CityProvider>
       <LanguageProvider>

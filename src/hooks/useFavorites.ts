@@ -8,8 +8,19 @@ import {
   deleteDoc,
   collection,
   onSnapshot,
+  writeBatch,
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
+
+const GUEST_FAVORITES_KEY = 'barna_favorites'
+
+function readGuestFavorites(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(GUEST_FAVORITES_KEY) ?? '[]')
+  } catch {
+    return []
+  }
+}
 
 export function useFavorites(user: User | null) {
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
@@ -17,12 +28,18 @@ export function useFavorites(user: User | null) {
   useEffect(() => {
     if (!user) {
       // Load from localStorage when not authenticated
-      try {
-        setFavorites(new Set(JSON.parse(localStorage.getItem('barna_favorites') ?? '[]')))
-      } catch {
-        setFavorites(new Set())
-      }
+      setFavorites(new Set(readGuestFavorites()))
       return
+    }
+
+    // I preferiti salvati da ospite passano all'account al primo accesso
+    const guestFavorites = readGuestFavorites()
+    if (guestFavorites.length > 0) {
+      const batch = writeBatch(db)
+      guestFavorites.forEach((id) => batch.set(doc(db, 'users', user.uid, 'favorites', id), { addedAt: new Date() }))
+      batch.commit()
+        .then(() => localStorage.removeItem(GUEST_FAVORITES_KEY))
+        .catch((err) => console.warn('[useFavorites] guest favorites not migrated:', err))
     }
 
     // Listen to Firestore favorites collection for authenticated users
@@ -43,7 +60,7 @@ export function useFavorites(user: User | null) {
       if (isFav) next.delete(localeId)
       else next.add(localeId)
       setFavorites(next)
-      localStorage.setItem('barna_favorites', JSON.stringify([...next]))
+      localStorage.setItem(GUEST_FAVORITES_KEY, JSON.stringify([...next]))
       return
     }
 

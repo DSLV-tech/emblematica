@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { loginWithEmail, loginWithGoogle } from '../hooks/useAuth'
+import { loginWithEmail, loginWithGoogle, registerWithEmail } from '../hooks/useAuth'
 import { useLanguage } from '../context/LanguageContext'
 import Logo from '../components/UI/Logo'
 
@@ -14,6 +14,7 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [showEmailForm, setShowEmailForm] = useState(false)
+    const [isRegistering, setIsRegistering] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
@@ -33,17 +34,25 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
         }
     }
 
-    const handleEmailLogin = async (e: React.FormEvent) => {
+    const handleEmailSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setError('')
         try {
-            await loginWithEmail(email, password)
+            await (isRegistering ? registerWithEmail : loginWithEmail)(email, password)
         } catch (err: any) {
             const msg = err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password'
                 ? t('splash.err_credentials')
                 : err.code === 'auth/too-many-requests'
                 ? t('splash.err_too_many')
+                : err.code === 'auth/email-already-in-use'
+                ? t('splash.err_email_in_use')
+                : err.code === 'auth/weak-password'
+                ? t('splash.err_weak_password')
+                : err.code === 'auth/invalid-email'
+                ? t('splash.err_invalid_email')
+                : isRegistering
+                ? t('splash.err_register')
                 : t('splash.err_generic')
             setError(msg)
             setLoading(false)
@@ -103,7 +112,7 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
 
                     {/* Email/password form */}
                     {showEmailForm ? (
-                        <form onSubmit={handleEmailLogin} className="space-y-3 animate-fade-in">
+                        <form onSubmit={handleEmailSubmit} className="space-y-3 animate-fade-in">
                             <input
                                 type="email"
                                 value={email}
@@ -120,7 +129,8 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
                                 onChange={e => setPassword(e.target.value)}
                                 placeholder={t('splash.password')}
                                 aria-label={t('splash.password')}
-                                autoComplete="current-password"
+                                autoComplete={isRegistering ? 'new-password' : 'current-password'}
+                                minLength={isRegistering ? 6 : undefined}
                                 required
                                 className="w-full px-4 py-3.5 rounded-full bg-white/10 border border-cream/20 text-cream placeholder-cream/40 font-sans text-sm focus:outline-none focus:border-gold/60 focus:bg-white/15 transition-all backdrop-blur-md"
                             />
@@ -129,7 +139,14 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
                                 disabled={loading}
                                 className="w-full py-4 rounded-full bg-gold text-ink font-sans font-semibold text-base hover:bg-gold-light transition-all shadow-lg disabled:opacity-70 active:scale-95"
                             >
-                                {loading ? <div className="w-5 h-5 border-2 border-cream/50 border-t-cream rounded-full animate-spin mx-auto" /> : t('splash.submit')}
+                                {loading ? <div className="w-5 h-5 border-2 border-cream/50 border-t-cream rounded-full animate-spin mx-auto" /> : t(isRegistering ? 'splash.register_submit' : 'splash.submit')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setIsRegistering(!isRegistering); setError('') }}
+                                className="w-full text-center font-sans text-sm text-gold hover:text-gold-light transition-colors py-1"
+                            >
+                                {t(isRegistering ? 'splash.to_login' : 'splash.to_register')}
                             </button>
                             <button
                                 type="button"

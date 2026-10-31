@@ -22,13 +22,26 @@ import {
 const MapView = dynamic(() => import('@/components/Map/MapView'), { ssr: false });
 
 /* Lazy load views (code splitting) */
-const DetailView    = lazy(() => import('@/views/DetailView'));
-const PassaportoView = lazy(() => import('@/views/PassaportoView'));
-const RutasView     = lazy(() => import('@/views/RutasView'));
+const loadDetailView     = () => import('@/views/DetailView');
+const loadPassaportoView = () => import('@/views/PassaportoView');
+const loadRutasView      = () => import('@/views/RutasView');
+const loadBlogView       = () => import('@/views/BlogView');
+const loadAboutView      = () => import('@/views/AboutView');
+const loadSponsorsView   = () => import('@/views/SponsorsView');
+
+const DetailView    = lazy(loadDetailView);
+const PassaportoView = lazy(loadPassaportoView);
+const RutasView     = lazy(loadRutasView);
 const AdminView     = lazy(() => import('@/views/AdminView'));
-const BlogView      = lazy(() => import('@/views/BlogView'));
-const AboutView     = lazy(() => import('@/views/AboutView'));
-const SponsorsView  = lazy(() => import('@/views/SponsorsView'));
+const BlogView      = lazy(loadBlogView);
+const AboutView     = lazy(loadAboutView);
+const SponsorsView  = lazy(loadSponsorsView);
+
+/* A connessione attiva scarica le viste, così il service worker le ha già per l'offline */
+const preloadViews = () => {
+  [loadDetailView, loadPassaportoView, loadRutasView, loadBlogView, loadAboutView, loadSponsorsView]
+    .forEach(load => load().catch(() => {}));
+};
 
 /* ── Types ──────────────────────────────────────────────── */
 type ActiveView = 'none' | 'detail' | 'passport' | 'rutas' | 'blog' | 'about' | 'sponsors';
@@ -41,6 +54,7 @@ interface AppShellProps {
   cityCenter?:    { lat: number; lng: number };
   cityZoom?:      number;
   onLogout:       () => void;
+  onSignIn:       () => void;
   /* Callbacks per features (implementati nei rispettivi hooks) */
   onCheckIn:      (locale: Locale) => Promise<void>;
   onToggleFavorite: (id: string) => void;
@@ -80,7 +94,8 @@ const MenuDrawer: React.FC<{
   onNavigate:  (view: ActiveView) => void;
   onShowAdmin: () => void;
   onLogout:    () => void;
-}> = ({ user, isOpen, onClose, onNavigate, onShowAdmin, onLogout }) => {
+  onSignIn:    () => void;
+}> = ({ user, isOpen, onClose, onNavigate, onShowAdmin, onLogout, onSignIn }) => {
   const { t, lang, setLang, allLanguages } = useLanguage();
   if (!isOpen) return null;
 
@@ -117,7 +132,7 @@ const MenuDrawer: React.FC<{
           <div className="flex-1 min-w-0 pt-0.5">
             {user ? (
               <>
-                <div className="font-sans text-[15px] font-semibold truncate">{user.displayName}</div>
+                {user.displayName && <div className="font-sans text-[15px] font-semibold truncate">{user.displayName}</div>}
                 <div className="font-sans text-xs text-cream/45 truncate mt-0.5">{user.email}</div>
                 {user.role === 'admin' && (
                   <span className="eyebrow inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] text-terracotta border border-terracotta/40 bg-terracotta/10">
@@ -126,7 +141,15 @@ const MenuDrawer: React.FC<{
                 )}
               </>
             ) : (
-              <div className="font-serif italic text-[15px] text-cream/60 pt-2">{t('locale.guest_label')}</div>
+              <>
+                <div className="font-serif italic text-[15px] text-cream/60">{t('locale.guest_label')}</div>
+                <button
+                  onClick={onSignIn}
+                  className="mt-2.5 h-9 px-4 rounded-full bg-gold text-ink font-sans text-[13px] font-semibold hover:bg-gold-light transition-colors"
+                >
+                  {t('nav.login_register')}
+                </button>
+              </>
             )}
           </div>
           <button onClick={onClose} aria-label={t('generic.close')} className="w-9 h-9 -me-1.5 rounded-full flex items-center justify-center text-cream/50 hover:text-cream hover:bg-white/[0.06] transition-colors">
@@ -214,6 +237,7 @@ const AppShell: React.FC<AppShellProps> = ({
   cityCenter,
   cityZoom,
   onLogout,
+  onSignIn,
   onCheckIn,
   onToggleFavorite,
   isFavorite,
@@ -241,6 +265,11 @@ const AppShell: React.FC<AppShellProps> = ({
 
   // Un percorso appartiene a una sola città
   useEffect(() => { setActiveRuta(null); }, [currentCity.id]);
+
+  useEffect(() => {
+    const timer = setTimeout(preloadViews, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleMarkerClick = useCallback((locale: Locale) => {
     setSelectedLocale(locale);
@@ -428,6 +457,7 @@ const AppShell: React.FC<AppShellProps> = ({
         onNavigate={view => { setActiveView(view); setMenuOpen(false); }}
         onShowAdmin={() => setShowAdmin(true)}
         onLogout={onLogout}
+        onSignIn={onSignIn}
       />
 
       {/* ── Admin view ──────────────────────────────────────── */}

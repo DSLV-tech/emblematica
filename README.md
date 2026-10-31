@@ -168,11 +168,11 @@ npx firebase deploy --only firestore:rules
 
 L'app è installabile come PWA. Il service worker (`public/sw.js`) gestisce:
 
-- Cache delle risorse statiche
-- Pagina offline di fallback (`public/offline.html`)
-- Strategia network-first con fallback cache
+- Pagina: network-first, con l'ultima versione salvata e `public/offline.html` come ripiego
+- Asset di Next, font, tile della mappa e immagini: cache per l'uso offline
+- I dati dei locali restano offline grazie alla cache IndexedDB di Firestore
 
-Per testare la PWA in locale, usa il build di produzione (`npm run build && npm start`).
+Il worker si registra solo in produzione: per testare la PWA in locale usa `npm run build && npm start`. Per invalidare le cache incrementa `VERSION` in `public/sw.js`.
 
 ---
 

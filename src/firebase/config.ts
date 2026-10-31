@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { getStorage } from 'firebase/storage'
 
@@ -15,8 +15,12 @@ const firebaseConfig = {
 }
 
 // Prevent re-instantiation in Next.js hot reload
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
-export const db = getFirestore(app)
+const isFirstInit = getApps().length === 0
+const app = isFirstInit ? initializeApp(firebaseConfig) : getApps()[0]
+// Cache su IndexedDB: i dati già visti restano disponibili offline nella PWA
+export const db = isFirstInit && typeof window !== 'undefined'
+  ? initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })
+  : getFirestore(app)
 export const auth = getAuth(app)
 export const storage = getStorage(app)
 export default app

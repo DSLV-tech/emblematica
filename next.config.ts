@@ -9,7 +9,8 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
-  `connect-src 'self' https://*.googleapis.com https://tiles.openfreemap.org https://routing.openstreetmap.de${isDev ? ' ws:' : ''}`,
+  // fonts.gstatic.com, Wikimedia e Unsplash servono al service worker, che li scarica con fetch
+  `connect-src 'self' https://*.googleapis.com https://fonts.gstatic.com https://upload.wikimedia.org https://images.unsplash.com https://tiles.openfreemap.org https://routing.openstreetmap.de${isDev ? ' ws:' : ''}`,
   'frame-src https://*.firebaseapp.com https://accounts.google.com',
   "worker-src 'self' blob:",
   "object-src 'none'",
@@ -36,6 +37,11 @@ const nextConfig: NextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'geolocation=(self), camera=(), microphone=()' },
         ],
+      },
+      {
+        // Il browser deve vedere subito una nuova versione del service worker
+        source: '/sw.js',
+        headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }],
       },
     ]
   },
