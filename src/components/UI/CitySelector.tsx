@@ -17,14 +17,7 @@ export default function CitySelector() {
   if (availableCities.length <= 1) return null
 
   return (
-    <div
-      style={{
-        display:        'flex',
-        gap:            6,
-        flexWrap:       'wrap',
-        justifyContent: 'flex-start',
-      }}
-    >
+    <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-4 px-4 py-0.5">
       {availableCities.map((c: CityConfig) => {
         const isActive = c.id === city.id
         return (
@@ -35,6 +28,7 @@ export default function CitySelector() {
             title={c.name}
             style={{
               display:        'flex',
+              flexShrink:     0,
               alignItems:     'center',
               gap:            5,
               height:         30,
@@ -49,7 +43,7 @@ export default function CitySelector() {
               backdropFilter: 'blur(14px) saturate(1.4)',
               cursor:         'pointer',
               transition:     'all 180ms ease',
-              boxShadow:      '0 4px 14px rgba(0,0,0,0.22)',
+              boxShadow:      'inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 14px rgba(0,0,0,0.22)',
             }}
           >
             <span style={{ fontSize: 14 }}>{c.flag}</span>

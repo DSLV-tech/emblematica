@@ -39,7 +39,7 @@ export default function BlogView({ onClose }: BlogViewProps) {
     }, [])
 
     return (
-        <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
+        <div className="fixed inset-0 md:inset-8 z-[3500] paper overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
             <ViewHeader
                 icon={Newspaper}
                 title={selected ? selected.title : t('blog.title')}
@@ -90,7 +90,7 @@ export default function BlogView({ onClose }: BlogViewProps) {
                             <button
                                 key={post.id}
                                 onClick={() => setSelected(post)}
-                                className="w-full text-left bg-card rounded-3xl shadow-sm border border-anthracite/5 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group"
+                                className="w-full text-left card-raised rounded-3xl overflow-hidden card-raised--press group"
                             >
                                 {post.image_url && (
                                     <img

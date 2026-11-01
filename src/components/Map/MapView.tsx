@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { MapContainer, Marker, Popup, useMap } from 'react-leaflet'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { MapContainer, Marker, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import type { Locale } from '../../types'
-import { SealCheck } from '@phosphor-icons/react'
+import { CornersOut, SealCheck } from '@phosphor-icons/react'
 import { categoryIconMarkup, iconMarkup } from '../UI/CategoryIcon'
 import type { UserPosition } from '../../hooks/useRouting'
 import RouteLayer from './RouteLayer'
@@ -33,8 +33,8 @@ function createCustomIcon(category: string, isSelected: boolean, isProtected: bo
   const ringColor = isSelected || isProtected ? '#C9A84C' : (CATEGORY_COLORS[category] ?? '#85651C')
   const ringWidth = isSelected ? 3 : 2.5
   const shadow = isSelected
-    ? '0 0 0 4px rgba(201,168,76,0.28), 0 8px 22px rgba(20,20,22,0.45)'
-    : '0 4px 12px rgba(20,20,22,0.35)'
+    ? '0 0 0 4px rgba(201,168,76,0.3), 0 10px 24px rgba(20,20,22,0.5), inset 0 1px 1px rgba(255,255,255,0.25)'
+    : '0 3px 6px rgba(20,20,22,0.3), 0 8px 18px rgba(20,20,22,0.28), inset 0 1px 1px rgba(255,255,255,0.2)'
 
   // Patrimonio protetto: piccolo sigillo dorato in alto a destra
   const crownHtml = isProtected
@@ -70,13 +70,14 @@ function createCustomIcon(category: string, isSelected: boolean, isProtected: bo
   return L.divIcon({
     className: '',
     html: `
-      <div style="position:relative;width:${size}px;height:${size}px;">
+      <div class="map-pin${isSelected ? ' map-pin--selected' : ''}" style="position:relative;width:${size}px;height:${size}px;">
+        <div class="map-pin__ground"></div>
         ${crownHtml}
         <div style="
           width:${size}px;height:${size}px;
           border-radius:50% 50% 50% 0;
           transform:rotate(-45deg)${isSelected ? ' scale(1.05)' : ''};
-          background:#141416;
+          background:linear-gradient(145deg,#2E2E34,#141416);
           border:${ringWidth}px solid ${ringColor};
           box-shadow:${shadow};
           display:flex;align-items:center;justify-content:center;
@@ -88,23 +89,98 @@ function createCustomIcon(category: string, isSelected: boolean, isProtected: bo
       </div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size],
-    popupAnchor: [0, -size],
   })
 }
 
-function MapFlyTo({ locale }: { locale: Locale | null }) {
+const SELECTED_ZOOM = 16
+const MAX_FRAME_ZOOM = 16
+const SIDE_MARGIN = 48
+const PIN_HEIGHT = 54
+const DESKTOP_MIN_WIDTH = 768
+const FRAME_DELAY_MS = 120 // raggruppa i cambi ravvicinati, come la digitazione nella ricerca
+
+const motion = () => ({
+  animate: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  duration: 0.8,
+})
+
+const headerHeight = () => document.querySelector('header')?.offsetHeight ?? 0
+
+/** Inquadra tutti i locali, lasciando libera la parte coperta dall'header */
+function frameLocales(map: L.Map, locales: Locale[]) {
+  if (locales.length === 0) return
+  const bounds = L.latLngBounds(locales.map(l => [l.coordinates.lat, l.coordinates.lng]))
+  map.flyToBounds(bounds, {
+    paddingTopLeft: [SIDE_MARGIN, headerHeight() + PIN_HEIGHT],
+    paddingBottomRight: [SIDE_MARGIN, 96],
+    maxZoom: MAX_FRAME_ZOOM,
+    ...motion(),
+  })
+}
+
+/** Porta il locale nella zona visibile: sopra il foglio su mobile, accanto alla scheda su desktop */
+function focusLocale(map: L.Map, locale: Locale) {
+  const zoom = Math.max(map.getZoom(), SELECTED_ZOOM)
+  const { x: width, y: height } = map.getSize()
+  const sheet = document.querySelector<HTMLElement>('[data-map-sheet]')
+  const sheetRect = sheet?.getBoundingClientRect()
+
+  let shift = L.point(0, 0)
+  if (width >= DESKTOP_MIN_WIDTH) {
+    shift = L.point(-((sheetRect?.width ?? 0) + 24) / 2, 0)
+  } else {
+    const visibleCenter = (headerHeight() + height - (sheet?.offsetHeight ?? 0)) / 2
+    // Il pin cresce verso l'alto dal punto: non deve finire sotto il foglio
+    shift = L.point(0, height / 2 - (visibleCenter + PIN_HEIGHT / 2))
+  }
+
+  const point = map.project([locale.coordinates.lat, locale.coordinates.lng], zoom).add(shift)
+  map.flyTo(map.unproject(point, zoom), zoom, motion())
+}
+
+/**
+ * Unico responsabile dell'inquadratura: con un locale selezionato segue quello,
+ * altrimenti inquadra i risultati del filtro. Il percorso di navigazione ha
+ * un'inquadratura propria (RouteLayer) e sospende quella dei risultati.
+ */
+function MapCamera({ locales, selected, routeActive }: { locales: Locale[]; selected: Locale | null; routeActive: boolean }) {
   const map = useMap()
-  const prevId = useRef<string | null>(null)
+  const latest = useRef({ locales, selected })
+  latest.current = { locales, selected }
+
+  const target = selected ? `locale:${selected.id}` : `list:${locales.map(l => l.id).join()}`
 
   useEffect(() => {
-    if (locale && locale.id !== prevId.current) {
-      prevId.current = locale.id
-      map.flyTo([locale.coordinates.lat, locale.coordinates.lng], 17, { duration: 0.8 })
-    }
-  }, [locale, map])
+    const timer = setTimeout(() => {
+      const current = latest.current
+      if (current.selected) focusLocale(map, current.selected)
+      else if (!routeActive) frameLocales(map, current.locales)
+    }, FRAME_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [map, target, routeActive])
 
   return null
 }
+
+const LocaleMarker = memo(function LocaleMarker({ locale, selected, onClick }: { locale: Locale; selected: boolean; onClick: (locale: Locale) => void }) {
+  // Icona stabile: Leaflet ricrea il DOM a ogni setIcon, e l'ingresso del pin ripartirebbe
+  const icon = useMemo(
+    () => createCustomIcon(locale.category, selected, locale.protected, locale.image_url || undefined),
+    [locale.category, selected, locale.protected, locale.image_url]
+  )
+  const eventHandlers = useMemo(() => ({ click: () => onClick(locale) }), [locale, onClick])
+
+  return (
+    <Marker
+      position={[locale.coordinates.lat, locale.coordinates.lng]}
+      icon={icon}
+      title={locale.name}
+      alt={locale.name}
+      zIndexOffset={selected ? 1000 : 0}
+      eventHandlers={eventHandlers}
+    />
+  )
+})
 
 interface MapViewProps {
   locales: Locale[]
@@ -123,46 +199,57 @@ export default function MapView({ locales, selectedLocale, onMarkerClick, routeG
   const mapCenter: [number, number] = center ? [center.lat, center.lng] : [41.3851, 2.1734]
   const mapZoom = zoom ?? 14
   const { lang, t } = useLanguage()
+  const [map, setMap] = useState<L.Map | null>(null)
+  const routeActive = Boolean(routeGeoJson)
+  const frameAll = useCallback(() => { if (map) frameLocales(map, locales) }, [map, locales])
 
   return (
-    <MapContainer
-      center={mapCenter}
-      zoom={mapZoom}
-      style={{ height: '100%', width: '100%' }}
-      zoomControl={false}
-    >
-      <BaseMap lang={lang} />
+    <div className="relative h-full w-full">
+      <MapContainer
+        ref={setMap}
+        center={mapCenter}
+        zoom={mapZoom}
+        style={{ height: '100%', width: '100%', zIndex: 0 }}
+        zoomControl={false}
+      >
+        <BaseMap lang={lang} />
 
-      <MapFlyTo locale={selectedLocale} />
+        <MapCamera locales={locales} selected={selectedLocale} routeActive={routeActive} />
 
-      {routeGeoJson && userPosition && destLat !== undefined && destLng !== undefined && (
-        <RouteLayer
-          geoJsonRoute={routeGeoJson}
-          userPosition={userPosition}
-          destLat={destLat}
-          destLng={destLng}
-        />
-      )}
+        {routeGeoJson && userPosition && destLat !== undefined && destLng !== undefined && (
+          <RouteLayer
+            geoJsonRoute={routeGeoJson}
+            userPosition={userPosition}
+            destLat={destLat}
+            destLng={destLng}
+          />
+        )}
 
-      {ruta && <RutaLayer stops={ruta.stops} color={ruta.color} />}
+        {ruta && <RutaLayer stops={ruta.stops} color={ruta.color} />}
 
-      {locales.map((locale) => (
-        <Marker
-          key={locale.id}
-          position={[locale.coordinates.lat, locale.coordinates.lng]}
-          icon={createCustomIcon(locale.category, selectedLocale?.id === locale.id, locale.protected, locale.image_url || undefined)}
-          eventHandlers={{ click: () => onMarkerClick(locale) }}
+        {locales.map((locale) => (
+          <LocaleMarker
+            key={locale.id}
+            locale={locale}
+            selected={selectedLocale?.id === locale.id}
+            onClick={onMarkerClick}
+          />
+        ))}
+      </MapContainer>
+
+      <div className="map-vignette" aria-hidden />
+
+      {!selectedLocale && !routeActive && !ruta && locales.length > 0 && (
+        <button
+          onClick={frameAll}
+          className="glass absolute end-4 z-10 flex items-center gap-2 h-11 ps-3 pe-4 rounded-full font-sans text-[13px] font-medium text-cream active:scale-[0.97] transition-transform animate-fade-in"
+          style={{ bottom: 'calc(max(16px, env(safe-area-inset-bottom)) + 16px)' }}
         >
-          <Popup>
-            <div style={{ fontFamily: 'var(--font-sans)' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, color: '#F4EDE1', marginBottom: 2 }}>{locale.name}</div>
-              {locale.protected && (
-                <div style={{ fontSize: 11, color: '#C9A84C' }}>{t('locale.protected')}</div>
-              )}
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+          <CornersOut size={18} className="text-gold" aria-hidden />
+          {t('map.show_all')}
+          <span className="text-cream/50 tabular-nums">{locales.length}</span>
+        </button>
+      )}
+    </div>
   )
 }

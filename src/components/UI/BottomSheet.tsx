@@ -48,13 +48,14 @@ export default function BottomSheet({
       {/* Sheet — bottom sheet on mobile, floating card on desktop */}
       <div
         role="dialog"
+        data-map-sheet
         aria-label={locale.name}
         className="
-          fixed bottom-0 left-0 right-0 z-[2001] rounded-t-[28px] overflow-hidden animate-slide-up
-          bg-ink text-cream border-t border-white/10
-          md:bottom-6 md:left-6 md:right-auto md:w-[380px] md:rounded-[28px] md:border
+          surface-night fixed bottom-0 left-0 right-0 z-[2001] rounded-t-[28px] overflow-hidden animate-slide-up
+          text-cream
+          md:bottom-6 md:left-6 md:right-auto md:w-[380px] md:rounded-[28px]
         "
-        style={{ boxShadow: '0 -12px 48px rgba(0,0,0,0.35)', maxHeight: '78vh' }}
+        style={{ maxHeight: '78vh' }}
       >
         {/* Image */}
         <div className="relative h-48 overflow-hidden">
@@ -122,7 +123,7 @@ export default function BottomSheet({
           <div className="flex gap-2.5">
             <button
               onClick={onViewDetail}
-              className="flex-1 h-12 rounded-full bg-gold hover:bg-gold-light text-ink font-sans font-semibold text-[15px] transition-[background-color,transform] duration-200 active:scale-[0.98] shadow-[0_6px_20px_rgba(201,168,76,0.3)]"
+              className="btn-gold flex-1 h-12 rounded-full font-sans font-semibold text-[15px]"
             >
               {t('locale.discover_story')}
             </button>

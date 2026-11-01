@@ -39,7 +39,7 @@ export default function AboutView({ onClose }: AboutViewProps) {
     const { t } = useLanguage()
 
     return (
-        <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
+        <div className="fixed inset-0 md:inset-8 z-[3500] paper overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
             <ViewHeader icon={Info} title={t('about.title')} subtitle={t('about.subtitle')} onClose={onClose} />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -76,7 +76,7 @@ export default function AboutView({ onClose }: AboutViewProps) {
                         <h2 className="font-serif text-2xl font-semibold text-anthracite mb-6">{t('about.values')}</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {VALUES.map(v => (
-                                <div key={v.title} className="bg-card rounded-3xl p-6 border border-anthracite/[0.07]">
+                                <div key={v.title} className="card-raised rounded-3xl p-6">
                                     <v.icon size={28} className="text-gold-dark mb-3" />
                                     <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">{t(v.title)}</h3>
                                     <p className="font-sans text-sm text-anthracite/60 leading-relaxed">{t(v.desc)}</p>
@@ -109,7 +109,7 @@ export default function AboutView({ onClose }: AboutViewProps) {
                     {/* What we offer */}
                     <section>
                         <h2 className="font-serif text-2xl font-semibold text-anthracite mb-6">{t('about.offer')}</h2>
-                        <div className="bg-card rounded-3xl border border-anthracite/[0.07] divide-y divide-anthracite/[0.06]">
+                        <div className="card-raised rounded-3xl divide-y divide-anthracite/[0.06]">
                             {FEATURES.map(f => (
                                 <div key={f.title} className="flex items-start gap-4 px-6 py-5">
                                     <f.icon size={24} className="text-gold-dark flex-shrink-0 mt-0.5" />

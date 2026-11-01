@@ -15,7 +15,7 @@ import CategoryFilter from '@/components/UI/CategoryFilter';
 import BottomSheet from '@/components/UI/BottomSheet';
 import CitySelector from '@/components/UI/CitySelector';
 import {
-  CaretRight, GearSix, Handshake, Info, MapTrifold, Newspaper, Stamp, Translate, User, X, type Icon,
+  CaretRight, GearSix, Handshake, Info, MapTrifold, Newspaper, Scales, Stamp, Translate, User, X, type Icon,
 } from '@phosphor-icons/react';
 
 /* Lazy-load MapView — react-leaflet requires browser APIs, no SSR */
@@ -28,6 +28,7 @@ const loadRutasView      = () => import('@/views/RutasView');
 const loadBlogView       = () => import('@/views/BlogView');
 const loadAboutView      = () => import('@/views/AboutView');
 const loadSponsorsView   = () => import('@/views/SponsorsView');
+const loadLegalView      = () => import('@/views/LegalView');
 
 const DetailView    = lazy(loadDetailView);
 const PassaportoView = lazy(loadPassaportoView);
@@ -36,15 +37,16 @@ const AdminView     = lazy(() => import('@/views/AdminView'));
 const BlogView      = lazy(loadBlogView);
 const AboutView     = lazy(loadAboutView);
 const SponsorsView  = lazy(loadSponsorsView);
+const LegalView     = lazy(loadLegalView);
 
 /* A connessione attiva scarica le viste, così il service worker le ha già per l'offline */
 const preloadViews = () => {
-  [loadDetailView, loadPassaportoView, loadRutasView, loadBlogView, loadAboutView, loadSponsorsView]
+  [loadDetailView, loadPassaportoView, loadRutasView, loadBlogView, loadAboutView, loadSponsorsView, loadLegalView]
     .forEach(load => load().catch(() => {}));
 };
 
 /* ── Types ──────────────────────────────────────────────── */
-type ActiveView = 'none' | 'detail' | 'passport' | 'rutas' | 'blog' | 'about' | 'sponsors';
+type ActiveView = 'none' | 'detail' | 'passport' | 'rutas' | 'blog' | 'about' | 'sponsors' | 'legal';
 
 interface AppShellProps {
   user:           AppUser | null;
@@ -105,6 +107,7 @@ const MenuDrawer: React.FC<{
     { icon: Newspaper,  label: t('nav.blog'),     view: 'blog'     },
     { icon: Info,       label: t('nav.about'),    view: 'about'    },
     { icon: Handshake,  label: t('nav.sponsors'), view: 'sponsors' },
+    { icon: Scales,     label: t('nav.legal'),    view: 'legal'    },
   ];
 
   const itemCx = 'group w-full flex items-center gap-3.5 px-3 h-12 rounded-2xl text-left transition-colors hover:bg-white/[0.05] active:bg-white/[0.08]';
@@ -118,7 +121,7 @@ const MenuDrawer: React.FC<{
       <aside
         role="dialog"
         aria-label={t('nav.menu')}
-        className="fixed top-0 end-0 bottom-0 z-[3901] w-[300px] max-w-[85vw] bg-ink text-cream border-s border-white/[0.08] flex flex-col rtl:[--drawer-from:-100%]"
+        className="fixed top-0 end-0 bottom-0 z-[3901] w-[300px] max-w-[85vw] bg-gradient-to-b from-ink-3 to-ink text-cream border-s border-white/[0.08] shadow-[-16px_0_48px_rgba(0,0,0,0.45)] flex flex-col rtl:[--drawer-from:-100%]"
         style={{ animation: 'slideLeft 320ms cubic-bezier(0.16,1,0.3,1) both' }}
       >
         {/* User info */}
@@ -295,6 +298,22 @@ const AppShell: React.FC<AppShellProps> = ({
     setSelectedLocale(null);
   }, []);
 
+  // Cambiare filtro chiude il locale aperto: la mappa torna a inquadrare i risultati
+  const clearSelection = useCallback(() => {
+    setSheetOpen(false);
+    setSelectedLocale(null);
+  }, []);
+
+  const handleCategoryChange = useCallback((category: Category | null) => {
+    setActiveCategory(category);
+    clearSelection();
+  }, [clearSelection]);
+
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query);
+    clearSelection();
+  }, [clearSelection]);
+
   const handleSearchSelect = useCallback((locale: Locale) => {
     setSelectedLocale(locale);
     setSheetOpen(true);
@@ -317,7 +336,7 @@ const AppShell: React.FC<AppShellProps> = ({
   );
 
   return (
-    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
+    <div className="fixed inset-0 overflow-hidden">
 
       {/* ── Map layer ───────────────────────────────────────────────── */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
@@ -351,7 +370,7 @@ const AppShell: React.FC<AppShellProps> = ({
             <Logo size="sm" dark={true} variant="symbol" />
           </div>
           <div className="flex-1 min-w-0">
-            <SearchBar value={searchQuery} onChange={(q) => setSearchQuery(q)} placeholder={t('app.search_placeholder')} />
+            <SearchBar value={searchQuery} onChange={handleSearchChange} placeholder={t('app.search_placeholder')} />
           </div>
           <Avatar user={user} label={t('nav.menu_open')} onClick={() => setMenuOpen(true)} />
         </div>
@@ -361,7 +380,7 @@ const AppShell: React.FC<AppShellProps> = ({
           <CitySelector />
           <CategoryFilter
             selected={activeCategory}
-            onChange={setActiveCategory}
+            onChange={handleCategoryChange}
           />
         </div>
       </header>
@@ -386,7 +405,7 @@ const AppShell: React.FC<AppShellProps> = ({
       {/* ── Percorso tematico attivo ────────────────────────── */}
       {activeRuta && !selectedLocale && (
         <div
-          className="absolute left-4 right-4 z-[25] flex items-center gap-3 bg-card rounded-2xl p-4 shadow-xl"
+          className="absolute left-4 right-4 z-[25] card-raised flex items-center gap-3 rounded-2xl p-4"
           style={{ bottom: 'max(16px, env(safe-area-inset-bottom))' }}
         >
           <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: activeRuta.ruta.colorHex }} />
@@ -447,6 +466,7 @@ const AppShell: React.FC<AppShellProps> = ({
         {activeView === 'blog'     && <BlogView     onClose={handleCloseView} />}
         {activeView === 'about'    && <AboutView    onClose={handleCloseView} />}
         {activeView === 'sponsors' && <SponsorsView onClose={handleCloseView} />}
+        {activeView === 'legal'    && <LegalView    onClose={handleCloseView} />}
       </Suspense>
 
       {/* ── Menu drawer ─────────────────────────────────────── */}

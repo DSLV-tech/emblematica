@@ -35,8 +35,6 @@ export default function RutaLayer({ stops, color }: RutaLayerProps) {
                 }),
             }).addTo(map)
         )
-        // Margini per non finire sotto l'header e il pannello del percorso
-        map.fitBounds(L.latLngBounds(points), { paddingTopLeft: [40, 240], paddingBottomRight: [40, 120], maxZoom: 17 })
 
         const request = new AbortController()
         const coords = stops.map(s => `${s.coordinates.lng},${s.coordinates.lat}`).join(';')

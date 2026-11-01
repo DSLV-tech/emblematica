@@ -36,7 +36,7 @@ export default function RutasView({ cityId, locales, onClose, onStartRuta }: Rut
     }
 
     return (
-        <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
+        <div className="fixed inset-0 md:inset-8 z-[3500] paper overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
             <ViewHeader
                 icon={MapTrifold}
                 title={selected ? selected.title : t('rutas.title')}
@@ -89,7 +89,7 @@ function RutaList({ rutas, onSelect, difficultyLabel, t }: {
                 <button
                     key={ruta.id}
                     onClick={() => onSelect(ruta)}
-                    className="w-full text-left bg-card rounded-3xl border border-anthracite/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all overflow-hidden group"
+                    className="w-full text-left card-raised rounded-3xl card-raised--press overflow-hidden group"
                 >
                     {/* Color bar */}
                     <div className="h-1.5 w-full" style={{ backgroundColor: ruta.colorHex }} />
@@ -194,7 +194,7 @@ function RutaDetail({ ruta, stops, onStartRuta, onClose, difficultyLabel, t }: {
                                     {i + 1}
                                 </div>
                                 {/* Info */}
-                                <div className="flex-1 bg-card rounded-2xl p-4 border border-anthracite/5 shadow-sm flex gap-3">
+                                <div className="flex-1 card-raised rounded-2xl p-4 flex gap-3">
                                     <img
                                         src={locale.image_url}
                                         alt={locale.name}

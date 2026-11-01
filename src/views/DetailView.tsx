@@ -56,7 +56,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
   const hasSocials = !!locale.social?.website || !!locale.social?.instagram || !!locale.social?.facebook
 
   return (
-    <div className="fixed inset-0 md:inset-8 z-[3000] overflow-y-auto bg-cream animate-fade-in custom-scrollbar md:rounded-3xl md:shadow-2xl">
+    <div className="fixed inset-0 md:inset-8 z-[3000] overflow-y-auto paper animate-fade-in custom-scrollbar md:rounded-3xl md:shadow-2xl">
       {/* Hero Header */}
       <div className="relative h-[50vh] sm:h-[60vh] w-full overflow-hidden">
         <img
@@ -121,7 +121,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
       {/* Main Content Layout */}
       <div className="relative max-w-4xl mx-auto px-6 sm:px-8 -mt-8 pb-32">
         {/* Info Card Overlapping Hero */}
-        <div className="bg-card rounded-3xl p-6 sm:p-8 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] border border-anthracite/5 mb-10 relative z-20">
+        <div className="card-raised rounded-3xl p-6 sm:p-8 mb-10 relative z-20">
           <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center">
             <div className="flex items-start gap-4 flex-1">
               <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 border border-gold/20 text-gold-dark">
@@ -181,7 +181,7 @@ export default function DetailView({ locale, isFavorite, onBack, onToggleFavorit
 
           {/* Sidebar (Gallery & Meta) */}
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-card rounded-3xl p-6 shadow-xl shadow-anthracite/5 border border-anthracite/5">
+            <div className="card-raised rounded-3xl p-6">
               <h3 className="font-sans text-sm font-bold text-anthracite uppercase tracking-widest mb-4">{t('detail.gallery')}</h3>
               <div className="space-y-4">
                 {mockGallery.map((img, idx) => (

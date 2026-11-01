@@ -1,9 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { loginWithEmail, loginWithGoogle, registerWithEmail } from '../hooks/useAuth'
 import { useLanguage } from '../context/LanguageContext'
 import Logo from '../components/UI/Logo'
+import type { LegalDoc } from '../data/legal'
+
+const LegalView = lazy(() => import('./LegalView'))
 
 interface SplashPageProps {
     onEnterGuest: () => void
@@ -17,6 +20,7 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
     const [isRegistering, setIsRegistering] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [legalDoc, setLegalDoc] = useState<LegalDoc | null>(null)
 
     const handleGoogleLogin = async () => {
         setLoading(true)
@@ -60,21 +64,21 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
     }
 
     return (
-        <div className="fixed inset-0 z-50 overflow-hidden bg-anthracite">
-            {/* Background Image */}
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-ink">
+            <div className="splash-backdrop fixed inset-0 pointer-events-none" aria-hidden />
+
+            {/* Nel flusso e scorrevole: su schermi bassi o col form aperto nulla si sovrappone */}
             <div
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[20s] ease-linear hover:scale-105"
+                className="relative min-h-full flex flex-col items-center px-6 text-center animate-fade-in"
                 style={{
-                    backgroundImage: 'url("https://images.unsplash.com/photo-1583422409516-15951797f0a9?q=80&w=2600&auto=format&fit=crop")',
+                    paddingTop: 'max(24px, env(safe-area-inset-top))',
+                    paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
                 }}
             >
-                <div className="absolute inset-0 bg-gradient-to-b from-anthracite/30 via-anthracite/70 to-anthracite pointer-events-none" />
-            </div>
-
-            <div className="relative z-10 h-full flex flex-col items-center justify-center px-6 text-center animate-fade-in">
+                <div className="flex-1 w-full flex flex-col items-center justify-center">
                 {/* Logo & Intro */}
-                <div className="mb-10">
-                    <div className="flex justify-center mb-8 drop-shadow-[0_6px_32px_rgba(201,168,76,0.35)]">
+                <div className="mb-7">
+                    <div className="flex justify-center mb-5 [&_svg]:w-auto [&_svg]:max-h-[28svh] drop-shadow-[0_6px_32px_rgba(201,168,76,0.35)]">
                         <Logo variant="full" size="xl" dark />
                     </div>
                     <p className="font-serif italic text-[17px] md:text-xl text-cream/75 max-w-xs md:max-w-md mx-auto leading-relaxed text-center text-balance">
@@ -137,7 +141,7 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 rounded-full bg-gold text-ink font-sans font-semibold text-base hover:bg-gold-light transition-all shadow-lg disabled:opacity-70 active:scale-95"
+                                className="btn-gold w-full py-4 rounded-full font-sans font-semibold text-base disabled:opacity-70"
                             >
                                 {loading ? <div className="w-5 h-5 border-2 border-cream/50 border-t-cream rounded-full animate-spin mx-auto" /> : t(isRegistering ? 'splash.register_submit' : 'splash.submit')}
                             </button>
@@ -179,13 +183,35 @@ export default function SplashPage({ onEnterGuest }: SplashPageProps) {
                     >
                         {t('splash.continue_guest')}
                     </button>
+
+                    <LegalNotice onOpen={setLegalDoc} />
+                </div>
                 </div>
 
-                {/* Decorative Footer */}
-                <div className="absolute bottom-8 font-sans text-[10px] text-cream/40 tracking-[0.2em] uppercase font-semibold">
+                <div className="pt-6 font-sans text-[10px] text-cream/40 tracking-[0.2em] uppercase font-semibold">
                     {t('splash.footer')} • Emblematica
                 </div>
             </div>
+
+            <Suspense fallback={null}>
+                {legalDoc && <LegalView initialDoc={legalDoc} onClose={() => setLegalDoc(null)} />}
+            </Suspense>
         </div>
+    )
+}
+
+function LegalNotice({ onOpen }: { onOpen: (doc: LegalDoc) => void }) {
+    const { t } = useLanguage()
+    const links = { '{terms}': 'terms', '{privacy}': 'privacy' } as const
+
+    return (
+        <p className="font-sans text-[11px] text-cream/50 leading-relaxed max-w-xs mx-auto text-balance">
+            {t('splash.legal_notice').split(/(\{terms\}|\{privacy\})/).map(part => {
+                const doc = links[part as keyof typeof links]
+                return doc
+                    ? <button key={part} onClick={() => onOpen(doc)} className="underline underline-offset-2 text-cream/75 hover:text-cream">{t(`legal.${doc}`)}</button>
+                    : part
+            })}
+        </p>
     )
 }

@@ -98,7 +98,7 @@ export default function PassaportoView({ stamps, loading, onClose }: PassaportoV
     const strokeDash = totalGlobal > 0 ? (count / totalGlobal) * C : 0
 
     return (
-        <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
+        <div className="fixed inset-0 md:inset-8 z-[3500] paper overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
             <ViewHeader icon={StampIcon} title={t('passport.title')} subtitle={t('passport.subtitle')} onClose={onClose} />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -194,7 +194,7 @@ export default function PassaportoView({ stamps, loading, onClose }: PassaportoV
                                         const done  = total > 0 && n >= total
                                         const pctCity = total > 0 ? Math.round((n / total) * 100) : null
                                         return (
-                                            <div key={cityName} className="bg-card rounded-2xl p-4 border border-anthracite/5 shadow-sm">
+                                            <div key={cityName} className="card-raised rounded-2xl p-4">
                                                 <div className="flex items-center justify-between mb-2">
                                                     <div className="flex items-center gap-2">
                                                         {cfg?.flag ? <span className="text-lg">{cfg.flag}</span> : <MapPin size={18} className="text-gold-dark" />}
@@ -255,7 +255,7 @@ export default function PassaportoView({ stamps, loading, onClose }: PassaportoV
 
                                             <div className="space-y-3">
                                                 {monthStamps.map((stamp, i) => (
-                                                    <div key={`${stamp.localeId}-${i}`} className="flex gap-4 items-center bg-card rounded-2xl p-4 border border-anthracite/5 shadow-sm">
+                                                    <div key={`${stamp.localeId}-${i}`} className="flex gap-4 items-center card-raised rounded-2xl p-4">
                                                         <div className="w-12 h-12 rounded-full border-2 border-dashed border-gold flex items-center justify-center flex-shrink-0 bg-gold/5 text-gold-dark">
                                                             <CategoryIcon category={stamp.localeCategory ?? ''} size={22} />
                                                         </div>

@@ -19,7 +19,7 @@ export default function ViewHeader({ icon: Glyph, title, subtitle, onClose, onBa
 
   return (
     <div
-      className="flex items-center gap-3.5 px-5 pb-4 border-b border-anthracite/10 bg-cream/90 backdrop-blur-md flex-shrink-0"
+      className="relative z-10 flex items-center gap-3.5 px-5 pb-4 border-b border-anthracite/10 bg-cream/90 backdrop-blur-md flex-shrink-0 shadow-[0_6px_18px_-8px_rgba(74,56,24,0.3)]"
       style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
     >
       {onBack ? (

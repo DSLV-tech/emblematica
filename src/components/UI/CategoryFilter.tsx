@@ -17,7 +17,7 @@ const chipBase = `
   transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.97]
 `
 const chipIdle   = 'glass text-cream/85 hover:text-cream hover:border-cream/25'
-const chipActive = 'bg-gold text-ink border border-gold shadow-[0_4px_14px_rgba(201,168,76,0.35)]'
+const chipActive = 'btn-gold'
 
 export default function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
   const { t } = useLanguage()

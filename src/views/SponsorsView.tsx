@@ -60,7 +60,7 @@ export default function SponsorsView({ onClose }: SponsorsViewProps) {
     const regular = PLACEHOLDER_SPONSORS.filter(s => !s.featured)
 
     return (
-        <div className="fixed inset-0 md:inset-8 z-[3500] bg-cream overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
+        <div className="fixed inset-0 md:inset-8 z-[3500] paper overflow-hidden flex flex-col animate-fade-in md:rounded-3xl md:shadow-2xl">
             <ViewHeader icon={Handshake} title={t('sponsors.title')} subtitle={t('sponsors.subtitle')} onClose={onClose} />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -130,7 +130,7 @@ function SponsorCard({ sponsor, featured }: { sponsor: Sponsor; featured?: boole
     const Logo = sponsor.logo
 
     return (
-        <div className={`bg-card rounded-3xl border border-anthracite/[0.07] overflow-hidden ${featured ? 'p-6' : 'p-5'}`}>
+        <div className={`card-raised rounded-3xl overflow-hidden ${featured ? 'p-6' : 'p-5'}`}>
             <div className="flex items-start gap-4">
                 <div className={`${featured ? 'w-14 h-14' : 'w-11 h-11'} rounded-2xl bg-gold/10 text-gold-dark flex items-center justify-center flex-shrink-0`}>
                     {typeof Logo === 'string' ? (

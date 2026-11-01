@@ -18,12 +18,12 @@ const ATTRIBUTION =
 /* Palette "carta": sostituisce i grigi di Positron con i toni dell'app */
 const PAPER: Record<string, [string, string]> = {
   background:             ['background-color', '#EFE7D8'],
-  park:                   ['fill-color', '#E2E0CB'],
-  landcover_wood:         ['fill-color', '#DCDBC4'],
+  park:                   ['fill-color', '#D6DCB9'],
+  landcover_wood:         ['fill-color', '#CDD5AE'],
   landuse_residential:    ['fill-color', '#EBE3D3'],
-  building:               ['fill-color', '#E3D9C7'],
-  water:                  ['fill-color', '#C5D2CF'],
-  waterway:               ['line-color', '#C5D2CF'],
+  building:               ['fill-color', '#EFE6D6'],
+  water:                  ['fill-color', '#B2CBCB'],
+  waterway:               ['line-color', '#B2CBCB'],
   road_area_pier:         ['fill-color', '#EFE7D8'],
   road_pier:              ['line-color', '#EFE7D8'],
   highway_path:           ['line-color', '#E6DCCB'],
@@ -36,7 +36,23 @@ const PAPER: Record<string, [string, string]> = {
   railway_transit:        ['line-color', '#D6CCBA'],
 }
 
+/* Leaflet non inclina la mappa, quindi niente estrusioni vere: un'ombra sfalsata dà volume ai palazzi */
+function addBuildingDepth(map: LibreMap) {
+  const building = map.getLayer('building')
+  if (!building || map.getLayer('building-depth')) return
+  map.addLayer({
+    id: 'building-depth',
+    type: 'fill',
+    source: building.source,
+    'source-layer': building.sourceLayer as string,
+    minzoom: 13,
+    paint: { 'fill-color': '#C4B59C', 'fill-translate': [1.5, 2.5] },
+  }, 'building')
+  map.setPaintProperty('building', 'fill-opacity', 1)
+}
+
 function applyPaper(map: LibreMap, lang: string) {
+  addBuildingDepth(map)
   for (const [id, [prop, value]] of Object.entries(PAPER)) {
     if (map.getLayer(id)) map.setPaintProperty(id, prop as never, value as never)
   }
